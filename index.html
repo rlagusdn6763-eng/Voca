@@ -1,119 +1,146 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>오늘의 회화 영단어</title>
 <style>
-  body{margin:0;background:#0f172a;color:#e5e7eb;
-       font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans KR,Arial}
+  :root { --bg:#0b1220; --card:#0f172a; --line:#1f2937; --text:#e5e7eb; --muted:#9ca3af; --btn:#0b7285; --btn2:#334155; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans KR,Arial}
   .wrap{max-width:860px;margin:32px auto;padding:0 16px}
-  h1{margin:0;font-size:26px}
-  .sub{color:#9ca3af;font-size:14px;margin:4px 0 16px}
-  .card{background:#111827;border:1px solid #1f2937;border-radius:16px;padding:16px}
-  .row{display:grid;grid-template-columns:1fr auto;gap:8px;padding:12px 10px;border-top:1px dashed #1f2937}
+  h1{margin:0 0 4px;font-size:28px;font-weight:800;letter-spacing:-.3px}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 16px}
+  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0 16px}
+  button{background:var(--btn);border:1px solid #0c8599;color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer;font-size:14px}
+  button.secondary{background:var(--btn2);border-color:var(--btn2);color:#cbd5e1}
+  select,input[type="range"]{background:#0b1324;border:1px solid var(--line);color:var(--text);padding:7px 9px;border-radius:10px;font-size:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:6px}
+  .row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:12px;border-top:1px dashed var(--line)}
   .row:first-child{border-top:none}
-  .en{font-weight:700;font-size:18px}
-  .ko{color:#9ca3af;font-size:14px}
-  .btns{display:flex;gap:8px}
-  button{background:#0b7285;border:1px solid #0c8599;color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:13px}
-  button.secondary{background:#334155;border-color:#334155}
-  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
-  select,input[type="range"]{background:#0b1324;border:1px solid #1f2937;color:#e5e7eb;padding:6px 8px;border-radius:8px;font-size:13px}
-  footer{color:#9ca3af;font-size:12px;margin-top:20px;text-align:center}
+  .en{font-weight:800;font-size:18px}
+  .ko{color:var(--muted);font-size:14px;margin-top:2px}
+  footer{color:var(--muted);font-size:12px;margin:16px 0;text-align:center}
+  .hint{margin-top:8px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>오늘의 회화 영단어</h1>
-  <div class="sub">클릭해서 발음 들어보기</div>
+  <p class="sub" id="status">클릭해서 발음 들어보기</p>
 
   <div class="toolbar">
     <button id="playAll">전체 재생</button>
     <button id="stopAll" class="secondary">정지</button>
     <select id="voiceSelect" title="영어 음성 선택"></select>
-    <label class="sub">속도 <input id="rate" type="range" min="0.6" max="1.2" step="0.05" value="1"></label>
+    <label style="display:flex;align-items:center;gap:8px">
+      <span style="color:#9ca3af;font-size:13px">속도</span>
+      <input id="rate" type="range" min="0.6" max="1.2" step="0.05" value="1" />
+    </label>
   </div>
 
   <div class="card" id="list"></div>
 
-  <div class="sub" style="margin-top:8px">
-    💡 발음이 어색하면 위의 <b>voice</b>에서 English(US/UK) 음성을 고르세요.
-  </div>
+  <p class="sub hint">💡 발음이 어색하면 위의 <b>voice</b>에서 English(US/UK) 음성을 고르세요.</p>
   <footer>GitHub Pages · Web Speech API</footer>
 </div>
 
 <script>
 async function loadWords(){
-  const res = await fetch('words.json?cachebust=' + Date.now());
-  const data = await res.json();
-  render(data);
+  const status = document.getElementById('status');
+  try {
+    status.textContent = '단어 불러오는 중…';
+    // 캐시 무력화
+    const res = await fetch('words.json?ts=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error('JSON 형식이 배열이 아님');
+    render(data);
+    status.textContent = `클릭해서 발음 들어보기 · ${data.length}개 로드됨`;
+  } catch (err) {
+    status.textContent = '불러오기 실패: ' + err.message;
+    console.error(err);
+  }
 }
+
 function render(data){
-  const list=document.getElementById('list');
-  list.innerHTML='';
-  data.forEach((it,i)=>{
-    const row=document.createElement('div');
-    row.className='row';
-    row.innerHTML=`
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  data.forEach((it, i) => {
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
       <div>
         <div class="en">${it.phrase}</div>
-        <div class="ko">${it.meaning}</div>
+        <div class="ko">${it.meaning ?? ''}</div>
       </div>
-      <div class="btns">
+      <div style="display:flex;gap:8px">
         <button data-i="${i}" class="speak">▶ 재생</button>
         <button data-i="${i}" class="slow secondary">느리게</button>
-      </div>`;
+      </div>
+    `;
     list.appendChild(row);
   });
 
-  let voices=[];
-  const voiceSelect=document.getElementById('voiceSelect');
-  const rateEl=document.getElementById('rate');
+  // 음성 목록 채우기
+  const voiceSelect = document.getElementById('voiceSelect');
+  const rateEl = document.getElementById('rate');
+  let voices = [];
   function fillVoices(){
-    voices=speechSynthesis.getVoices();
-    const en=voices.filter(v=>/en(-|_)|English/i.test(v.lang));
-    voiceSelect.innerHTML='';
-    (en.length?en:voices).forEach(v=>{
-      const o=document.createElement('option');
-      o.value=v.name;o.textContent=`${v.name} — ${v.lang}`;
+    voices = speechSynthesis.getVoices();
+    const en = voices.filter(v => /en(-|_)|English/i.test(v.lang));
+    voiceSelect.innerHTML = '';
+    (en.length ? en : voices).forEach(v => {
+      const o = document.createElement('option');
+      o.value = v.name;
+      o.textContent = `${v.name} — ${v.lang}`;
       voiceSelect.appendChild(o);
     });
   }
-  fillVoices(); speechSynthesis.onvoiceschanged=fillVoices;
+  fillVoices();
+  speechSynthesis.onvoiceschanged = fillVoices;
 
-  function speak(text,rate=1){
+  function speak(text, rate = 1){
     speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(text);
-    const chosen=voices.find(v=>v.name===voiceSelect.value);
-    if(chosen) u.voice=chosen;
-    u.lang=(chosen&&chosen.lang)||'en-US';
-    u.rate=rate;
+    const u = new SpeechSynthesisUtterance(text);
+    const chosen = voices.find(v => v.name === voiceSelect.value);
+    if (chosen) u.voice = chosen;
+    u.lang = (chosen && chosen.lang) || 'en-US';
+    u.rate = rate;
     speechSynthesis.speak(u);
   }
-  list.querySelectorAll('.speak').forEach(b=>b.onclick=e=>{
-    speak(data[+e.target.dataset.i].phrase, Number(rateEl.value));
+
+  list.querySelectorAll('.speak').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const idx = +e.currentTarget.dataset.i;
+      speak(data[idx].phrase, Number(rateEl.value));
+    });
   });
-  list.querySelectorAll('.slow').forEach(b=>b.onclick=e=>{
-    speak(data[+e.target.dataset.i].phrase, 0.8);
+  list.querySelectorAll('.slow').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const idx = +e.currentTarget.dataset.i;
+      speak(data[idx].phrase, 0.8);
+    });
   });
-  document.getElementById('playAll').onclick=async()=>{
+
+  document.getElementById('playAll').onclick = async () => {
     speechSynthesis.cancel();
-    const rate=Number(rateEl.value);
-    for(const item of data){
-      await new Promise(res=>{
-        const u=new SpeechSynthesisUtterance(item.phrase);
-        const chosen=voices.find(v=>v.name===voiceSelect.value);
-        if(chosen) u.voice=chosen;
-        u.lang=(chosen&&chosen.lang)||'en-US';
-        u.rate=rate;
-        u.onend=()=>setTimeout(res,200);
+    const rate = Number(rateEl.value);
+    for (const item of data) {
+      await new Promise(res => {
+        const u = new SpeechSynthesisUtterance(item.phrase);
+        const chosen = voices.find(v => v.name === voiceSelect.value);
+        if (chosen) u.voice = chosen;
+        u.lang = (chosen && chosen.lang) || 'en-US';
+        u.rate = rate;
+        u.onend = () => setTimeout(res, 200);
         speechSynthesis.speak(u);
       });
     }
   };
-  document.getElementById('stopAll').onclick=()=>speechSynthesis.cancel();
+  document.getElementById('stopAll').onclick = () => speechSynthesis.cancel();
 }
+
 loadWords();
 </script>
 </body>
