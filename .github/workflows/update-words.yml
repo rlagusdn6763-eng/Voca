@@ -1,9 +1,8 @@
 name: Daily vocab update
 
 on:
-  # 수동 실행 버튼
   workflow_dispatch:
-  # 매일 08:30 KST (= 23:30 UTC)
+  # 매일 08:30 KST = 23:30 UTC
   schedule:
     - cron: '30 23 * * *'
 
@@ -14,13 +13,16 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout main (full history)
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0        # pull/rebase 위해 전체 히스토리 필요
 
       - name: Check Python
         run: python3 --version
 
-      # pool.json이 올바른 JSON 배열인지 사전 검증
+      # pool.json 유효성 검사
       - name: Validate pool.json (must be a JSON array)
         run: |
           python3 - << 'PY'
@@ -34,36 +36,32 @@ jobs:
               sys.exit(f"Invalid JSON in pool.json: {e}")
           if not isinstance(data, list) or not data:
               sys.exit("pool.json must be a non-empty JSON array")
-          # 각 항목 형태 간단 점검
           for i, x in enumerate(data):
               if not isinstance(x, dict) or 'phrase' not in x:
                   sys.exit(f"Bad item at index {i}: {x}")
           print(f"OK: pool.json items = {len(data)}")
           PY
 
-      # words.json 생성: KST 기준 날짜로 10개씩 슬라이스 → 한 바퀴 도는 동안 중복 없음
+      # words.json 생성 (KST, 10개/일, 풀 한 바퀴 돌 때까지 중복 없음)
       - name: Generate words.json (KST, 10/day, no-repeat until pool cycles)
         run: |
           python3 - << 'PY'
-          import json, datetime as dt, pathlib, math, random, sys
+          import json, datetime as dt, pathlib, math, random
 
           pool = json.loads(pathlib.Path('pool.json').read_text(encoding='utf-8'))
-          # 1) 고정 시드로 한 번 섞어 순서를 안정화(매일 동일한 순서 기준)
-          rng = random.Random(20250822)  # 임의 상수 OK
+
+          rng = random.Random(20250822)   # 고정 시드로 순서 안정화
           pool_shuffled = pool[:]
           rng.shuffle(pool_shuffled)
 
-          # 2) 한국 시간 기준 날짜로 10개씩 자르기
           KST = dt.timezone(dt.timedelta(hours=9))
           today_kst = dt.datetime.now(dt.timezone.utc).astimezone(KST).date()
 
           CHUNK = 10
           total = len(pool_shuffled)
-          dayspan = (total + CHUNK - 1) // CHUNK  # ceil
+          dayspan = (total + CHUNK - 1) // CHUNK
           day_index = today_kst.toordinal() % dayspan
           start, end = day_index * CHUNK, day_index * CHUNK + CHUNK
-
-          # 슬라이스가 끝을 넘어가면 래핑
           sample = (pool_shuffled + pool_shuffled)[start:end]
 
           pathlib.Path('words.json').write_text(
@@ -73,7 +71,7 @@ jobs:
           print(f"Generated words.json with {len(sample)} items for {today_kst} KST")
           PY
 
-      # 생성된 words.json도 JSON 유효성 검증
+      # 생성된 words.json 유효성 검사
       - name: Validate words.json
         run: |
           python3 - << 'PY'
@@ -91,14 +89,19 @@ jobs:
           print(f"OK: words.json items = {len(data)}")
           PY
 
-      - name: Commit & push if changed
+      # 원격 변화 먼저 반영한 뒤 커밋/푸시
+      - name: Commit & push if changed (with pull --rebase)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # 원격 최신 반영 (충돌 없으면 자동 재배치)
+          git pull --rebase origin main
+
           git add words.json
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
             git commit -m "Daily words update"
-            git push
+            git push origin HEAD:main
           fi
