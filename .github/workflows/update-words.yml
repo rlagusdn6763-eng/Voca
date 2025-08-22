@@ -3,9 +3,9 @@ name: Daily vocab update
 on:
   workflow_dispatch:
   schedule:
-    - cron: '30 23 * * *'   # 매일 08:30 KST
+    - cron: '30 23 * * *'   # 매일 08:30 KST (= 23:30 UTC)
 
-# 실행 겹침 방지
+# 동일 워크플로 겹침 방지
 concurrency:
   group: daily-vocab-update
   cancel-in-progress: true
@@ -17,14 +17,12 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      # 0) main 전체 히스토리 체크아웃
       - name: Checkout main (full history)
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
-      # 1) git 설정 + 최신 반영
       - name: Prepare git
         run: |
           git config pull.rebase true
@@ -33,7 +31,6 @@ jobs:
           git pull --rebase origin main
           git status
 
-      # 2) pool.json 검사
       - name: Validate pool.json
         run: |
           python3 - << 'PY'
@@ -47,14 +44,13 @@ jobs:
             sys.exit(f"Invalid JSON in pool.json: {e}")
           if not isinstance(data, list) or not data:
             sys.exit("pool.json must be a non-empty JSON array")
-          for i,x in enumerate(data):
-            if not isinstance(x,dict) or 'phrase' not in x:
+          for i, x in enumerate(data):
+            if not isinstance(x, dict) or 'phrase' not in x:
               sys.exit(f"Bad item at index {i}: {x}")
           print(f"OK: pool.json items = {len(data)}")
           PY
 
-      # 3) 오늘 단어 10개 생성 (중복 방지: 풀 한 바퀴 돌 때까지 없음)
-      - name: Generate words.json (KST, 10/day)
+      - name: Generate words.json (KST, 10/day, no-repeat)
         run: |
           python3 - << 'PY'
           import json, datetime as dt, pathlib, random
@@ -68,9 +64,9 @@ jobs:
 
           CHUNK = 10
           n = len(pool_shuffled)
-          span = (n + CHUNK - 1)//CHUNK
+          span = (n + CHUNK - 1) // CHUNK
           idx = today.toordinal() % span
-          s, e = idx*CHUNK, idx*CHUNK + CHUNK
+          s, e = idx * CHUNK, idx * CHUNK + CHUNK
           sample = (pool_shuffled + pool_shuffled)[s:e]
 
           pathlib.Path('words.json').write_text(
@@ -80,19 +76,17 @@ jobs:
           print(f"Generated {len(sample)} items for {today}")
           PY
 
-      # 4) words.json 검사
       - name: Validate words.json
         run: |
           python3 - << 'PY'
           import json, sys, pathlib
           d = json.loads(pathlib.Path('words.json').read_text(encoding='utf-8'))
-          if not isinstance(d,list) or not d or not all(isinstance(x,dict) and 'phrase' in x for x in d):
+          if not isinstance(d, list) or not d or not all(isinstance(x, dict) and 'phrase' in x for x in d):
             sys.exit("words.json must be a non-empty list of dicts with 'phrase'")
           print(f"OK: words.json items = {len(d)}")
           PY
 
-      # 5) 커밋 & 푸시 (재시도 + 최후에 force-with-lease)
-      - name: Commit & push (safe)
+      - name: Commit & push (safe with retries)
         run: |
           set -e
           git config user.name  "github-actions[bot]"
@@ -118,4 +112,4 @@ jobs:
           done
 
           echo "Fallback: push with --force-with-lease"
-          git push --force-with-lease origin HEAD:main 
+          git push --force-with-lease origin HEAD:main
