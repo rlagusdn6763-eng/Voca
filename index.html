@@ -50,8 +50,9 @@ async function loadWords(){
   const status = document.getElementById('status');
   try {
     status.textContent = '단어 불러오는 중…';
-    // 캐시 무력화
-    const res = await fetch('words.json?ts=' + Date.now());
+    // 열리는 위치에 따라 words.json 경로 자동 보정
+    const base = location.pathname.includes('/Voca/') ? '/Voca/' : '/';
+    const res = await fetch(base + 'words.json?ts=' + Date.now()); // 캐시 무력화
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     if (!Array.isArray(data)) throw new Error('JSON 형식이 배열이 아님');
