@@ -1,0 +1,70 @@
+name: Daily vocab update
+
+on:
+  schedule:
+    # 매일 08:30 KST = 매일 23:30 UTC
+    - cron: '30 23 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate words.json
+        run: |
+          python - << 'PY'
+          import json, random, datetime, pathlib
+          # === 단어 풀(POOL): 여기에 원하는 만큼 추가하세요 ===
+          POOL = [
+            {"phrase":"grab a bite","meaning":"간단히 먹다"},
+            {"phrase":"hang out","meaning":"놀다, 어울리다"},
+            {"phrase":"catch up","meaning":"밀린 얘기를 하다"},
+            {"phrase":"chill","meaning":"쉬다, 여유부리다"},
+            {"phrase":"figure out","meaning":"이해하다, 해결하다"},
+            {"phrase":"show up","meaning":"나타나다"},
+            {"phrase":"run into","meaning":"우연히 만나다"},
+            {"phrase":"call it a day","meaning":"오늘은 여기까지 하다"},
+            {"phrase":"in no time","meaning":"금방, 순식간에"},
+            {"phrase":"take your time","meaning":"천천히 하다"},
+            {"phrase":"take a rain check","meaning":"다음으로 미루다"},
+            {"phrase":"be up for ~","meaning":"~ 할 의향이 있다"},
+            {"phrase":"keep me posted","meaning":"진행 상황 알려줘"},
+            {"phrase":"no worries","meaning":"괜찮아"},
+            {"phrase":"sounds good","meaning":"좋아 보인다"},
+            {"phrase":"I'm in","meaning":"나도 할게"},
+            {"phrase":"You got this","meaning":"넌 할 수 있어"},
+            {"phrase":"cut to the chase","meaning":"본론으로 들어가다"},
+            {"phrase":"on the same page","meaning":"의견이 같다"},
+            {"phrase":"out of the blue","meaning":"느닷없이"},
+            {"phrase":"call it off","meaning":"취소하다"},
+            {"phrase":"look into","meaning":"조사하다, 알아보다"},
+            {"phrase":"pull it off","meaning":"성공적으로 해내다"},
+            {"phrase":"ASAP","meaning":"가능한 빨리"},
+            {"phrase":"no big deal","meaning":"별거 아니야"}
+          ]
+          # 날짜를 씨드로 → 하루 동안은 같은 10개가 나오도록
+          seed = int(datetime.datetime.utcnow().strftime('%Y%m%d'))
+          rng = random.Random(seed)
+          sample = rng.sample(POOL, k=10) if len(POOL) >= 10 else POOL
+          pathlib.Path('words.json').write_text(
+              json.dumps(sample, ensure_ascii=False, indent=2),
+              encoding='utf-8'
+          )
+          PY
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add words.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Daily words update"
+            git push
+          fi
