@@ -1,0 +1,12 @@
+[
+  { "phrase": "grab a bite", "meaning": "간단히 먹다" },
+  { "phrase": "hang out", "meaning": "놀다, 어울리다" },
+  { "phrase": "catch up", "meaning": "밀린 얘기를 하다" },
+  { "phrase": "chill", "meaning": "쉬다, 여유부리다" },
+  { "phrase": "figure out", "meaning": "이해하다, 해결하다" },
+  { "phrase": "show up", "meaning": "나타나다" },
+  { "phrase": "run into", "meaning": "우연히 만나다" },
+  { "phrase": "call it a day", "meaning": "오늘은 여기까지 하다" },
+  { "phrase": "in no time", "meaning": "금방, 순식간에" },
+  { "phrase": "take your time", "meaning": "천천히 하다" }
+]
