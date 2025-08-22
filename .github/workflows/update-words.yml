@@ -1,11 +1,11 @@
- name: Daily vocab update
+name: Daily vocab update
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '30 23 * * *'   # 08:30 KST
+    - cron: '30 23 * * *'   # 매일 08:30 KST
 
-# 동시에 두 개 이상 겹치지 않게
+# 실행 겹침 방지
 concurrency:
   group: daily-vocab-update
   cancel-in-progress: true
@@ -17,19 +17,23 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
+      # 0) main 전체 히스토리 체크아웃
       - name: Checkout main (full history)
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
-      - name: Prepare git (autostash)
+      # 1) git 설정 + 최신 반영
+      - name: Prepare git
         run: |
           git config pull.rebase true
           git config rebase.autoStash true
           git fetch origin main
           git pull --rebase origin main
+          git status
 
+      # 2) pool.json 검사
       - name: Validate pool.json
         run: |
           python3 - << 'PY'
@@ -49,42 +53,57 @@ jobs:
           print(f"OK: pool.json items = {len(data)}")
           PY
 
-      - name: Generate words.json (KST, 10/day, no-repeat)
+      # 3) 오늘 단어 10개 생성 (중복 방지: 풀 한 바퀴 돌 때까지 없음)
+      - name: Generate words.json (KST, 10/day)
         run: |
           python3 - << 'PY'
           import json, datetime as dt, pathlib, random
           pool = json.loads(pathlib.Path('pool.json').read_text(encoding='utf-8'))
+
           rng = random.Random(20250822)
           pool_shuffled = pool[:]; rng.shuffle(pool_shuffled)
+
           KST = dt.timezone(dt.timedelta(hours=9))
           today = dt.datetime.now(dt.timezone.utc).astimezone(KST).date()
-          CHUNK=10; n=len(pool_shuffled); span=(n+CHUNK-1)//CHUNK
+
+          CHUNK = 10
+          n = len(pool_shuffled)
+          span = (n + CHUNK - 1)//CHUNK
           idx = today.toordinal() % span
-          s,e = idx*CHUNK, idx*CHUNK+CHUNK
+          s, e = idx*CHUNK, idx*CHUNK + CHUNK
           sample = (pool_shuffled + pool_shuffled)[s:e]
+
           pathlib.Path('words.json').write_text(
-            json.dumps(sample, ensure_ascii=False, indent=2), encoding='utf-8')
+            json.dumps(sample, ensure_ascii=False, indent=2),
+            encoding='utf-8'
+          )
           print(f"Generated {len(sample)} items for {today}")
           PY
 
+      # 4) words.json 검사
       - name: Validate words.json
         run: |
           python3 - << 'PY'
           import json, sys, pathlib
           d = json.loads(pathlib.Path('words.json').read_text(encoding='utf-8'))
-          assert isinstance(d,list) and d and all(isinstance(x,dict) and 'phrase' in x for x in d)
+          if not isinstance(d,list) or not d or not all(isinstance(x,dict) and 'phrase' in x for x in d):
+            sys.exit("words.json must be a non-empty list of dicts with 'phrase'")
           print(f"OK: words.json items = {len(d)}")
           PY
 
-      - name: Commit & push (with rebase/retry, then force-with-lease)
+      # 5) 커밋 & 푸시 (재시도 + 최후에 force-with-lease)
+      - name: Commit & push (safe)
         run: |
           set -e
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git add words.json
           if git diff --cached --quiet; then
-            echo "No changes to commit."; exit 0
+            echo "No changes to commit."
+            exit 0
           fi
+
           git commit -m "Daily words update"
 
           for i in 1 2 3; do
@@ -92,10 +111,11 @@ jobs:
             git fetch origin main
             git pull --rebase origin main || true
             if git push origin HEAD:main; then
-              echo "Push succeeded"; exit 0
+              echo "Push succeeded"
+              exit 0
             fi
             sleep 2
           done
 
-          echo "Retrying with force-with-lease (safe force push)"
-          git push --force-with-lease origin HEAD:main
+          echo "Fallback: push with --force-with-lease"
+          git push --force-with-lease origin HEAD:main 
