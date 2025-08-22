@@ -1,9 +1,14 @@
-name: Daily vocab update
+ name: Daily vocab update
 
 on:
   workflow_dispatch:
   schedule:
     - cron: '30 23 * * *'   # 08:30 KST
+
+# 동시에 두 개 이상 겹치지 않게
+concurrency:
+  group: daily-vocab-update
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -12,32 +17,19 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      # 0) main 전체 히스토리 체크아웃
       - name: Checkout main (full history)
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
-      # 1) 진단용 현재 상태 출력
-      - name: Repo status (before)
+      - name: Prepare git (autostash)
         run: |
-          git --version
-          git remote -v
-          git branch -vv
-          git log --oneline -5 || true
-          ls -la
-
-      # 2) 원격 최신 반영
-      - name: Pull latest (rebase)
-        run: |
+          git config pull.rebase true
+          git config rebase.autoStash true
           git fetch origin main
           git pull --rebase origin main
 
-      - name: Check Python
-        run: python3 --version
-
-      # 3) pool.json 유효성 검사 (어느 줄에서 깨졌는지 메시지 자세히 표시)
       - name: Validate pool.json
         run: |
           python3 - << 'PY'
@@ -51,90 +43,59 @@ jobs:
             sys.exit(f"Invalid JSON in pool.json: {e}")
           if not isinstance(data, list) or not data:
             sys.exit("pool.json must be a non-empty JSON array")
-          for i, x in enumerate(data):
-            if not isinstance(x, dict) or 'phrase' not in x:
+          for i,x in enumerate(data):
+            if not isinstance(x,dict) or 'phrase' not in x:
               sys.exit(f"Bad item at index {i}: {x}")
-          print(f"OK: pool.json items = {len(data)}; first='{data[0]['phrase']}', last='{data[-1]['phrase']}'")
+          print(f"OK: pool.json items = {len(data)}")
           PY
 
-      # 4) words.json 생성 (중복 방지)
-      - name: Generate words.json (KST, 10/day)
+      - name: Generate words.json (KST, 10/day, no-repeat)
         run: |
           python3 - << 'PY'
           import json, datetime as dt, pathlib, random
           pool = json.loads(pathlib.Path('pool.json').read_text(encoding='utf-8'))
-
           rng = random.Random(20250822)
-          pool_shuffled = pool[:]
-          rng.shuffle(pool_shuffled)
-
+          pool_shuffled = pool[:]; rng.shuffle(pool_shuffled)
           KST = dt.timezone(dt.timedelta(hours=9))
-          today_kst = dt.datetime.now(dt.timezone.utc).astimezone(KST).date()
-
-          CHUNK = 10
-          total = len(pool_shuffled)
-          dayspan = (total + CHUNK - 1) // CHUNK
-          day_index = today_kst.toordinal() % dayspan
-          start, end = day_index * CHUNK, day_index * CHUNK + CHUNK
-          sample = (pool_shuffled + pool_shuffled)[start:end]
-
+          today = dt.datetime.now(dt.timezone.utc).astimezone(KST).date()
+          CHUNK=10; n=len(pool_shuffled); span=(n+CHUNK-1)//CHUNK
+          idx = today.toordinal() % span
+          s,e = idx*CHUNK, idx*CHUNK+CHUNK
+          sample = (pool_shuffled + pool_shuffled)[s:e]
           pathlib.Path('words.json').write_text(
-            json.dumps(sample, ensure_ascii=False, indent=2),
-            encoding='utf-8'
-          )
-          print(f"Generated {len(sample)} items for {today_kst} KST; first='{sample[0]['phrase']}'")
+            json.dumps(sample, ensure_ascii=False, indent=2), encoding='utf-8')
+          print(f"Generated {len(sample)} items for {today}")
           PY
 
-      # 5) words.json 유효성 검사
       - name: Validate words.json
         run: |
           python3 - << 'PY'
           import json, sys, pathlib
-          p = pathlib.Path('words.json')
-          try:
-            data = json.loads(p.read_text(encoding='utf-8'))
-          except Exception as e:
-            sys.exit(f"Invalid JSON in words.json: {e}")
-          if not isinstance(data, list) or not data:
-            sys.exit("words.json must be a non-empty JSON array")
-          for i, x in enumerate(data):
-            if not isinstance(x, dict) or 'phrase' not in x:
-              sys.exit(f"Bad item at index {i}: {x}")
-          print(f"OK: words.json items = {len(data)}")
+          d = json.loads(pathlib.Path('words.json').read_text(encoding='utf-8'))
+          assert isinstance(d,list) and d and all(isinstance(x,dict) and 'phrase' in x for x in d)
+          print(f"OK: words.json items = {len(d)}")
           PY
 
-      # 6) 안전 푸시: pull --rebase 후 push, 실패 시 3회 재시도
-      - name: Commit & push if changed (safe retry)
+      - name: Commit & push (with rebase/retry, then force-with-lease)
         run: |
           set -e
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
           git add words.json
           if git diff --cached --quiet; then
-            echo "No changes to commit."
-            exit 0
+            echo "No changes to commit."; exit 0
           fi
-
           git commit -m "Daily words update"
 
           for i in 1 2 3; do
             echo "Push attempt #$i"
+            git fetch origin main
             git pull --rebase origin main || true
             if git push origin HEAD:main; then
-              echo "Push succeeded"
-              exit 0
+              echo "Push succeeded"; exit 0
             fi
-            echo "Push failed — retrying..."
             sleep 2
           done
 
-          echo "Push failed after 3 attempts"
-          exit 1
-
-      # 7) 진단용 현재 상태 출력 (후)
-      - name: Repo status (after)
-        if: always()
-        run: |
-          git log --oneline -3 || true
-          ls -la
+          echo "Retrying with force-with-lease (safe force push)"
+          git push --force-with-lease origin HEAD:main
