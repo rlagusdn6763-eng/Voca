@@ -1,11 +1,9 @@
 name: Daily vocab update
 
 on:
-  # 수동 실행 버튼 노출
   workflow_dispatch:
-  # 매일 08:30 KST = 23:30 UTC
   schedule:
-    - cron: '30 23 * * *'
+    - cron: '30 23 * * *'   # 08:30 KST
 
 permissions:
   contents: write
@@ -19,41 +17,63 @@ jobs:
       - name: Check Python
         run: python3 --version
 
+      - name: Validate pool.json (must be a JSON array)
+        run: |
+          python3 - << 'PY'
+          import json, sys, pathlib
+          p = pathlib.Path('pool.json')
+          if not p.exists():
+              sys.exit("pool.json not found at repo root")
+          try:
+              data = json.loads(p.read_text(encoding='utf-8'))
+          except Exception as e:
+              sys.exit(f"Invalid JSON in pool.json: {e}")
+          if not isinstance(data, list) or not data:
+              sys.exit("pool.json must be a non-empty JSON array")
+          print(f"OK: pool.json items = {len(data)}")
+          PY
+
       - name: Generate words.json (KST, 10/day, no repeat until pool cycles)
         run: |
           python3 - << 'PY'
           import json, datetime as dt, pathlib, math, random, sys
+          pool = json.loads(pathlib.Path('pool.json').read_text(encoding='utf-8'))
 
-          # 1) 루트에 있는 pool.json(200개 단어) 읽기
-          pool_path = pathlib.Path('pool.json')
-          if not pool_path.exists():
-              sys.exit("ERROR: pool.json not found. Create it at repo root.")
-          pool = json.loads(pool_path.read_text(encoding='utf-8'))
-          if not isinstance(pool, list) or not pool:
-              sys.exit("ERROR: pool.json must be a non-empty JSON array.")
-
-          # 2) 고정 시드로 한 번 섞어서 순서 고정(안정성)
-          rng = random.Random(20250822)   # 임의의 상수 OK
+          rng = random.Random(20250822)   # fixed seed for stable shuffle
           pool_shuffled = pool[:]
           rng.shuffle(pool_shuffled)
 
-          # 3) 한국시간 날짜 기준으로 10개씩 슬라이스 → 200개면 20일 동안 무중복
           KST = dt.timezone(dt.timedelta(hours=9))
           today_kst = dt.datetime.now(dt.timezone.utc).astimezone(KST).date()
 
           CHUNK = 10
           total = len(pool_shuffled)
-          dayspan = math.ceil(total / CHUNK)     # 200개면 20
-          day_index = (today_kst.toordinal()) % dayspan
+          dayspan = (total + CHUNK - 1) // CHUNK  # ceil
+          day_index = today_kst.toordinal() % dayspan
           start, end = day_index * CHUNK, day_index * CHUNK + CHUNK
-
-          # 범위를 넘어갈 수 있으므로 래핑
           sample = (pool_shuffled + pool_shuffled)[start:end]
 
           pathlib.Path('words.json').write_text(
               json.dumps(sample, ensure_ascii=False, indent=2),
               encoding='utf-8'
           )
+          PY
+
+      - name: Validate words.json (array of items with phrase/meaning)
+        run: |
+          python3 - << 'PY'
+          import json, sys, pathlib
+          p = pathlib.Path('words.json')
+          try:
+              data = json.loads(p.read_text(encoding='utf-8'))
+          except Exception as e:
+              sys.exit(f"Invalid JSON in words.json: {e}")
+          if not isinstance(data, list):
+              sys.exit("words.json must be a JSON array")
+          for i, x in enumerate(data):
+              if not isinstance(x, dict) or 'phrase' not in x:
+                  sys.exit(f"Bad item at index {i}: {x}")
+          print(f"OK: words.json items = {len(data)}")
           PY
 
       - name: Commit & push if changed
