@@ -1,28 +1,31 @@
 <!DOCTYPE html>
 <html lang="ko">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>오늘의 회화 영단어</title>
 <style>
-  body{margin:0;background:#0f172a;color:#e5e7eb;font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans KR,Apple SD Gothic Neo,Arial}
+  body{margin:0;background:#0f172a;color:#e5e7eb;
+       font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans KR,Arial}
   .wrap{max-width:860px;margin:32px auto;padding:0 16px}
-  .sub{color:#9ca3af;font-size:14px}
-  .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));
-        border:1px solid #1f2937;border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+  h1{margin:0;font-size:26px}
+  .sub{color:#9ca3af;font-size:14px;margin:4px 0 16px}
+  .card{background:#111827;border:1px solid #1f2937;border-radius:16px;padding:16px}
   .row{display:grid;grid-template-columns:1fr auto;gap:8px;padding:12px 10px;border-top:1px dashed #1f2937}
   .row:first-child{border-top:none}
   .en{font-weight:700;font-size:18px}
   .ko{color:#9ca3af;font-size:14px}
   .btns{display:flex;gap:8px}
-  button{background:#0b7285;border:1px solid #0c8599;color:#fff;padding:8px 10px;border-radius:10px;cursor:pointer;font-size:13px}
+  button{background:#0b7285;border:1px solid #0c8599;color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:13px}
   button.secondary{background:#334155;border-color:#334155}
-  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0 16px}
-  select,input[type="range"]{background:#0b1324;border:1px solid #1f2937;color:#e5e7eb;padding:8px 10px;border-radius:10px;font-size:13px}
+  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+  select,input[type="range"]{background:#0b1324;border:1px solid #1f2937;color:#e5e7eb;padding:6px 8px;border-radius:8px;font-size:13px}
   footer{color:#9ca3af;font-size:12px;margin-top:20px;text-align:center}
 </style>
+</head>
 <body>
 <div class="wrap">
-  <h1 style="margin:0">오늘의 회화 영단어</h1>
+  <h1>오늘의 회화 영단어</h1>
   <div class="sub">클릭해서 발음 들어보기</div>
 
   <div class="toolbar">
@@ -35,94 +38,83 @@
   <div class="card" id="list"></div>
 
   <div class="sub" style="margin-top:8px">
-    💡 발음이 어색하면 위의 <b>voice</b>에서 English(US/UK) 음성을 고르세요. 기기마다 제공 음성이 다를 수 있어요.
+    💡 발음이 어색하면 위의 <b>voice</b>에서 English(US/UK) 음성을 고르세요.
   </div>
-  <footer>Web Speech API 사용 · 오프라인에서도 작동</footer>
+  <footer>GitHub Pages · Web Speech API</footer>
 </div>
 
 <script>
-const data = [
-  {phrase:"grab a bite", meaning:"간단히 먹다"},
-  {phrase:"hang out", meaning:"놀다, 어울리다"},
-  {phrase:"catch up", meaning:"밀린 얘기를 하다"},
-  {phrase:"chill", meaning:"쉬다, 여유부리다"},
-  {phrase:"figure out", meaning:"이해하다, 해결하다"},
-  {phrase:"show up", meaning:"나타나다"},
-  {phrase:"run into", meaning:"우연히 만나다"},
-  {phrase:"call it a day", meaning:"오늘은 여기까지 하다"},
-  {phrase:"in no time", meaning:"금방, 순식간에"},
-  {phrase:"take your time", meaning:"천천히 하다"},
-];
-
-const list = document.getElementById('list');
-function row(item, i){
-  const el = document.createElement('div');
-  el.className='row';
-  el.innerHTML = `
-    <div>
-      <div class="en">${item.phrase}</div>
-      <div class="ko">${item.meaning}</div>
-    </div>
-    <div class="btns">
-      <button data-i="${i}" class="speak">▶ 재생</button>
-      <button data-i="${i}" class="slow secondary">느리게</button>
-    </div>`;
-  return el;
+async function loadWords(){
+  const res = await fetch('words.json?cachebust=' + Date.now());
+  const data = await res.json();
+  render(data);
 }
-data.forEach((it,i)=>list.appendChild(row(it,i)));
-
-let voices = [];
-const voiceSelect = document.getElementById('voiceSelect');
-const rateEl = document.getElementById('rate');
-function fillVoices(){
-  voices = speechSynthesis.getVoices();
-  const en = voices.filter(v=>/en(-|_)|English/i.test(v.lang));
-  voiceSelect.innerHTML = '';
-  (en.length?en:voices).forEach(v=>{
-    const o=document.createElement('option');
-    o.value=v.name; o.textContent=`${v.name} — ${v.lang}`;
-    voiceSelect.appendChild(o);
+function render(data){
+  const list=document.getElementById('list');
+  list.innerHTML='';
+  data.forEach((it,i)=>{
+    const row=document.createElement('div');
+    row.className='row';
+    row.innerHTML=`
+      <div>
+        <div class="en">${it.phrase}</div>
+        <div class="ko">${it.meaning}</div>
+      </div>
+      <div class="btns">
+        <button data-i="${i}" class="speak">▶ 재생</button>
+        <button data-i="${i}" class="slow secondary">느리게</button>
+      </div>`;
+    list.appendChild(row);
   });
-}
-fillVoices();
-speechSynthesis.onvoiceschanged = fillVoices;
 
-function speak(text, rate=1){
-  if(!('speechSynthesis' in window)) return alert('이 브라우저는 지원하지 않아요.');
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  const chosen = voices.find(v=>v.name===voiceSelect.value);
-  if(chosen) u.voice = chosen;
-  u.lang = (chosen&&chosen.lang) || 'en-US';
-  u.rate = rate;
-  speechSynthesis.speak(u);
-}
-
-document.querySelectorAll('.speak').forEach(b=>b.onclick = e=>{
-  const i = +e.currentTarget.dataset.i;
-  speak(data[i].phrase, Number(rateEl.value));
-});
-document.querySelectorAll('.slow').forEach(b=>b.onclick = e=>{
-  const i = +e.currentTarget.dataset.i;
-  speak(data[i].phrase, 0.8);
-});
-
-document.getElementById('playAll').onclick = async ()=>{
-  speechSynthesis.cancel();
-  const rate = Number(rateEl.value);
-  for(let i=0;i<data.length;i++){
-    await new Promise(res=>{
-      const u = new SpeechSynthesisUtterance(data[i].phrase);
-      const chosen = voices.find(v=>v.name===voiceSelect.value);
-      if(chosen) u.voice = chosen;
-      u.lang = (chosen&&chosen.lang) || 'en-US';
-      u.rate = rate;
-      u.onend = ()=>setTimeout(res, 250);
-      speechSynthesis.speak(u);
+  let voices=[];
+  const voiceSelect=document.getElementById('voiceSelect');
+  const rateEl=document.getElementById('rate');
+  function fillVoices(){
+    voices=speechSynthesis.getVoices();
+    const en=voices.filter(v=>/en(-|_)|English/i.test(v.lang));
+    voiceSelect.innerHTML='';
+    (en.length?en:voices).forEach(v=>{
+      const o=document.createElement('option');
+      o.value=v.name;o.textContent=`${v.name} — ${v.lang}`;
+      voiceSelect.appendChild(o);
     });
   }
-};
-document.getElementById('stopAll').onclick = ()=>speechSynthesis.cancel();
+  fillVoices(); speechSynthesis.onvoiceschanged=fillVoices;
+
+  function speak(text,rate=1){
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    const chosen=voices.find(v=>v.name===voiceSelect.value);
+    if(chosen) u.voice=chosen;
+    u.lang=(chosen&&chosen.lang)||'en-US';
+    u.rate=rate;
+    speechSynthesis.speak(u);
+  }
+  list.querySelectorAll('.speak').forEach(b=>b.onclick=e=>{
+    speak(data[+e.target.dataset.i].phrase, Number(rateEl.value));
+  });
+  list.querySelectorAll('.slow').forEach(b=>b.onclick=e=>{
+    speak(data[+e.target.dataset.i].phrase, 0.8);
+  });
+  document.getElementById('playAll').onclick=async()=>{
+    speechSynthesis.cancel();
+    const rate=Number(rateEl.value);
+    for(const item of data){
+      await new Promise(res=>{
+        const u=new SpeechSynthesisUtterance(item.phrase);
+        const chosen=voices.find(v=>v.name===voiceSelect.value);
+        if(chosen) u.voice=chosen;
+        u.lang=(chosen&&chosen.lang)||'en-US';
+        u.rate=rate;
+        u.onend=()=>setTimeout(res,200);
+        speechSynthesis.speak(u);
+      });
+    }
+  };
+  document.getElementById('stopAll').onclick=()=>speechSynthesis.cancel();
+}
+loadWords();
 </script>
 </body>
 </html>
