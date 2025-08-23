@@ -5,45 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>오늘의 회화 영단어</title>
   <style>
-    :root {
-      --bg:#0f172a; --card:#0b2238; --txt:#e5e7eb;
-      --sub:#9ca3af; --line:#1f2937; --brand:#0ea5e9;
-    }
-    body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,sans-serif}
+    :root { --bg:#0f172a; --card:#0b2238; --txt:#e5e7eb; --sub:#9ca3af; --line:#1f2937; --brand:#0ea5e9; }
+    body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans KR,sans-serif}
     .wrap{max-width:900px;margin:32px auto;padding:0 16px}
     h1{margin:0 0 10px;font-size:clamp(24px,5vw,40px);line-height:1.2}
     .subtxt{color:var(--sub);margin-bottom:14px}
     .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0}
-    button{background:var(--brand);border:none;color:white;padding:8px 14px;border-radius:12px;font-weight:600;cursor:pointer}
+    button{background:var(--brand);border:none;color:white;padding:9px 14px;border-radius:12px;font-weight:700;cursor:pointer}
     button.secondary{background:#374151}
     button.ghost{background:transparent;border:1px solid #334155;color:#cbd5e1}
-    select,input[type="date"]{accent-color:#38bdf8;border-radius:8px;padding:4px 6px;background:#0f172a;color:#e5e7eb;border:1px solid #334155}
+    select,input[type="date"]{accent-color:#38bdf8;border-radius:8px;padding:6px 8px;background:#0f172a;color:#e5e7eb;border:1px solid #334155}
+    input[type="range"]{accent-color:#38bdf8}
     .tabs{display:flex;gap:8px;margin:14px 0}
     .tab{padding:6px 12px;border-radius:10px;border:1px solid #334155;cursor:pointer}
     .tab.active{background:#111827}
     .grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px}
     @media(min-width:680px){.grid{grid-template-columns:1fr 1fr}}
-    .card{background:linear-gradient(180deg,#0b2238,#091a2c);border:1px solid var(--line);border-radius:18px;padding:14px;transition:.3s}
-    .card:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.3)}
-    .en{font-weight:700;font-size:20px}
+    .card{background:linear-gradient(180deg,#0b2238,#091a2c);border:1px solid var(--line);border-radius:18px;padding:14px;transition:.25s}
+    .card:hover{transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,0,0,.25)}
+    .en{font-weight:800;font-size:20px}
     .ko{color:#9ca3af;margin-top:2px}
     .ex{margin-top:8px;color:#cbd5e1;font-size:14px}
     .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     .badge{background:#111827;border:1px solid #334155;border-radius:999px;padding:2px 8px;font-size:12px;margin-left:6px}
     .history-date{margin:16px 0 6px;font-weight:700;color:#38bdf8}
     .empty{color:#9ca3af;border:1px dashed #334155;border-radius:16px;padding:18px;text-align:center}
+    #status{margin-top:10px;color:#fbbf24;font-size:14px}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>오늘의 회화 영단어 <span id="dateBadge" class="badge"></span></h1>
-    <div class="subtxt">클릭해서 발음 들어보기 ⭐로 단어 저장, 예문 확인</div>
+    <h1>회화 영단어 <span id="dateBadge" class="badge"></span></h1>
+    <div class="subtxt">클릭해서 발음 들어보기 · ⭐로 단어 저장 · 예문 확인</div>
 
     <div class="controls">
       <button id="playAll">전체 재생</button>
       <button id="stopAll" class="secondary">정지</button>
-      <select id="voiceSel"></select>
-      <input id="rate" type="range" min="0.6" max="1.4" step="0.05" value="1" />
+      <select id="voiceSel" title="Voice"><option value="">기본 음성</option></select>
+      <label>속도 <input id="rate" type="range" min="0.6" max="1.4" step="0.05" value="1" /></label>
       <button id="markDone" class="ghost">오늘 완료 → 기록 & 다음날</button>
     </div>
 
@@ -53,88 +52,249 @@
       <div class="tab" data-tab="history">📅 기록</div>
     </div>
 
-    <!-- 오늘 단어 -->
+    <!-- 오늘 -->
     <div id="todayPane">
       <div id="list" class="grid"></div>
-      <div id="emptyToday" class="empty" style="display:none;">단어 없음</div>
+      <div id="emptyToday" class="empty" style="display:none;">단어를 불러오지 못했어요.</div>
     </div>
 
-    <!-- 어려운 단어 -->
+    <!-- 어려운 -->
     <div id="hardPane" style="display:none;">
       <div id="hardList" class="grid"></div>
-      <div id="emptyHard" class="empty" style="display:none;">어려운 단어 없음</div>
+      <div id="emptyHard" class="empty" style="display:none;">저장된 어려운 단어가 없어요.</div>
     </div>
 
     <!-- 기록 -->
     <div id="historyPane" style="display:none;">
-      <input type="date" id="filterDate" />
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0">
+        <input id="filterDate" type="date" />
+        <input id="filterText" placeholder="단어/뜻/예문 검색" style="flex:1;min-width:180px;padding:7px 10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e5e7eb"/>
+        <button id="applyFilter" class="ghost">검색</button>
+        <button id="resetFilter" class="secondary">초기화</button>
+      </div>
       <div id="historyList"></div>
       <div class="row" style="margin-top:12px">
         <button id="clearHistory" class="secondary">기록 전체 삭제</button>
       </div>
     </div>
+
+    <div id="status"></div>
   </div>
 
   <script>
-    const todayStr=new Date().toISOString().slice(0,10);
-    document.getElementById("dateBadge").textContent=todayStr;
-    const S={hard:"voca-hard-words",history:(d)=>`voca-history-${d}`};
-    let currentWords=[];
-
-    // 음성
-    let VOICES=[];const voiceSel=document.getElementById("voiceSel"),rateEl=document.getElementById("rate");
-    function loadVoices(){VOICES=speechSynthesis.getVoices();const en=VOICES.filter(v=>/en/i.test(v.lang));const show=en.length?en:VOICES;voiceSel.innerHTML=show.map((v,i)=>`<option value=${i}>${v.name} (${v.lang})</option>`).join("");}
-    speechSynthesis.onvoiceschanged=loadVoices;loadVoices();
-    function speak(t,lang="en"){const u=new SpeechSynthesisUtterance(t);const idx=parseInt(voiceSel.value,10);if(!isNaN(idx)&&VOICES[idx])u.voice=VOICES[idx];u.lang=(lang==="ko")?"ko-KR":"en-US";u.rate=parseFloat(rateEl.value||"1");speechSynthesis.speak(u);}
-    function stopSpeaking(){speechSynthesis.cancel();}
-
-    // 카드
-    function makeCard(w){const el=document.createElement("div");el.className="card";el.innerHTML=`<div class="en">${w.phrase}</div><div class="ko">${w.meaning}</div><div class="ex">예문: ${w.example||""}</div><div class="row"><button>영어</button><button>한국어</button><button>⭐</button></div>`;el.querySelectorAll("button")[0].onclick=()=>speak(w.phrase,"en");el.querySelectorAll("button")[1].onclick=()=>speak(w.meaning,"ko");el.querySelectorAll("button")[2].onclick=()=>toggleHard(w);return el;}
-    function renderWords(arr){listEl.innerHTML="";arr.forEach(w=>listEl.appendChild(makeCard(w)));}
-
-    const listEl=document.getElementById("list");
-    async function fetchWords(date){ // date 기반 랜덤 시드
-      const urls=["Voca/pool.json","pool.json","./pool.json"];
-      for(const u of urls){try{const r=await fetch(u);if(r.ok){const pool=await r.json();if(pool.length){return sliceByDate(pool,date);}}}catch{}}
-      return [];
-    }
-    function sliceByDate(pool,date){ // 날짜 고정 시드로 10개 선택
-      function hash(s){let h=0;for(let i=0;i<s.length;i++)h=Math.imul(31,h)+s.charCodeAt(i)|0;return h>>>0;}
-      let rnd=hash(date);const arr=pool.slice();
-      for(let i=arr.length-1;i>0;i--){rnd=(rnd*1664525+1013904223)>>>0;const j=rnd%(i+1);[arr[i],arr[j]]=[arr[j],arr[i]];}
-      return arr.slice(0,10);
-    }
-
-    // 어려운 단어
-    function getHard(){return JSON.parse(localStorage.getItem(S.hard)||"[]");}
-    function toggleHard(w){let a=getHard();const i=a.findIndex(x=>x.phrase===w.phrase);if(i>=0)a.splice(i,1);else a.push(w);localStorage.setItem(S.hard,JSON.stringify(a));renderHard();}
-    function renderHard(){const a=getHard();const box=document.getElementById("hardList");box.innerHTML="";if(!a.length)document.getElementById("emptyHard").style.display="";else document.getElementById("emptyHard").style.display="none";a.forEach(w=>box.appendChild(makeCard(w)));}
-
-    // 기록
-    function saveHistory(date,words){localStorage.setItem(S.history(date),JSON.stringify(words));}
-    function getHistory(date){return JSON.parse(localStorage.getItem(S.history(date))||"[]");}
-    function getAllHistory(){return Object.keys(localStorage).filter(k=>k.startsWith("voca-history-")).map(k=>({date:k.replace("voca-history-",""),words:JSON.parse(localStorage.getItem(k))})).sort((a,b)=>a.date<b.date?1:-1);}
-    function renderHistory(filterDate){const box=document.getElementById("historyList");box.innerHTML="";let all=getAllHistory();if(filterDate)all=all.filter(h=>h.date===filterDate);if(!all.length){box.innerHTML='<div class="empty">기록 없음</div>';return;}all.forEach(h=>{const d=document.createElement("div");d.className="history-date";d.textContent=h.date;box.appendChild(d);const g=document.createElement("div");g.className="grid";h.words.forEach(w=>g.appendChild(makeCard(w)));box.appendChild(g);});}
-
-    document.getElementById("clearHistory").onclick=()=>{if(confirm("기록 전체 삭제?")){getAllHistory().forEach(h=>localStorage.removeItem(S.history(h.date)));renderHistory();}}
-    document.getElementById("filterDate").onchange=e=>renderHistory(e.target.value);
-
-    // 완료 버튼 → 기록 저장 + 다음날 세트 전환
-    document.getElementById("markDone").onclick=async()=>{
-      if(currentWords.length){saveHistory(todayStr,currentWords);alert("오늘 기록 저장됨 ✅ 내일 단어로 이동합니다.");const nextDate=new Date();nextDate.setDate(nextDate.getDate()+1);const nd=nextDate.toISOString().slice(0,10);document.getElementById("dateBadge").textContent=nd;currentWords=await fetchWords(nd);renderWords(currentWords);}
+    // ===== 날짜/키 =====
+    const realToday = new Date().toISOString().slice(0,10);
+    const S = {
+      hard: "voca-hard-words",
+      history: d => `voca-history-${d}`,
+      virtualDate: "voca-virtual-date",  // 현재 화면에 보여줄 날짜(가상 이동 포함)
+      voice: "voca-voice",
+      rate:  "voca-rate"
     };
 
-    // 탭
-    function switchTab(t){document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===t));document.getElementById("todayPane").style.display=(t==="today")?"":"none";document.getElementById("hardPane").style.display=(t==="hard")?"":"none";document.getElementById("historyPane").style.display=(t==="history")?"":"none";if(t==="hard")renderHard();if(t==="history")renderHistory();}
+    // 현재 표시 날짜: 저장된 가상 날짜가 있으면 그걸, 없으면 오늘
+    let currentDate = localStorage.getItem(S.virtualDate) || realToday;
+    const dateBadge = document.getElementById("dateBadge");
+    dateBadge.textContent = currentDate;
+
+    function addDays(iso, n){
+      const d = new Date(iso+"T00:00:00");
+      d.setDate(d.getDate()+n);
+      return d.toISOString().slice(0,10);
+    }
+
+    // ===== 음성 =====
+    let VOICES = [];
+    const voiceSel = document.getElementById("voiceSel");
+    const rateEl = document.getElementById("rate");
+    function loadVoices(){
+      VOICES = speechSynthesis.getVoices();
+      const en = VOICES.filter(v => /^en(-|_|$)/i.test(v.lang) || /English/i.test(v.name));
+      const show = en.length ? en : VOICES;
+      voiceSel.innerHTML = "<option value=''>기본 음성</option>" + show.map((v,i)=>`<option value="${i}">${v.name} (${v.lang})</option>`).join("");
+      const saved = localStorage.getItem(S.voice);
+      if (saved && +saved < show.length) voiceSel.value = saved; else if (en.length) voiceSel.value = 0;
+    }
+    speechSynthesis.onvoiceschanged = loadVoices; loadVoices();
+    voiceSel.onchange = () => localStorage.setItem(S.voice, voiceSel.value);
+    rateEl.value = localStorage.getItem(S.rate) || "1";
+    rateEl.oninput = () => localStorage.setItem(S.rate, rateEl.value);
+
+    function speak(text, lang="en"){
+      const u = new SpeechSynthesisUtterance(text);
+      const en = VOICES.filter(v => /^en(-|_|$)/i.test(v.lang) || /English/i.test(v.name));
+      const show = en.length ? en : VOICES;
+      const idx = parseInt(voiceSel.value,10);
+      if (!isNaN(idx) && show[idx]) u.voice = show[idx];
+      u.lang = (lang==="ko") ? "ko-KR" : "en-US";
+      u.rate = parseFloat(rateEl.value||"1");
+      speechSynthesis.speak(u);
+    }
+    function stopSpeaking(){ speechSynthesis.cancel(); }
+
+    // ===== 데이터 로딩 =====
+    async function fetchJSON(urls){
+      for(const u of urls){
+        try{ const r=await fetch(`${u}?v=${Date.now()}`,{cache:"no-store"}); if(r.ok) return await r.json(); }catch{}
+      }
+      return null;
+    }
+    async function fetchPool(){
+      const data = await fetchJSON(["Voca/pool.json","pool.json","./pool.json"]);
+      return Array.isArray(data) ? data : null;
+    }
+    // 날짜 고정 셔플 10개
+    function hashStr(s){ let h=2166136261>>>0; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
+    function rng(seed){ let t=seed>>>0; return ()=>{ t+=0x6D2B79F5; let r=Math.imul(t^(t>>>15),1|t); r^=r+Math.imul(r^(r>>>7),61|r); return ((r^(r>>>14))>>>0)/4294967296; }; }
+    function shuffleDet(arr, seed){ const a=arr.slice(); const rnd=rng(seed); for(let i=a.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+    async function generateWordsFor(dateStr){
+      const pool = await fetchPool(); if(!pool) return [];
+      const seq = shuffleDet(pool, hashStr(dateStr));
+      return seq.slice(0,10);
+    }
+    async function fetchWordsFor(dateStr){
+      // 오늘(realToday)일 때는 서버 words.json 우선, 아니면 pool 기반 생성
+      if (dateStr === realToday){
+        const data = await fetchJSON(["Voca/words.json","words.json","./words.json"]);
+        if (Array.isArray(data)) return data;
+        if (data && Array.isArray(data.words)) return data.words;
+      }
+      return await generateWordsFor(dateStr);
+    }
+
+    // ===== 렌더/UI =====
+    const listEl = document.getElementById("list");
+    function makeCard(w){
+      const el=document.createElement("div");
+      el.className="card";
+      el.innerHTML=`
+        <div class="en">${w.phrase}</div>
+        <div class="ko">${w.meaning}</div>
+        <div class="ex">예문: ${w.example||""}</div>
+        <div class="row">
+          <button class="secondary">영어</button>
+          <button class="secondary">한국어</button>
+          <button class="ghost">⭐</button>
+        </div>`;
+      const [bEn,bKo,bFav]=el.querySelectorAll("button");
+      bEn.onclick=()=>speak(w.phrase,"en");
+      bKo.onclick=()=>speak(w.meaning,"ko");
+      bFav.onclick=()=>toggleHard(w);
+      return el;
+    }
+    function renderWords(arr){
+      listEl.innerHTML=""; arr.forEach(w=>listEl.appendChild(makeCard(w)));
+      document.getElementById("emptyToday").style.display = arr.length ? "none" : "";
+    }
+
+    // ===== 어려운 단어 =====
+    const hardKey = S.hard, hardListEl = document.getElementById("hardList");
+    function getHard(){ try{return JSON.parse(localStorage.getItem(hardKey)||"[]");}catch{return[];} }
+    function setHard(a){ localStorage.setItem(hardKey, JSON.stringify(a)); renderHard(); }
+    function toggleHard(w){ const a=getHard(); const k=w.phrase+"|"+w.meaning; const i=a.findIndex(x=>(x.phrase+"|"+x.meaning)===k); if(i>=0)a.splice(i,1); else a.unshift(w); setHard(a); }
+    function renderHard(){
+      const a=getHard(); hardListEl.innerHTML="";
+      document.getElementById("emptyHard").style.display = a.length?"none":"";
+      a.forEach(w=>hardListEl.appendChild(makeCard(w)));
+    }
+
+    // ===== 기록 =====
+    function saveHistory(date, words){ localStorage.setItem(S.history(date), JSON.stringify(words)); }
+    function getAllHistory(){
+      return Object.keys(localStorage)
+        .filter(k=>k.startsWith("voca-history-"))
+        .map(k=>({date:k.replace("voca-history-",""), words: JSON.parse(localStorage.getItem(k)||"[]")}))
+        .sort((a,b)=> a.date<b.date?1:-1);
+    }
+    function renderHistory(filterDate="", q=""){
+      const box=document.getElementById("historyList"); box.innerHTML="";
+      let all = getAllHistory();
+      if (filterDate) all = all.filter(h=>h.date===filterDate);
+      if (q){
+        const qq=q.toLowerCase();
+        all = all.map(h=>({
+          date:h.date,
+          words:h.words.filter(w=>
+            (w.phrase||"").toLowerCase().includes(qq) ||
+            (w.meaning||"").toLowerCase().includes(qq) ||
+            (w.example||"").toLowerCase().includes(qq)
+          )
+        })).filter(h=>h.words.length);
+      }
+      if(!all.length){ box.innerHTML='<div class="empty">기록 없음</div>'; return; }
+      all.forEach(h=>{
+        const d=document.createElement("div"); d.className="history-date"; d.textContent=h.date; box.appendChild(d);
+        const g=document.createElement("div"); g.className="grid";
+        h.words.forEach(w=>g.appendChild(makeCard(w)));
+        box.appendChild(g);
+      });
+    }
+
+    // 필터 UI
+    const filterDateEl=document.getElementById("filterDate");
+    const filterTextEl=document.getElementById("filterText");
+    document.getElementById("applyFilter").onclick=()=>renderHistory(filterDateEl.value, filterTextEl.value.trim());
+    document.getElementById("resetFilter").onclick=()=>{ filterDateEl.value=""; filterTextEl.value=""; renderHistory(); };
+    document.getElementById("clearHistory").onclick=()=>{ if(confirm("모든 기록을 삭제할까요?")){ getAllHistory().forEach(h=>localStorage.removeItem(S.history(h.date))); renderHistory(); } };
+
+    // ===== 완료 → 기록 저장 + 다음날로 계속 전환 가능 =====
+    document.getElementById("markDone").onclick = async ()=>{
+      if (!currentWords.length) return;
+      // 1) 현재 표시 날짜 기준으로 기록 저장
+      saveHistory(currentDate, currentWords);
+      // 2) 다음날로 이동
+      currentDate = addDays(currentDate, 1);
+      localStorage.setItem(S.virtualDate, currentDate);
+      dateBadge.textContent = currentDate;
+      // 3) 다음날 단어 로드
+      currentWords = await fetchWordsFor(currentDate);
+      renderWords(currentWords);
+      // 안내
+      document.getElementById("status").textContent = "다음날 세트로 이동했습니다.";
+      setTimeout(()=>document.getElementById("status").textContent="", 2000);
+    };
+
+    // ===== 탭 =====
+    function switchTab(t){
+      document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active", x.dataset.tab===t));
+      document.getElementById("todayPane").style.display   = (t==="today")?"":"none";
+      document.getElementById("hardPane").style.display    = (t==="hard") ?"":"none";
+      document.getElementById("historyPane").style.display = (t==="history")?"":"none";
+      if (t==="hard") renderHard();
+      if (t==="history") renderHistory(filterDateEl.value, filterTextEl.value.trim());
+    }
     document.querySelectorAll(".tab").forEach(x=>x.onclick=()=>switchTab(x.dataset.tab));
 
-    // 전체재생
-    document.getElementById("playAll").onclick=()=>{if(currentWords.length){queueSpeak(currentWords.map(w=>`${w.phrase}. ${w.meaning}`));}};
+    // ===== 전체 재생 =====
+    document.getElementById("playAll").onclick=()=>{
+      if(!currentWords.length) return;
+      stopSpeaking();
+      let i=0;
+      const seq=currentWords.map(w=>`${w.phrase}. ${w.meaning}.`);
+      function next(){
+        if(i>=seq.length) return;
+        const u=new SpeechSynthesisUtterance(seq[i++]);
+        const en = VOICES.filter(v => /^en(-|_|$)/i.test(v.lang) || /English/i.test(v.name));
+        const show = en.length ? en : VOICES;
+        const idx = parseInt(voiceSel.value,10);
+        if (!isNaN(idx) && show[idx]) u.voice = show[idx];
+        u.lang="en-US"; u.rate=parseFloat(rateEl.value||"1");
+        u.onend=next; speechSynthesis.speak(u);
+      }
+      next();
+    };
     document.getElementById("stopAll").onclick=stopSpeaking;
-    function queueSpeak(texts){stopSpeaking();let i=0;function next(){if(i>=texts.length)return;const u=new SpeechSynthesisUtterance(texts[i++]);u.rate=parseFloat(rateEl.value||"1");speechSynthesis.speak(u);u.onend=next;}next();}
 
-    // init
-    (async()=>{currentWords=await fetchWords(todayStr);if(currentWords.length)renderWords(currentWords);})();
+    // ===== 초기 로드: currentDate 기준으로 로드 =====
+    let currentWords = [];
+    (async ()=>{
+      currentWords = await fetchWordsFor(currentDate);
+      if (!currentWords.length){
+        document.getElementById("emptyToday").style.display="";
+      } else {
+        renderWords(currentWords);
+      }
+    })();
   </script>
 </body>
 </html>
