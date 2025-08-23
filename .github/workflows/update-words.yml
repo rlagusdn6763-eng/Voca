@@ -2,35 +2,66 @@ name: Daily vocab update
 
 on:
   schedule:
-    - cron: '0 23 * * *'   # 매일 오전 8시 30분 KST = 23:30 UTC
+    - cron: '30 23 * * *'     # 매일 08:30 KST
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
+      - name: Show repo tree (debug)
+        run: ls -al && echo "----" && ls -al Voca || true
 
-      - name: Generate words.json
-        run: |
-          import json, random, datetime
-          pool = json.load(open("Voca/pool.json", encoding="utf-8"))
-          words = random.sample(pool, 10)
-          with open("Voca/words.json", "w", encoding="utf-8") as f:
-              json.dump(words, f, ensure_ascii=False, indent=2)
-          print("✅ words.json updated:", datetime.datetime.utcnow().isoformat())
+      - name: Generate Voca/words.json
         shell: python
+        run: |
+          import json, random, os, pathlib, sys, datetime
+          root = pathlib.Path("Voca")
+          root.mkdir(parents=True, exist_ok=True)
+          pool_path = root/"pool.json"
+          # 풀 로드 (없으면 안전한 기본 10개로 생성)
+          if not pool_path.exists():
+            print("⚠️ Voca/pool.json 이 없습니다. 기본 샘플로 생성합니다.")
+            pool = [
+              {"phrase":"work out","meaning":"운동하다; 해결하다","example":"I work out three times a week."},
+              {"phrase":"pass away","meaning":"돌아가시다","example":"Her grandfather passed away last year."},
+              {"phrase":"figure out","meaning":"이해하다, 알아내다","example":"I can’t figure out this problem."},
+              {"phrase":"hang out","meaning":"어울리다, 놀다","example":"We hung out at the mall."},
+              {"phrase":"show up","meaning":"나타나다","example":"He didn’t show up on time."},
+              {"phrase":"turn out","meaning":"…로 드러나다, 끝나다","example":"It turned out to be true."},
+              {"phrase":"run into","meaning":"우연히 만나다","example":"I ran into an old friend."},
+              {"phrase":"look after","meaning":"돌보다","example":"She looks after her brother."},
+              {"phrase":"put off","meaning":"미루다","example":"Let’s put off the meeting."},
+              {"phrase":"set up","meaning":"설정하다, 준비하다","example":"They set up the equipment."}
+            ]
+          else:
+            with open(pool_path, encoding="utf-8") as f:
+              pool = json.load(f)
+          # 최소 10개 확보
+          n = 10 if len(pool) >= 10 else len(pool)
+          import random
+          words = random.sample(pool, n) if n>0 else []
+          out = root/"words.json"
+          with open(out, "w", encoding="utf-8") as f:
+            json.dump(words, f, ensure_ascii=False, indent=2)
+          print("✅ wrote", out, "items:", len(words), "at", datetime.datetime.utcnow().isoformat(),"UTC")
 
       - name: Commit & push if changed
         run: |
-          git config user.name "github-actions[bot]"
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Voca/words.json
-          git commit -m "Daily words update" || echo "No changes to commit"
-          git push origin main --force
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Daily words update"
+            # 원격 갱신이 있어도 실패하지 않게 rebase 후 푸시
+            git pull --rebase origin main || true
+            git push origin HEAD:main
+          fi
