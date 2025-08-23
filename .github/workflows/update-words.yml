@@ -2,74 +2,35 @@ name: Daily vocab update
 
 on:
   schedule:
-    # 매일 08:30 KST == 23:30 UTC
-    - cron: '30 23 * * *'
+    - cron: '0 23 * * *'   # 매일 오전 8시 30분 KST = 23:30 UTC
   workflow_dispatch:
-
-permissions:
-  contents: write
 
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
 
       - name: Generate words.json
-        shell: bash
         run: |
-          python - <<'PY'
-          import json, random, datetime, pathlib
-          root = pathlib.Path(__file__).resolve().parents[2]
-
-          # 풀 파일은 레포 루트의 pool.json
-          pool_p = root/'pool.json'
-          if not pool_p.exists():
-              raise SystemExit("pool.json 이 레포 루트에 없습니다.")
-
-          with pool_p.open(encoding='utf-8') as f:
-              pool = json.load(f)
-
-          if len(pool) < 10:
-              raise SystemExit("pool.json 항목이 10개 미만입니다.")
-
-          today = datetime.date.today().isoformat()
-          chosen = random.sample(pool, 10)
-
-          # 예문 필드가 없으면 간단히 자동 생성
-          def mk_example(p):
-              p = p.strip()
-              if ' ' in p:
-                  return f"Let's {p} after work."
-              return f"I will {p} today."
-          out = {
-              "date": today,
-              "words": [
-                  {
-                      "phrase": c.get("phrase"),
-                      "meaning": c.get("meaning"),
-                      "example": (c.get("example") or mk_example(c.get("phrase","")))
-                  }
-                  for c in chosen
-              ]
-          }
-
-          (root/'words.json').write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding='utf-8')
-          print("wrote words.json")
-
-          # 페이지 캐시 무효화를 위한 빌드 트리거(옵션)
-          PY
+          import json, random, datetime
+          pool = json.load(open("Voca/pool.json", encoding="utf-8"))
+          words = random.sample(pool, 10)
+          with open("Voca/words.json", "w", encoding="utf-8") as f:
+              json.dump(words, f, ensure_ascii=False, indent=2)
+          print("✅ words.json updated:", datetime.datetime.utcnow().isoformat())
+        shell: python
 
       - name: Commit & push if changed
         run: |
-          set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add words.json
-          if git diff --cached --quiet; then
-            echo "No changes."
-          else
-            git pull --rebase
-            git commit -m "Daily words update"
-            git push
-          fi
+          git add Voca/words.json
+          git commit -m "Daily words update" || echo "No changes to commit"
+          git push origin main --force
