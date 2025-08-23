@@ -97,12 +97,30 @@
     const voiceSel = document.getElementById('voiceSel');
     const rateEl   = document.getElementById('rate');
 
+    function pickDefaultEnglishIndex() {
+      // en으로 시작하거나 English 포함하는 음성 중 첫 번째
+      return VOICES.findIndex(v => /^en(-|_|$)/i.test(v.lang) || /English/i.test(v.name));
+    }
+
     function loadVoices() {
-      VOICES = speechSynthesis.getVoices().filter(v => /en-|English/i.test(v.lang));
+      VOICES = speechSynthesis.getVoices();
+      // 드롭다운 채우기: 영어 음성만 우선 노출, 없으면 전체
+      const english = VOICES.filter(v => /^en(-|_|$)/i.test(v.lang) || /English/i.test(v.name));
+      const toShow = english.length ? english : VOICES;
+
       voiceSel.innerHTML = '<option value="">기본 음성</option>' +
-        VOICES.map((v,i)=>`<option value="${i}">${v.name} (${v.lang})</option>`).join('');
+        toShow.map((v,i)=>`<option value="${i}">${v.name} (${v.lang})</option>`).join('');
+
+      // 저장된 선택 우선, 없으면 영어 첫 번째 자동 선택
       const saved = localStorage.getItem(S.voice);
-      if (saved && +saved < VOICES.length) voiceSel.value = saved;
+      if (saved && +saved < toShow.length) {
+        voiceSel.value = saved;
+      } else if (english.length > 0) {
+        voiceSel.value = 0;                 // 영어 리스트 중 첫 번째
+        localStorage.setItem(S.voice, 0);
+      } else {
+        voiceSel.value = "";                // 영어 음성 없는 환경
+      }
     }
     speechSynthesis.onvoiceschanged = loadVoices; loadVoices();
 
@@ -110,12 +128,29 @@
     rateEl.value = localStorage.getItem(S.rate) || '1';
     rateEl.addEventListener('input', ()=> localStorage.setItem(S.rate, rateEl.value));
 
-    function speak(text, langGuess='en') {
-      const u = new SpeechSynthesisUtterance(text);
+    function applyVoice(u, langHint='en') {
+      // 드롭다운에서 선택한 인덱스를 toShow 기준으로 해석
+      const english = VOICES.filter(v => /^en(-|_|$)/i.test(v.lang) || /English/i.test(v.name));
+      const toShow = english.length ? english : VOICES;
+
       const idx = parseInt(voiceSel.value,10);
-      if (!isNaN(idx) && VOICES[idx]) u.voice = VOICES[idx];
+      if (!isNaN(idx) && toShow[idx]) {
+        u.voice = toShow[idx];
+      } else {
+        // 저장값이 없거나 잘못된 경우: 영어 첫 번째로 강제
+        const defIdx = pickDefaultEnglishIndex();
+        if (defIdx >= 0) u.voice = VOICES[defIdx];
+      }
+
+      // 영어 발음 강제 힌트
+      if (langHint==='en') u.lang = 'en-US';
+      if (langHint==='ko') u.lang = 'ko-KR';
       u.rate = parseFloat(rateEl.value||'1');
-      if (langGuess==='ko') u.lang = 'ko-KR';
+    }
+
+    function speak(text, langHint='en') {
+      const u = new SpeechSynthesisUtterance(text);
+      applyVoice(u, langHint);
       speechSynthesis.speak(u);
     }
     function stopSpeaking(){ speechSynthesis.cancel(); }
@@ -215,7 +250,6 @@
           const res = await fetch(url, { cache: "no-store" });
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const data = await res.json();
-          // 두 가지 형태 모두 지원: [ {...}, ... ] 또는 { words: [ ... ] }
           const arr = Array.isArray(data) ? data : (Array.isArray(data.words) ? data.words : null);
           if (!arr) throw new Error("JSON must be array or {words: array}");
           return arr;
@@ -232,10 +266,7 @@
       function next(){
         if(i>=texts.length) return;
         const u = new SpeechSynthesisUtterance(texts[i++]);
-        const idx = parseInt(voiceSel.value,10);
-        if (!isNaN(idx) && VOICES[idx]) u.voice = VOICES[idx];
-        u.rate = parseFloat(rateEl.value||'1');
-        if (lang==='ko') u.lang='ko-KR';
+        applyVoice(u, lang);
         u.onend = next;
         speechSynthesis.speak(u);
       }
