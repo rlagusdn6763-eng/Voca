@@ -1,148 +1,265 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>오늘의 회화 영단어</title>
-<style>
-  :root { --bg:#0b1220; --card:#0f172a; --line:#1f2937; --text:#e5e7eb; --muted:#9ca3af; --btn:#0b7285; --btn2:#334155; }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans KR,Arial}
-  .wrap{max-width:860px;margin:32px auto;padding:0 16px}
-  h1{margin:0 0 4px;font-size:28px;font-weight:800;letter-spacing:-.3px}
-  .sub{color:var(--muted);font-size:14px;margin:0 0 16px}
-  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0 16px}
-  button{background:var(--btn);border:1px solid #0c8599;color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer;font-size:14px}
-  button.secondary{background:var(--btn2);border-color:var(--btn2);color:#cbd5e1}
-  select,input[type="range"]{background:#0b1324;border:1px solid var(--line);color:var(--text);padding:7px 9px;border-radius:10px;font-size:14px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:6px}
-  .row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:12px;border-top:1px dashed var(--line)}
-  .row:first-child{border-top:none}
-  .en{font-weight:800;font-size:18px}
-  .ko{color:var(--muted);font-size:14px;margin-top:2px}
-  footer{color:var(--muted);font-size:12px;margin:16px 0;text-align:center}
-  .hint{margin-top:8px}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>오늘의 회화 영단어</title>
+  <style>
+    :root { --bg:#0f172a; --card:#0b2540; --accent:#1f2937; --txt:#e5e7eb; --sub:#9ca3af; --brand:#22d3ee; }
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,sans-serif}
+    .wrap{max-width:860px;margin:32px auto;padding:0 16px}
+    h1{margin:0 0 10px;font-size:clamp(26px,5vw,44px);line-height:1.2}
+    .subtxt{color:var(--sub);margin-bottom:14px}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0 8px}
+    button{background:#0ea5e9;border:none;color:white;padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer}
+    button.secondary{background:#374151}
+    button.ghost{background:transparent;border:1px solid #334155;color:#cbd5e1}
+    select, input[type="range"]{accent-color:#38bdf8;border-radius:10px}
+    .range-box{display:flex;align-items:center;gap:10px}
+    .pill{display:inline-flex;gap:6px;align-items:center;background:#0b1220;border:1px solid #1f2937;border-radius:999px;padding:8px 10px;color:#cbd5e1}
+    .grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px}
+    @media(min-width:680px){ .grid{grid-template-columns:1fr 1fr} }
+    .card{background:linear-gradient(180deg,#0b2238,#091a2c);border:1px solid #1f2937;border-radius:18px;padding:14px 14px}
+    .en{font-weight:800;font-size:20px}
+    .ko{color:#9ca3af;margin-top:2px}
+    .ex{margin-top:8px;color:#cbd5e1;font-size:14px}
+    .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .fav{margin-left:auto}
+    .done-bar{display:flex;gap:8px;align-items:center;margin:12px 0}
+    .tabs{display:flex;gap:8px;margin:14px 0}
+    .tab{padding:8px 12px;border-radius:10px;border:1px solid #334155;cursor:pointer}
+    .tab.active{background:#111827}
+    .hint{color:#a1a1aa;margin-top:12px}
+    footer{color:#8b95a1;font-size:13px;margin:18px 0 28px}
+    .muted{opacity:.6}
+    .badge{background:#111827;border:1px solid #334155;border-radius:999px;padding:2px 8px;font-size:12px;margin-left:6px}
+    .empty{color:#9ca3af;border:1px dashed #334155;border-radius:16px;padding:18px;text-align:center}
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>오늘의 회화 영단어</h1>
-  <p class="sub" id="status">클릭해서 발음 들어보기</p>
+  <div class="wrap">
+    <h1>오늘의 회화 영단어 <span id="dateBadge" class="badge"></span></h1>
+    <div class="subtxt">클릭해서 발음 들어보기. ⭐로 <b>어려운 단어</b> 저장, 예문도 함께 제공돼요.</div>
 
-  <div class="toolbar">
-    <button id="playAll">전체 재생</button>
-    <button id="stopAll" class="secondary">정지</button>
-    <select id="voiceSelect" title="영어 음성 선택"></select>
-    <label style="display:flex;align-items:center;gap:8px">
-      <span style="color:#9ca3af;font-size:13px">속도</span>
-      <input id="rate" type="range" min="0.6" max="1.2" step="0.05" value="1" />
-    </label>
+    <div class="controls">
+      <button id="playAll">전체 재생</button>
+      <button id="stopAll" class="secondary">정지</button>
+
+      <select id="voiceSel" class="pill" title="Voice">
+        <option value="">기본 음성</option>
+      </select>
+
+      <div class="range-box pill">
+        <span>속도</span>
+        <input id="rate" type="range" min="0.6" max="1.4" step="0.05" value="1" />
+      </div>
+
+      <button id="markDone" class="ghost" title="오늘 학습 완료로 표시">오늘 10개 완료</button>
+      <span id="doneStatus" class="pill" style="display:none;">✅ 완료됨</span>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="today">오늘 단어</div>
+      <div class="tab" data-tab="hard">어려운 단어 <span id="hardCount" class="badge">0</span></div>
+    </div>
+
+    <div id="todayPane">
+      <div id="list" class="grid"></div>
+      <div id="emptyToday" class="empty" style="display:none;">오늘 단어를 불러오지 못했어요.</div>
+    </div>
+
+    <div id="hardPane" style="display:none;">
+      <div id="hardList" class="grid"></div>
+      <div id="emptyHard" class="empty" style="display:none;">저장된 어려운 단어가 없어요. ⭐ 버튼으로 추가하세요.</div>
+      <div class="row" style="margin-top:12px">
+        <button id="exportHard" class="ghost">내보내기 (.json)</button>
+        <button id="clearHard" class="secondary">전체 비우기</button>
+      </div>
+    </div>
+
+    <div class="hint">💡 발음이 어색하면 위의 voice에서 English(US/UK) 음성을 고르세요.</div>
+    <footer>GitHub Pages · Web Speech API</footer>
   </div>
 
-  <div class="card" id="list"></div>
+  <script>
+    // ===== helpers / storage keys =====
+    const S = {
+      hard: 'voca-hard-words',
+      voice: 'voca-voice',
+      rate:  'voca-rate',
+      done:  (d) => `voca-done-${d}`, // per-day done flag
+    };
 
-  <p class="sub hint">💡 발음이 어색하면 위의 <b>voice</b>에서 English(US/UK) 음성을 고르세요.</p>
-  <footer>GitHub Pages · Web Speech API</footer>
-</div>
+    const todayStr = new Date().toISOString().slice(0,10); // YYYY-MM-DD
+    document.getElementById('dateBadge').textContent = todayStr;
 
-<script>
-async function loadWords(){
-  const status = document.getElementById('status');
-  try {
-    status.textContent = '단어 불러오는 중…';
-    // 열리는 위치에 따라 words.json 경로 자동 보정
-    const base = location.pathname.includes('/Voca/') ? '/Voca/' : '/';
-    const res = await fetch(base + 'words.json?ts=' + Date.now()); // 캐시 무력화
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    if (!Array.isArray(data)) throw new Error('JSON 형식이 배열이 아님');
-    render(data);
-    status.textContent = `클릭해서 발음 들어보기 · ${data.length}개 로드됨`;
-  } catch (err) {
-    status.textContent = '불러오기 실패: ' + err.message;
-    console.error(err);
-  }
-}
+    // ===== voices =====
+    const voiceSel = document.getElementById('voiceSel');
+    const rateEl   = document.getElementById('rate');
+    const playAll  = document.getElementById('playAll');
+    const stopAll  = document.getElementById('stopAll');
+    const listEl   = document.getElementById('list');
+    const hardListEl = document.getElementById('hardList');
+    const hardCount = document.getElementById('hardCount');
+    const markDone = document.getElementById('markDone');
+    const doneStatus = document.getElementById('doneStatus');
 
-function render(data){
-  const list = document.getElementById('list');
-  list.innerHTML = '';
-  data.forEach((it, i) => {
-    const row = document.createElement('div');
-    row.className = 'row';
-    row.innerHTML = `
-      <div>
-        <div class="en">${it.phrase}</div>
-        <div class="ko">${it.meaning ?? ''}</div>
-      </div>
-      <div style="display:flex;gap:8px">
-        <button data-i="${i}" class="speak">▶ 재생</button>
-        <button data-i="${i}" class="slow secondary">느리게</button>
-      </div>
-    `;
-    list.appendChild(row);
-  });
+    let VOICES = [];
 
-  // 음성 목록 채우기
-  const voiceSelect = document.getElementById('voiceSelect');
-  const rateEl = document.getElementById('rate');
-  let voices = [];
-  function fillVoices(){
-    voices = speechSynthesis.getVoices();
-    const en = voices.filter(v => /en(-|_)|English/i.test(v.lang));
-    voiceSelect.innerHTML = '';
-    (en.length ? en : voices).forEach(v => {
-      const o = document.createElement('option');
-      o.value = v.name;
-      o.textContent = `${v.name} — ${v.lang}`;
-      voiceSelect.appendChild(o);
-    });
-  }
-  fillVoices();
-  speechSynthesis.onvoiceschanged = fillVoices;
-
-  function speak(text, rate = 1){
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    const chosen = voices.find(v => v.name === voiceSelect.value);
-    if (chosen) u.voice = chosen;
-    u.lang = (chosen && chosen.lang) || 'en-US';
-    u.rate = rate;
-    speechSynthesis.speak(u);
-  }
-
-  list.querySelectorAll('.speak').forEach(btn => {
-    btn.addEventListener('click', e => {
-      const idx = +e.currentTarget.dataset.i;
-      speak(data[idx].phrase, Number(rateEl.value));
-    });
-  });
-  list.querySelectorAll('.slow').forEach(btn => {
-    btn.addEventListener('click', e => {
-      const idx = +e.currentTarget.dataset.i;
-      speak(data[idx].phrase, 0.8);
-    });
-  });
-
-  document.getElementById('playAll').onclick = async () => {
-    speechSynthesis.cancel();
-    const rate = Number(rateEl.value);
-    for (const item of data) {
-      await new Promise(res => {
-        const u = new SpeechSynthesisUtterance(item.phrase);
-        const chosen = voices.find(v => v.name === voiceSelect.value);
-        if (chosen) u.voice = chosen;
-        u.lang = (chosen && chosen.lang) || 'en-US';
-        u.rate = rate;
-        u.onend = () => setTimeout(res, 200);
-        speechSynthesis.speak(u);
-      });
+    function loadVoices() {
+      VOICES = speechSynthesis.getVoices().filter(v => /en-|English/i.test(v.lang));
+      voiceSel.innerHTML = '<option value="">기본 음성</option>' +
+        VOICES.map((v,i)=>`<option value="${i}">${v.name} (${v.lang})</option>`).join('');
+      // restore
+      const saved = localStorage.getItem(S.voice);
+      if (saved && voiceSel.options.length > saved) voiceSel.value = saved;
     }
-  };
-  document.getElementById('stopAll').onclick = () => speechSynthesis.cancel();
-}
+    speechSynthesis.onvoiceschanged = loadVoices; loadVoices();
 
-loadWords();
-</script>
+    voiceSel.addEventListener('change', ()=>{
+      localStorage.setItem(S.voice, voiceSel.value);
+    });
+
+    rateEl.value = localStorage.getItem(S.rate) || '1';
+    rateEl.addEventListener('input', ()=>{
+      localStorage.setItem(S.rate, rateEl.value);
+    });
+
+    function speak(text) {
+      const ut = new SpeechSynthesisUtterance(text);
+      const idx = parseInt(voiceSel.value,10);
+      if (!isNaN(idx) && VOICES[idx]) ut.voice = VOICES[idx];
+      ut.rate = parseFloat(rateEl.value||'1');
+      speechSynthesis.speak(ut);
+    }
+
+    function stopSpeaking(){ speechSynthesis.cancel(); }
+
+    // ===== tabs =====
+    function switchTab(tab){
+      document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
+      document.getElementById('todayPane').style.display = tab==='today' ? '' : 'none';
+      document.getElementById('hardPane').style.display  = tab==='hard' ? '' : 'none';
+    }
+    document.querySelectorAll('.tab').forEach(t=>{
+      t.addEventListener('click', ()=>switchTab(t.dataset.tab));
+    });
+
+    // ===== hard words storage =====
+    function getHard(){
+      try{ return JSON.parse(localStorage.getItem(S.hard)||'[]'); }catch{ return []; }
+    }
+    function setHard(arr){
+      localStorage.setItem(S.hard, JSON.stringify(arr));
+      hardCount.textContent = arr.length;
+      renderHard();
+    }
+    function toggleHard(item){
+      const arr = getHard();
+      const key = item.phrase+'|'+item.meaning+'|'+(item.example||'');
+      const i = arr.findIndex(x => (x.phrase+'|'+x.meaning+'|'+(x.example||''))===key);
+      if (i>=0) arr.splice(i,1); else arr.unshift(item);
+      setHard(arr);
+    }
+
+    function renderHard(){
+      const arr = getHard();
+      hardListEl.innerHTML = '';
+      document.getElementById('emptyHard').style.display = arr.length? 'none':'';
+      arr.forEach((w,idx)=> hardListEl.appendChild(makeCard(w,true)));
+    }
+    hardCount.textContent = getHard().length;
+
+    document.getElementById('clearHard').addEventListener('click', ()=>{
+      if (confirm('어려운 단어 전체를 비울까요?')) setHard([]);
+    });
+
+    document.getElementById('exportHard').addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify(getHard(),null,2)], {type:'application/json'});
+      const a = Object.assign(document.createElement('a'),{
+        href: URL.createObjectURL(blob), download: `hard-words-${todayStr}.json`
+      });
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    // ===== done today =====
+    function refreshDoneUI(){
+      const done = !!localStorage.getItem(S.done(todayStr));
+      markDone.style.display = done ? 'none' : '';
+      doneStatus.style.display = done ? '' : 'none';
+      listEl.classList.toggle('muted', done);
+    }
+    markDone.addEventListener('click', ()=>{
+      localStorage.setItem(S.done(todayStr),'1');
+      refreshDoneUI();
+      alert('오늘 학습 완료로 기록했어요! 내일은 자동으로 새로운 10개가 보여요.');
+    });
+
+    // ===== render cards =====
+    function makeCard(w, inHardList=false){
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.innerHTML = `
+        <div class="en">${w.phrase}</div>
+        <div class="ko">${w.meaning}</div>
+        <div class="ex">예문: ${w.example ? w.example : '<span class="sub">예문 준비중</span>'}</div>
+        <div class="row">
+          <button class="secondary play">발음</button>
+          <button class="secondary playKo">한국어</button>
+          <button class="ghost fav">⭐ 어려워요</button>
+        </div>
+      `;
+      el.querySelector('.play').onclick = ()=> speak(w.phrase);
+      el.querySelector('.playKo').onclick = ()=> speak(w.meaning);
+      const fav = el.querySelector('.fav');
+      fav.onclick = ()=> toggleHard(w);
+      if (inHardList) fav.textContent = '⭐ 삭제';
+      return el;
+    }
+
+    // ===== load today words =====
+    async function loadWords(){
+      // 캐시 무력화를 위한 버전 파라미터
+      const v = String(Date.now()).slice(0,10);
+      const res = await fetch('./Voca/words.json?v='+v).catch(()=>null) || await fetch('./words.json?v='+v).catch(()=>null);
+      if(!res || !res.ok){ document.getElementById('emptyToday').style.display=''; return; }
+      const data = await res.json();
+      listEl.innerHTML = '';
+      (data.words||data).forEach(w => listEl.appendChild(makeCard(w)));
+      document.getElementById('emptyToday').style.display = (data.words||data).length? 'none':'';
+      refreshDoneUI();
+    }
+
+    // ===== play all =====
+    function queueSpeak(texts){
+      stopSpeaking();
+      let i=0;
+      function next(){
+        if(i>=texts.length) return;
+        const u = new SpeechSynthesisUtterance(texts[i++]);
+        const idx = parseInt(voiceSel.value,10);
+        if (!isNaN(idx) && VOICES[idx]) u.voice = VOICES[idx];
+        u.rate = parseFloat(rateEl.value||'1');
+        u.onend = next;
+        speechSynthesis.speak(u);
+      }
+      next();
+    }
+    playAll.addEventListener('click', ()=>{
+      const items = Array.from(listEl.querySelectorAll('.card')).map(c=>{
+        const en = c.querySelector('.en').textContent.trim();
+        const ko = c.querySelector('.ko').textContent.trim();
+        return `${en}. ${ko}.`;
+      });
+      if(items.length) queueSpeak(items);
+    });
+    stopAll.addEventListener('click', stopSpeaking);
+
+    // init
+    switchTab('today');
+    loadWords();
+    renderHard();
+  </script>
 </body>
 </html>
