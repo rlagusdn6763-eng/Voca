@@ -33,326 +33,116 @@
     .empty{color:#9ca3af;border:1px dashed #334155;border-radius:16px;padding:18px;text-align:center}
     #status{margin-top:12px;color:#fbbf24;font-size:14px}
     .mode {margin-left:8px; font-size:12px; color:#9ca3af}
+    .history-date{margin:16px 0 6px;font-weight:700;color:#38bdf8}
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>
       오늘의 회화 영단어 <span id="dateBadge" class="badge"></span>
-      <span id="modeBadge" class="mode"></span>
     </h1>
-    <div class="subtxt">클릭해서 발음 들어보기. ⭐로 <b>어려운 단어</b> 저장, 예문 제공.</div>
+    <div class="subtxt">클릭해서 발음 들어보기. ⭐로 어려운 단어 저장, 예문 제공.</div>
 
     <div class="controls">
       <button id="playAll">전체 재생</button>
       <button id="stopAll" class="secondary">정지</button>
 
-      <select id="voiceSel" class="pill" title="Voice">
-        <option value="">기본 음성</option>
-      </select>
+      <select id="voiceSel" class="pill" title="Voice"><option value="">기본 음성</option></select>
+      <div class="range-box pill"><span>속도</span><input id="rate" type="range" min="0.6" max="1.4" step="0.05" value="1" /></div>
 
-      <div class="range-box pill">
-        <span>속도</span>
-        <input id="rate" type="range" min="0.6" max="1.4" step="0.05" value="1" />
-      </div>
-
-      <button id="markDone" class="ghost" title="오늘 학습 완료로 표시">오늘 10개 완료 → 다음 10개</button>
+      <button id="markDone" class="ghost">오늘 10개 완료 → 기록</button>
       <span id="doneStatus" class="pill" style="display:none;">✅ 완료됨</span>
     </div>
 
     <div class="tabs">
       <div class="tab active" data-tab="today">오늘 단어</div>
-      <div class="tab" data-tab="hard">어려운 단어 <span id="hardCount" class="badge">0</span></div>
+      <div class="tab" data-tab="hard">⭐ 어려운 단어 <span id="hardCount" class="badge">0</span></div>
+      <div class="tab" data-tab="history">📅 기록</div>
     </div>
 
+    <!-- 오늘 단어 -->
     <div id="todayPane">
       <div id="list" class="grid"></div>
       <div id="emptyToday" class="empty" style="display:none;">오늘 단어를 불러오지 못했어요.</div>
     </div>
 
+    <!-- 어려운 단어 -->
     <div id="hardPane" style="display:none;">
       <div id="hardList" class="grid"></div>
-      <div id="emptyHard" class="empty" style="display:none;">저장된 어려운 단어가 없어요. ⭐ 버튼으로 추가하세요.</div>
+      <div id="emptyHard" class="empty" style="display:none;">저장된 어려운 단어가 없어요.</div>
       <div class="row" style="margin-top:12px">
         <button id="exportHard" class="ghost">내보내기 (.json)</button>
         <button id="clearHard" class="secondary">전체 비우기</button>
       </div>
     </div>
 
+    <!-- 기록 -->
+    <div id="historyPane" style="display:none;">
+      <div id="historyList"></div>
+      <div class="row" style="margin-top:12px">
+        <button id="clearHistory" class="secondary">기록 전체 삭제</button>
+      </div>
+    </div>
+
     <div id="status"></div>
-    <div class="subtxt">💡 영어는 영어 음성, 한국어는 한국어 음성으로 읽어줍니다. 음성은 상단에서 변경 가능</div>
   </div>
 
   <script>
-    const todayStr = new Date().toISOString().slice(0,10);
-    document.getElementById('dateBadge').textContent = todayStr;
-    const modeBadge = document.getElementById('modeBadge');
+    const todayStr=new Date().toISOString().slice(0,10);
+    document.getElementById("dateBadge").textContent=todayStr;
 
-    const S = {
-      hard: 'voca-hard-words',
-      voice: 'voca-voice',
-      rate:  'voca-rate',
-      done:  (d) => `voca-done-${d}`,
-      localIdx: (d) => `voca-local-index-${d}`,
-      localSeed: (d) => `voca-seed-${d}`
-    };
+    const S={hard:"voca-hard-words",voice:"voca-voice",rate:"voca-rate",done:(d)=>`voca-done-${d}`,history:(d)=>`voca-history-${d}`};
 
-    let VOICES = [];
-    const voiceSel = document.getElementById('voiceSel');
-    const rateEl   = document.getElementById('rate');
+    // ===== 음성 =====
+    let VOICES=[];
+    const voiceSel=document.getElementById("voiceSel");
+    const rateEl=document.getElementById("rate");
+    function loadVoices(){VOICES=speechSynthesis.getVoices();const english=VOICES.filter(v=>/en/i.test(v.lang));const show=english.length?english:VOICES;voiceSel.innerHTML="<option value=''>기본 음성</option>"+show.map((v,i)=>`<option value='${i}'>${v.name} (${v.lang})</option>`).join("");voiceSel.value=localStorage.getItem(S.voice)||"";}
+    speechSynthesis.onvoiceschanged=loadVoices;loadVoices();
+    voiceSel.onchange=()=>localStorage.setItem(S.voice,voiceSel.value);
+    rateEl.value=localStorage.getItem(S.rate)||"1";rateEl.oninput=()=>localStorage.setItem(S.rate,rateEl.value);
+    function speak(t,lang="en"){const u=new SpeechSynthesisUtterance(t);const idx=parseInt(voiceSel.value,10);if(!isNaN(idx)&&VOICES[idx])u.voice=VOICES[idx];u.lang=(lang==="ko")?"ko-KR":"en-US";u.rate=parseFloat(rateEl.value||"1");speechSynthesis.speak(u);}
+    function stopSpeaking(){speechSynthesis.cancel();}
 
-    function pickDefaultEnglishIndex(voices) {
-      return voices.findIndex(v => /^en(-|_|$)/i.test(v.lang) || /English/i.test(v.name));
-    }
+    // ===== 카드 =====
+    function makeCard(w,inHard=false){const el=document.createElement("div");el.className="card";el.innerHTML=`<div class="en">${w.phrase}</div><div class="ko">${w.meaning}</div><div class="ex">예문: ${w.example||""}</div><div class="row"><button class="secondary">영어</button><button class="secondary">한국어</button><button class="ghost">${inHard?"⭐ 삭제":"⭐ 어려워요"}</button></div>`;el.querySelectorAll("button")[0].onclick=()=>speak(w.phrase,"en");el.querySelectorAll("button")[1].onclick=()=>speak(w.meaning,"ko");el.querySelectorAll("button")[2].onclick=()=>toggleHard(w);return el;}
 
-    function loadVoices() {
-      VOICES = speechSynthesis.getVoices();
-      const english = VOICES.filter(v => /^en(-|_|$)/i.test(v.lang) || /English/i.test(v.name));
-      const toShow = english.length ? english : VOICES;
+    // ===== 오늘 단어 =====
+    const listEl=document.getElementById("list");
+    let currentWords=[];
+    function renderWords(arr){listEl.innerHTML="";arr.forEach(w=>listEl.appendChild(makeCard(w)));}
+    async function fetchWords(){const urls=["Voca/words.json","words.json","./words.json"].map(u=>`${u}?v=${Date.now()}`);for(const url of urls){try{const res=await fetch(url);if(res.ok){return await res.json();}}catch{}}return [];}
 
-      voiceSel.innerHTML = '<option value="">기본 음성</option>' +
-        toShow.map((v,i)=>`<option value="${i}">${v.name} (${v.lang})</option>`).join('');
+    // ===== 어려운 단어 =====
+    const hardListEl=document.getElementById("hardList");const hardCount=document.getElementById("hardCount");
+    function getHard(){return JSON.parse(localStorage.getItem(S.hard)||"[]");}
+    function setHard(a){localStorage.setItem(S.hard,JSON.stringify(a));hardCount.textContent=a.length;renderHard();}
+    function toggleHard(w){let a=getHard();const i=a.findIndex(x=>x.phrase===w.phrase);if(i>=0)a.splice(i,1);else a.push(w);setHard(a);}
+    function renderHard(){const a=getHard();hardListEl.innerHTML="";if(!a.length)document.getElementById("emptyHard").style.display="";else document.getElementById("emptyHard").style.display="none";a.forEach(w=>hardListEl.appendChild(makeCard(w,true)));}
+    document.getElementById("clearHard").onclick=()=>{if(confirm("삭제?"))setHard([]);}
+    document.getElementById("exportHard").onclick=()=>{const blob=new Blob([JSON.stringify(getHard(),null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="hard.json";a.click();};
 
-      const saved = localStorage.getItem(S.voice);
-      if (saved && +saved < toShow.length) {
-        voiceSel.value = saved;
-      } else if (english.length > 0) {
-        voiceSel.value = 0;
-        localStorage.setItem(S.voice, 0);
-      } else {
-        voiceSel.value = "";
-      }
-    }
-    speechSynthesis.onvoiceschanged = loadVoices; loadVoices();
+    // ===== 기록 =====
+    function saveHistory(date,words){localStorage.setItem(S.history(date),JSON.stringify(words));}
+    function getAllHistory(){return Object.keys(localStorage).filter(k=>k.startsWith("voca-history-")).map(k=>({date:k.replace("voca-history-",""),words:JSON.parse(localStorage.getItem(k))})).sort((a,b)=>a.date<b.date?1:-1);}
+    function renderHistory(){const box=document.getElementById("historyList");box.innerHTML="";const all=getAllHistory();if(!all.length){box.innerHTML='<div class="empty">기록 없음</div>';return;}all.forEach(item=>{const d=document.createElement("div");d.className="history-date";d.textContent=item.date;box.appendChild(d);const g=document.createElement("div");g.className="grid";item.words.forEach(w=>g.appendChild(makeCard(w)));box.appendChild(g);});}
+    document.getElementById("clearHistory").onclick=()=>{if(confirm("기록 전체 삭제?")){getAllHistory().forEach(h=>localStorage.removeItem(S.history(h.date)));renderHistory();}}
 
-    voiceSel.addEventListener('change', ()=> localStorage.setItem(S.voice, voiceSel.value));
-    rateEl.value = localStorage.getItem(S.rate) || '1';
-    rateEl.addEventListener('input', ()=> localStorage.setItem(S.rate, rateEl.value));
+    // ===== 완료 =====
+    const markDone=document.getElementById("markDone");const doneStatus=document.getElementById("doneStatus");
+    markDone.onclick=()=>{if(currentWords.length){saveHistory(todayStr,currentWords);doneStatus.style.display="";alert("오늘 단어 기록 저장됨! 기록 탭에서 확인하세요.");}}
 
-    function applyVoice(u, langHint='en') {
-      const english = VOICES.filter(v => /^en(-|_|$)/i.test(v.lang) || /English/i.test(v.name));
-      const toShow = english.length ? english : VOICES;
+    // ===== 탭 =====
+    function switchTab(t){document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===t));document.getElementById("todayPane").style.display=(t==="today")?"":"none";document.getElementById("hardPane").style.display=(t==="hard")?"":"none";document.getElementById("historyPane").style.display=(t==="history")?"":"none";if(t==="hard")renderHard();if(t==="history")renderHistory();}
+    document.querySelectorAll(".tab").forEach(x=>x.onclick=()=>switchTab(x.dataset.tab));
 
-      const idx = parseInt(voiceSel.value,10);
-      if (!isNaN(idx) && toShow[idx]) u.voice = toShow[idx];
-      else {
-        const defIdx = pickDefaultEnglishIndex(VOICES);
-        if (defIdx >= 0) u.voice = VOICES[defIdx];
-      }
-      if (langHint==='en') u.lang = 'en-US';
-      if (langHint==='ko') u.lang = 'ko-KR';
-      u.rate = parseFloat(rateEl.value||'1');
-    }
+    // ===== 전체 재생 =====
+    document.getElementById("playAll").onclick=()=>{if(currentWords.length){queueSpeak(currentWords.map(w=>`${w.phrase}. ${w.meaning}`));}};
+    document.getElementById("stopAll").onclick=stopSpeaking;
+    function queueSpeak(texts){stopSpeaking();let i=0;function next(){if(i>=texts.length)return;const u=new SpeechSynthesisUtterance(texts[i++]);applyVoice(u);u.onend=next;speechSynthesis.speak(u);}function applyVoice(u){const idx=parseInt(voiceSel.value,10);if(!isNaN(idx)&&VOICES[idx])u.voice=VOICES[idx];u.rate=parseFloat(rateEl.value||"1");}next();}
 
-    function speak(text, langHint='en') {
-      const u = new SpeechSynthesisUtterance(text);
-      applyVoice(u, langHint);
-      speechSynthesis.speak(u);
-    }
-    function stopSpeaking(){ speechSynthesis.cancel(); }
-
-    function switchTab(tab){
-      document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
-      document.getElementById('todayPane').style.display = tab==='today' ? '' : 'none';
-      document.getElementById('hardPane').style.display  = tab==='hard' ? '' : 'none';
-    }
-    document.querySelectorAll('.tab').forEach(t=> t.addEventListener('click', ()=>switchTab(t.dataset.tab)));
-    switchTab('today');
-
-    const hardCount = document.getElementById('hardCount');
-    const hardListEl = document.getElementById('hardList');
-    function getHard(){ try{ return JSON.parse(localStorage.getItem(S.hard)||'[]'); }catch{ return []; } }
-    function setHard(arr){
-      localStorage.setItem(S.hard, JSON.stringify(arr));
-      hardCount.textContent = arr.length;
-      renderHard();
-    }
-    function toggleHard(item){
-      const arr = getHard();
-      const key = item.phrase+'|'+item.meaning+'|'+(item.example||'');
-      const i = arr.findIndex(x => (x.phrase+'|'+x.meaning+'|'+(x.example||''))===key);
-      if (i>=0) arr.splice(i,1); else arr.unshift(item);
-      setHard(arr);
-    }
-    function renderHard(){
-      const arr = getHard();
-      hardListEl.innerHTML = '';
-      document.getElementById('emptyHard').style.display = arr.length? 'none':'';
-      arr.forEach(w=> hardListEl.appendChild(makeCard(w,true)));
-    }
-    hardCount.textContent = getHard().length;
-
-    const markDone = document.getElementById('markDone');
-    const doneStatus = document.getElementById('doneStatus');
-    const listEl = document.getElementById('list');
-    function refreshDoneUI(){
-      const done = !!localStorage.getItem(S.done(todayStr));
-      doneStatus.style.display = done ? '' : 'none';
-      listEl.classList.toggle('muted', done);
-    }
-
-    function makeCard(w, inHard=false){
-      const el = document.createElement('div');
-      el.className = 'card';
-      el.innerHTML = `
-        <div class="en">${w.phrase}</div>
-        <div class="ko">${w.meaning}</div>
-        <div class="ex">예문: ${w.example ? w.example : '<span class="sub">예문 준비중</span>'}</div>
-        <div class="row">
-          <button class="secondary play">영어 발음</button>
-          <button class="secondary playKo">한국어</button>
-          <button class="ghost fav">${inHard ? '⭐ 삭제' : '⭐ 어려워요'}</button>
-        </div>
-      `;
-      el.querySelector('.play').onclick = ()=> speak(w.phrase,'en');
-      el.querySelector('.playKo').onclick = ()=> speak(w.meaning,'ko');
-      el.querySelector('.fav').onclick = ()=> toggleHard(w);
-      return el;
-    }
-
-    function renderWords(arr){
-      listEl.innerHTML = '';
-      arr.forEach(w => listEl.appendChild(makeCard(w)));
-      document.getElementById('emptyToday').style.display = arr.length? 'none':'';
-    }
-
-    async function fetchWordsFromServer() {
-      const urls = ["Voca/words.json","words.json","./words.json"].map(u=>`${u}?v=${Date.now()}`);
-      let lastErr;
-      for (const url of urls) {
-        try {
-          const res = await fetch(url, {cache:"no-store"});
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const data = await res.json();
-          const arr = Array.isArray(data) ? data : (Array.isArray(data.words) ? data.words : null);
-          if (!arr) throw new Error("JSON must be array or {words: array}");
-          return arr;
-        } catch(e){ lastErr = e; }
-      }
-      document.getElementById('status').textContent = `❌ 서버 불러오기 실패: ${lastErr}`;
-      return [];
-    }
-
-    function hashStr(s){
-      let h=2166136261>>>0;
-      for (let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); }
-      return h>>>0;
-    }
-    function rngMulberry32(seed){
-      let t = seed>>>0;
-      return function(){
-        t += 0x6D2B79F5;
-        let r = Math.imul(t ^ (t >>> 15), 1 | t);
-        r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
-        return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
-      }
-    }
-    function shuffleDet(arr, seed){
-      const a = arr.slice();
-      const rnd = rngMulberry32(seed);
-      for (let i=a.length-1;i>0;i--){
-        const j = Math.floor(rnd()*(i+1));
-        [a[i],a[j]] = [a[j],a[i]];
-      }
-      return a;
-    }
-
-    async function fetchPool(){
-      const urls = ["Voca/pool.json","pool.json","./pool.json"].map(u=>`${u}?v=${Date.now()}`);
-      for (const url of urls) {
-        try {
-          const res = await fetch(url,{cache:"no-store"});
-          if (!res.ok) continue;
-          const data = await res.json();
-          if (Array.isArray(data) && data.length) return data;
-        } catch {}
-      }
-      return null;
-    }
-
-    function chunkBy10(arr, idx){
-      const CHUNK=10;
-      const s = idx*CHUNK, e = s+CHUNK;
-      const ext = arr.concat(arr);
-      return ext.slice(s, e);
-    }
-
-    function queueSpeak(texts, lang='en'){
-      stopSpeaking();
-      let i=0;
-      function next(){
-        if(i>=texts.length) return;
-        const u = new SpeechSynthesisUtterance(texts[i++]);
-        applyVoice(u, lang);
-        u.onend = next;
-        speechSynthesis.speak(u);
-      }
-      next();
-    }
-
-    document.getElementById('playAll').addEventListener('click', ()=>{
-      const items = Array.from(listEl.querySelectorAll('.card')).map(c=>{
-        const en = c.querySelector('.en').textContent.trim();
-        const ko = c.querySelector('.ko').textContent.trim();
-        return `${en}. ${ko}.`;
-      });
-      if(items.length) queueSpeak(items,'en');
-    });
-    document.getElementById('stopAll').addEventListener('click', stopSpeaking);
-
-    let MODE = 'server';
-    let localSeq = [];
-    let localIdx = 0;
-
-    async function init(){
-      const serverWords = await fetchWordsFromServer();
-      if (serverWords.length){
-        renderWords(serverWords);
-        MODE = 'server';
-        modeBadge.textContent = '';
-      } else {
-        document.getElementById('emptyToday').style.display = '';
-      }
-
-      const pool = await fetchPool();
-      if (pool && pool.length){
-        const seedStr = localStorage.getItem(S.localSeed(todayStr)) || String(hashStr(todayStr));
-        const seed = parseInt(seedStr, 10);
-        localStorage.setItem(S.localSeed(todayStr), seed);
-        localSeq = shuffleDet(pool, seed);
-        const savedIdx = parseInt(localStorage.getItem(S.localIdx(todayStr) )|| '0', 10);
-        localIdx = isNaN(savedIdx) ? 0 : savedIdx;
-      }
-
-      refreshDoneUI();
-      renderHard();
-    }
-
-    // ✅ 수정: 완료 기록은 서버 세트에서만. 다음 세트로 넘어가면 '완료됨' 숨김.
-    document.getElementById('markDone').addEventListener('click', ()=>{
-      if (MODE === 'server') {
-        localStorage.setItem(S.done(todayStr),'1');
-        refreshDoneUI();
-      }
-
-      if (localSeq && localSeq.length){
-        MODE = 'local';
-        localIdx = (localIdx + 1);
-        localStorage.setItem(S.localIdx(todayStr), String(localIdx));
-        const nextSet = chunkBy10(localSeq, localIdx);
-        if (nextSet.length){
-          renderWords(nextSet);
-          modeBadge.textContent = '· 다음 세트(미리보기)';
-          // 미리보기에서는 완료 뱃지 항상 숨김
-          doneStatus.style.display = 'none';
-          document.getElementById('list').classList.remove('muted');
-        }
-      } else {
-        alert('다음 세트를 만들 풀(pool.json)을 찾지 못했어요. pool.json이 루트 또는 Voca/에 있는지 확인해주세요.');
-      }
-    });
-
-    init();
+    // ===== init =====
+    (async()=>{currentWords=await fetchWords();if(currentWords.length)renderWords(currentWords);})();
   </script>
 </body>
 </html>
