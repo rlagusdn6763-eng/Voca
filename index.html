@@ -84,22 +84,19 @@
   </div>
 
   <script>
-    // ===== 날짜/상태 =====
-    const todayStr = new Date().toISOString().slice(0,10); // YYYY-MM-DD
+    const todayStr = new Date().toISOString().slice(0,10);
     document.getElementById('dateBadge').textContent = todayStr;
     const modeBadge = document.getElementById('modeBadge');
 
-    // ===== LocalStorage 키 =====
     const S = {
       hard: 'voca-hard-words',
       voice: 'voca-voice',
       rate:  'voca-rate',
       done:  (d) => `voca-done-${d}`,
-      localIdx: (d) => `voca-local-index-${d}`,   // 오늘 로컬 세트 인덱스 (0,1,2…)
-      localSeed: (d) => `voca-seed-${d}`          // 오늘 시드(재방문 일관성)
+      localIdx: (d) => `voca-local-index-${d}`,
+      localSeed: (d) => `voca-seed-${d}`
     };
 
-    // ===== 음성 (Web Speech) =====
     let VOICES = [];
     const voiceSel = document.getElementById('voiceSel');
     const rateEl   = document.getElementById('rate');
@@ -154,7 +151,6 @@
     }
     function stopSpeaking(){ speechSynthesis.cancel(); }
 
-    // ===== 탭 =====
     function switchTab(tab){
       document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
       document.getElementById('todayPane').style.display = tab==='today' ? '' : 'none';
@@ -163,7 +159,6 @@
     document.querySelectorAll('.tab').forEach(t=> t.addEventListener('click', ()=>switchTab(t.dataset.tab)));
     switchTab('today');
 
-    // ===== 어려운 단어 저장 =====
     const hardCount = document.getElementById('hardCount');
     const hardListEl = document.getElementById('hardList');
     function getHard(){ try{ return JSON.parse(localStorage.getItem(S.hard)||'[]'); }catch{ return []; } }
@@ -187,18 +182,6 @@
     }
     hardCount.textContent = getHard().length;
 
-    document.getElementById('clearHard').addEventListener('click', ()=>{
-      if (confirm('어려운 단어 전체를 비울까요?')) setHard([]);
-    });
-    document.getElementById('exportHard').addEventListener('click', ()=>{
-      const blob = new Blob([JSON.stringify(getHard(),null,2)], {type:'application/json'});
-      const a = Object.assign(document.createElement('a'),{
-        href: URL.createObjectURL(blob), download: `hard-words-${todayStr}.json`
-      });
-      a.click(); URL.revokeObjectURL(a.href);
-    });
-
-    // ===== 완료/로컬 세트 =====
     const markDone = document.getElementById('markDone');
     const doneStatus = document.getElementById('doneStatus');
     const listEl = document.getElementById('list');
@@ -208,7 +191,6 @@
       listEl.classList.toggle('muted', done);
     }
 
-    // ===== 카드 렌더 =====
     function makeCard(w, inHard=false){
       const el = document.createElement('div');
       el.className = 'card';
@@ -234,7 +216,6 @@
       document.getElementById('emptyToday').style.display = arr.length? 'none':'';
     }
 
-    // ===== 서버 words.json 불러오기 =====
     async function fetchWordsFromServer() {
       const urls = ["Voca/words.json","words.json","./words.json"].map(u=>`${u}?v=${Date.now()}`);
       let lastErr;
@@ -252,7 +233,6 @@
       return [];
     }
 
-    // ===== pool.json 기반 로컬 “세트” 구성 (오늘 날짜 시드) =====
     function hashStr(s){
       let h=2166136261>>>0;
       for (let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); }
@@ -293,11 +273,10 @@
     function chunkBy10(arr, idx){
       const CHUNK=10;
       const s = idx*CHUNK, e = s+CHUNK;
-      const ext = arr.concat(arr); // 끝나면 순환
+      const ext = arr.concat(arr);
       return ext.slice(s, e);
     }
 
-    // ===== 전체 재생 =====
     function queueSpeak(texts, lang='en'){
       stopSpeaking();
       let i=0;
@@ -321,13 +300,11 @@
     });
     document.getElementById('stopAll').addEventListener('click', stopSpeaking);
 
-    // ===== 모드: 'server' (기본) / 'local' (다음 세트 미리보기) =====
     let MODE = 'server';
-    let localSeq = []; // 오늘용 셔플된 풀
-    let localIdx = 0;  // 오늘 몇 번째 세트인지
+    let localSeq = [];
+    let localIdx = 0;
 
     async function init(){
-      // 1) 서버 words.json으로 우선 렌더
       const serverWords = await fetchWordsFromServer();
       if (serverWords.length){
         renderWords(serverWords);
@@ -337,7 +314,6 @@
         document.getElementById('emptyToday').style.display = '';
       }
 
-      // 2) pool.json으로 오늘용 로컬 시퀀스 준비(고정 시드)
       const pool = await fetchPool();
       if (pool && pool.length){
         const seedStr = localStorage.getItem(S.localSeed(todayStr)) || String(hashStr(todayStr));
@@ -348,15 +324,16 @@
         localIdx = isNaN(savedIdx) ? 0 : savedIdx;
       }
 
-      // 완료 상태 UI
       refreshDoneUI();
       renderHard();
     }
 
-    // 완료 → 다음 세트
+    // ✅ 수정: 완료 기록은 서버 세트에서만. 다음 세트로 넘어가면 '완료됨' 숨김.
     document.getElementById('markDone').addEventListener('click', ()=>{
-      localStorage.setItem(S.done(todayStr),'1');
-      refreshDoneUI();
+      if (MODE === 'server') {
+        localStorage.setItem(S.done(todayStr),'1');
+        refreshDoneUI();
+      }
 
       if (localSeq && localSeq.length){
         MODE = 'local';
@@ -366,6 +343,9 @@
         if (nextSet.length){
           renderWords(nextSet);
           modeBadge.textContent = '· 다음 세트(미리보기)';
+          // 미리보기에서는 완료 뱃지 항상 숨김
+          doneStatus.style.display = 'none';
+          document.getElementById('list').classList.remove('muted');
         }
       } else {
         alert('다음 세트를 만들 풀(pool.json)을 찾지 못했어요. pool.json이 루트 또는 Voca/에 있는지 확인해주세요.');
