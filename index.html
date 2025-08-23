@@ -9,7 +9,7 @@
     html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,sans-serif}
     .wrap{max-width:900px;margin:32px auto;padding:0 16px}
     h1{margin:0 0 10px;font-size:clamp(26px,5vw,44px);line-height:1.2}
-    .subtxt{color:var(--sub);margin-bottom:14px}
+    .subtxt{color:#9ca3af;margin-bottom:14px}
     .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0 8px}
     button{background:var(--brand);border:none;color:white;padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer}
     button.secondary{background:#374151}
@@ -95,4 +95,284 @@
       voice: 'voca-voice',
       rate:  'voca-rate',
       done:  (d) => `voca-done-${d}`,
-      localIdx: (d) => `voca-local-index-${d}`,   // 오늘 로컬 세트 인덱스 (0
+      localIdx: (d) => `voca-local-index-${d}`,   // 오늘 로컬 세트 인덱스 (0,1,2…)
+      localSeed: (d) => `voca-seed-${d}`          // 오늘 시드(재방문 일관성)
+    };
+
+    // ===== 음성 (Web Speech) =====
+    let VOICES = [];
+    const voiceSel = document.getElementById('voiceSel');
+    const rateEl   = document.getElementById('rate');
+
+    function pickDefaultEnglishIndex(voices) {
+      return voices.findIndex(v => /^en(-|_|$)/i.test(v.lang) || /English/i.test(v.name));
+    }
+
+    function loadVoices() {
+      VOICES = speechSynthesis.getVoices();
+      const english = VOICES.filter(v => /^en(-|_|$)/i.test(v.lang) || /English/i.test(v.name));
+      const toShow = english.length ? english : VOICES;
+
+      voiceSel.innerHTML = '<option value="">기본 음성</option>' +
+        toShow.map((v,i)=>`<option value="${i}">${v.name} (${v.lang})</option>`).join('');
+
+      const saved = localStorage.getItem(S.voice);
+      if (saved && +saved < toShow.length) {
+        voiceSel.value = saved;
+      } else if (english.length > 0) {
+        voiceSel.value = 0;
+        localStorage.setItem(S.voice, 0);
+      } else {
+        voiceSel.value = "";
+      }
+    }
+    speechSynthesis.onvoiceschanged = loadVoices; loadVoices();
+
+    voiceSel.addEventListener('change', ()=> localStorage.setItem(S.voice, voiceSel.value));
+    rateEl.value = localStorage.getItem(S.rate) || '1';
+    rateEl.addEventListener('input', ()=> localStorage.setItem(S.rate, rateEl.value));
+
+    function applyVoice(u, langHint='en') {
+      const english = VOICES.filter(v => /^en(-|_|$)/i.test(v.lang) || /English/i.test(v.name));
+      const toShow = english.length ? english : VOICES;
+
+      const idx = parseInt(voiceSel.value,10);
+      if (!isNaN(idx) && toShow[idx]) u.voice = toShow[idx];
+      else {
+        const defIdx = pickDefaultEnglishIndex(VOICES);
+        if (defIdx >= 0) u.voice = VOICES[defIdx];
+      }
+      if (langHint==='en') u.lang = 'en-US';
+      if (langHint==='ko') u.lang = 'ko-KR';
+      u.rate = parseFloat(rateEl.value||'1');
+    }
+
+    function speak(text, langHint='en') {
+      const u = new SpeechSynthesisUtterance(text);
+      applyVoice(u, langHint);
+      speechSynthesis.speak(u);
+    }
+    function stopSpeaking(){ speechSynthesis.cancel(); }
+
+    // ===== 탭 =====
+    function switchTab(tab){
+      document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
+      document.getElementById('todayPane').style.display = tab==='today' ? '' : 'none';
+      document.getElementById('hardPane').style.display  = tab==='hard' ? '' : 'none';
+    }
+    document.querySelectorAll('.tab').forEach(t=> t.addEventListener('click', ()=>switchTab(t.dataset.tab)));
+    switchTab('today');
+
+    // ===== 어려운 단어 저장 =====
+    const hardCount = document.getElementById('hardCount');
+    const hardListEl = document.getElementById('hardList');
+    function getHard(){ try{ return JSON.parse(localStorage.getItem(S.hard)||'[]'); }catch{ return []; } }
+    function setHard(arr){
+      localStorage.setItem(S.hard, JSON.stringify(arr));
+      hardCount.textContent = arr.length;
+      renderHard();
+    }
+    function toggleHard(item){
+      const arr = getHard();
+      const key = item.phrase+'|'+item.meaning+'|'+(item.example||'');
+      const i = arr.findIndex(x => (x.phrase+'|'+x.meaning+'|'+(x.example||''))===key);
+      if (i>=0) arr.splice(i,1); else arr.unshift(item);
+      setHard(arr);
+    }
+    function renderHard(){
+      const arr = getHard();
+      hardListEl.innerHTML = '';
+      document.getElementById('emptyHard').style.display = arr.length? 'none':'';
+      arr.forEach(w=> hardListEl.appendChild(makeCard(w,true)));
+    }
+    hardCount.textContent = getHard().length;
+
+    document.getElementById('clearHard').addEventListener('click', ()=>{
+      if (confirm('어려운 단어 전체를 비울까요?')) setHard([]);
+    });
+    document.getElementById('exportHard').addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify(getHard(),null,2)], {type:'application/json'});
+      const a = Object.assign(document.createElement('a'),{
+        href: URL.createObjectURL(blob), download: `hard-words-${todayStr}.json`
+      });
+      a.click(); URL.revokeObjectURL(a.href);
+    });
+
+    // ===== 완료/로컬 세트 =====
+    const markDone = document.getElementById('markDone');
+    const doneStatus = document.getElementById('doneStatus');
+    const listEl = document.getElementById('list');
+    function refreshDoneUI(){
+      const done = !!localStorage.getItem(S.done(todayStr));
+      doneStatus.style.display = done ? '' : 'none';
+      listEl.classList.toggle('muted', done);
+    }
+
+    // ===== 카드 렌더 =====
+    function makeCard(w, inHard=false){
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.innerHTML = `
+        <div class="en">${w.phrase}</div>
+        <div class="ko">${w.meaning}</div>
+        <div class="ex">예문: ${w.example ? w.example : '<span class="sub">예문 준비중</span>'}</div>
+        <div class="row">
+          <button class="secondary play">영어 발음</button>
+          <button class="secondary playKo">한국어</button>
+          <button class="ghost fav">${inHard ? '⭐ 삭제' : '⭐ 어려워요'}</button>
+        </div>
+      `;
+      el.querySelector('.play').onclick = ()=> speak(w.phrase,'en');
+      el.querySelector('.playKo').onclick = ()=> speak(w.meaning,'ko');
+      el.querySelector('.fav').onclick = ()=> toggleHard(w);
+      return el;
+    }
+
+    function renderWords(arr){
+      listEl.innerHTML = '';
+      arr.forEach(w => listEl.appendChild(makeCard(w)));
+      document.getElementById('emptyToday').style.display = arr.length? 'none':'';
+    }
+
+    // ===== 서버 words.json 불러오기 =====
+    async function fetchWordsFromServer() {
+      const urls = ["Voca/words.json","words.json","./words.json"].map(u=>`${u}?v=${Date.now()}`);
+      let lastErr;
+      for (const url of urls) {
+        try {
+          const res = await fetch(url, {cache:"no-store"});
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          const arr = Array.isArray(data) ? data : (Array.isArray(data.words) ? data.words : null);
+          if (!arr) throw new Error("JSON must be array or {words: array}");
+          return arr;
+        } catch(e){ lastErr = e; }
+      }
+      document.getElementById('status').textContent = `❌ 서버 불러오기 실패: ${lastErr}`;
+      return [];
+    }
+
+    // ===== pool.json 기반 로컬 “세트” 구성 (오늘 날짜 시드) =====
+    function hashStr(s){
+      let h=2166136261>>>0;
+      for (let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); }
+      return h>>>0;
+    }
+    function rngMulberry32(seed){
+      let t = seed>>>0;
+      return function(){
+        t += 0x6D2B79F5;
+        let r = Math.imul(t ^ (t >>> 15), 1 | t);
+        r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+        return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+      }
+    }
+    function shuffleDet(arr, seed){
+      const a = arr.slice();
+      const rnd = rngMulberry32(seed);
+      for (let i=a.length-1;i>0;i--){
+        const j = Math.floor(rnd()*(i+1));
+        [a[i],a[j]] = [a[j],a[i]];
+      }
+      return a;
+    }
+
+    async function fetchPool(){
+      const urls = ["Voca/pool.json","pool.json","./pool.json"].map(u=>`${u}?v=${Date.now()}`);
+      for (const url of urls) {
+        try {
+          const res = await fetch(url,{cache:"no-store"});
+          if (!res.ok) continue;
+          const data = await res.json();
+          if (Array.isArray(data) && data.length) return data;
+        } catch {}
+      }
+      return null;
+    }
+
+    function chunkBy10(arr, idx){
+      const CHUNK=10;
+      const s = idx*CHUNK, e = s+CHUNK;
+      const ext = arr.concat(arr); // 끝나면 순환
+      return ext.slice(s, e);
+    }
+
+    // ===== 전체 재생 =====
+    function queueSpeak(texts, lang='en'){
+      stopSpeaking();
+      let i=0;
+      function next(){
+        if(i>=texts.length) return;
+        const u = new SpeechSynthesisUtterance(texts[i++]);
+        applyVoice(u, lang);
+        u.onend = next;
+        speechSynthesis.speak(u);
+      }
+      next();
+    }
+
+    document.getElementById('playAll').addEventListener('click', ()=>{
+      const items = Array.from(listEl.querySelectorAll('.card')).map(c=>{
+        const en = c.querySelector('.en').textContent.trim();
+        const ko = c.querySelector('.ko').textContent.trim();
+        return `${en}. ${ko}.`;
+      });
+      if(items.length) queueSpeak(items,'en');
+    });
+    document.getElementById('stopAll').addEventListener('click', stopSpeaking);
+
+    // ===== 모드: 'server' (기본) / 'local' (다음 세트 미리보기) =====
+    let MODE = 'server';
+    let localSeq = []; // 오늘용 셔플된 풀
+    let localIdx = 0;  // 오늘 몇 번째 세트인지
+
+    async function init(){
+      // 1) 서버 words.json으로 우선 렌더
+      const serverWords = await fetchWordsFromServer();
+      if (serverWords.length){
+        renderWords(serverWords);
+        MODE = 'server';
+        modeBadge.textContent = '';
+      } else {
+        document.getElementById('emptyToday').style.display = '';
+      }
+
+      // 2) pool.json으로 오늘용 로컬 시퀀스 준비(고정 시드)
+      const pool = await fetchPool();
+      if (pool && pool.length){
+        const seedStr = localStorage.getItem(S.localSeed(todayStr)) || String(hashStr(todayStr));
+        const seed = parseInt(seedStr, 10);
+        localStorage.setItem(S.localSeed(todayStr), seed);
+        localSeq = shuffleDet(pool, seed);
+        const savedIdx = parseInt(localStorage.getItem(S.localIdx(todayStr) )|| '0', 10);
+        localIdx = isNaN(savedIdx) ? 0 : savedIdx;
+      }
+
+      // 완료 상태 UI
+      refreshDoneUI();
+      renderHard();
+    }
+
+    // 완료 → 다음 세트
+    document.getElementById('markDone').addEventListener('click', ()=>{
+      localStorage.setItem(S.done(todayStr),'1');
+      refreshDoneUI();
+
+      if (localSeq && localSeq.length){
+        MODE = 'local';
+        localIdx = (localIdx + 1);
+        localStorage.setItem(S.localIdx(todayStr), String(localIdx));
+        const nextSet = chunkBy10(localSeq, localIdx);
+        if (nextSet.length){
+          renderWords(nextSet);
+          modeBadge.textContent = '· 다음 세트(미리보기)';
+        }
+      } else {
+        alert('다음 세트를 만들 풀(pool.json)을 찾지 못했어요. pool.json이 루트 또는 Voca/에 있는지 확인해주세요.');
+      }
+    });
+
+    init();
+  </script>
+</body>
+</html>
