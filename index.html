@@ -6,7 +6,7 @@
   <title>오늘의 회화 영단어</title>
   <style>
     :root { --bg:#0f172a; --card:#0b2238; --txt:#e5e7eb; --sub:#9ca3af; --line:#1f2937; --brand:#0ea5e9; }
-    body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans KR,sans-serif}
+    body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui, -apple-system, Segoe UI, Roboto, Noto Sans KR, sans-serif}
     .wrap{max-width:900px;margin:32px auto;padding:0 16px}
     h1{margin:0 0 10px;font-size:clamp(24px,5vw,40px);line-height:1.2}
     .subtxt{color:var(--sub);margin-bottom:14px}
@@ -84,22 +84,21 @@
   <script>
     // ===== 날짜/키 =====
     const realToday = new Date().toISOString().slice(0,10);
-    const S = {
+    const KEYS = {
       hard: "voca-hard-words",
       history: d => `voca-history-${d}`,
-      virtualDate: "voca-virtual-date",  // 현재 화면에 보여줄 날짜(가상 이동 포함)
+      virtualDate: "voca-virtual-date",
       voice: "voca-voice",
-      rate:  "voca-rate"
+      rate: "voca-rate"
     };
 
-    // 현재 표시 날짜: 저장된 가상 날짜가 있으면 그걸, 없으면 오늘
-    let currentDate = localStorage.getItem(S.virtualDate) || realToday;
-    const dateBadge = document.getElementById("dateBadge");
-    dateBadge.textContent = currentDate;
+    // 현재 표시 날짜(가상 이동 포함). 없으면 오늘.
+    let currentDate = localStorage.getItem(KEYS.virtualDate) || realToday;
+    document.getElementById("dateBadge").textContent = currentDate;
 
     function addDays(iso, n){
-      const d = new Date(iso+"T00:00:00");
-      d.setDate(d.getDate()+n);
+      const d = new Date(iso + "T00:00:00");
+      d.setDate(d.getDate() + n);
       return d.toISOString().slice(0,10);
     }
 
@@ -107,18 +106,19 @@
     let VOICES = [];
     const voiceSel = document.getElementById("voiceSel");
     const rateEl = document.getElementById("rate");
+
     function loadVoices(){
       VOICES = speechSynthesis.getVoices();
       const en = VOICES.filter(v => /^en(-|_|$)/i.test(v.lang) || /English/i.test(v.name));
       const show = en.length ? en : VOICES;
       voiceSel.innerHTML = "<option value=''>기본 음성</option>" + show.map((v,i)=>`<option value="${i}">${v.name} (${v.lang})</option>`).join("");
-      const saved = localStorage.getItem(S.voice);
+      const saved = localStorage.getItem(KEYS.voice);
       if (saved && +saved < show.length) voiceSel.value = saved; else if (en.length) voiceSel.value = 0;
     }
     speechSynthesis.onvoiceschanged = loadVoices; loadVoices();
-    voiceSel.onchange = () => localStorage.setItem(S.voice, voiceSel.value);
-    rateEl.value = localStorage.getItem(S.rate) || "1";
-    rateEl.oninput = () => localStorage.setItem(S.rate, rateEl.value);
+    voiceSel.onchange = () => localStorage.setItem(KEYS.voice, voiceSel.value);
+    rateEl.value = localStorage.getItem(KEYS.rate) || "1";
+    rateEl.oninput = () => localStorage.setItem(KEYS.rate, rateEl.value);
 
     function speak(text, lang="en"){
       const u = new SpeechSynthesisUtterance(text);
@@ -126,8 +126,8 @@
       const show = en.length ? en : VOICES;
       const idx = parseInt(voiceSel.value,10);
       if (!isNaN(idx) && show[idx]) u.voice = show[idx];
-      u.lang = (lang==="ko") ? "ko-KR" : "en-US";
-      u.rate = parseFloat(rateEl.value||"1");
+      u.lang = (lang === "ko") ? "ko-KR" : "en-US";
+      u.rate = parseFloat(rateEl.value || "1");
       speechSynthesis.speak(u);
     }
     function stopSpeaking(){ speechSynthesis.cancel(); }
@@ -135,7 +135,10 @@
     // ===== 데이터 로딩 =====
     async function fetchJSON(urls){
       for(const u of urls){
-        try{ const r=await fetch(`${u}?v=${Date.now()}`,{cache:"no-store"}); if(r.ok) return await r.json(); }catch{}
+        try{
+          const r = await fetch(`${u}?v=${Date.now()}`, {cache:"no-store"});
+          if(r.ok) return await r.json();
+        }catch{}
       }
       return null;
     }
@@ -144,16 +147,16 @@
       return Array.isArray(data) ? data : null;
     }
     // 날짜 고정 셔플 10개
-    function hashStr(s){ let h=2166136261>>>0; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
+    function hashStr(s){ let h=2166136261>>>0; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
     function rng(seed){ let t=seed>>>0; return ()=>{ t+=0x6D2B79F5; let r=Math.imul(t^(t>>>15),1|t); r^=r+Math.imul(r^(r>>>7),61|r); return ((r^(r>>>14))>>>0)/4294967296; }; }
-    function shuffleDet(arr, seed){ const a=arr.slice(); const rnd=rng(seed); for(let i=a.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+    function shuffleDet(arr, seed){ const a=arr.slice(); const R=rng(seed); for(let i=a.length-1;i>0;i--){ const j=Math.floor(R()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
     async function generateWordsFor(dateStr){
       const pool = await fetchPool(); if(!pool) return [];
       const seq = shuffleDet(pool, hashStr(dateStr));
       return seq.slice(0,10);
     }
     async function fetchWordsFor(dateStr){
-      // 오늘(realToday)일 때는 서버 words.json 우선, 아니면 pool 기반 생성
+      // 오늘은 서버 words.json 우선, 그 외 날짜는 pool 기반
       if (dateStr === realToday){
         const data = await fetchJSON(["Voca/words.json","words.json","./words.json"]);
         if (Array.isArray(data)) return data;
@@ -162,7 +165,7 @@
       return await generateWordsFor(dateStr);
     }
 
-    // ===== 렌더/UI =====
+    // ===== 렌더 =====
     const listEl = document.getElementById("list");
     function makeCard(w){
       const el=document.createElement("div");
@@ -183,23 +186,24 @@
       return el;
     }
     function renderWords(arr){
-      listEl.innerHTML=""; arr.forEach(w=>listEl.appendChild(makeCard(w)));
+      listEl.innerHTML="";
+      arr.forEach(w=>listEl.appendChild(makeCard(w)));
       document.getElementById("emptyToday").style.display = arr.length ? "none" : "";
     }
 
     // ===== 어려운 단어 =====
-    const hardKey = S.hard, hardListEl = document.getElementById("hardList");
-    function getHard(){ try{return JSON.parse(localStorage.getItem(hardKey)||"[]");}catch{return[];} }
-    function setHard(a){ localStorage.setItem(hardKey, JSON.stringify(a)); renderHard(); }
+    const hardListEl = document.getElementById("hardList");
+    function getHard(){ try{return JSON.parse(localStorage.getItem(KEYS.hard)||"[]");}catch{return[];} }
+    function setHard(a){ localStorage.setItem(KEYS.hard, JSON.stringify(a)); renderHard(); }
     function toggleHard(w){ const a=getHard(); const k=w.phrase+"|"+w.meaning; const i=a.findIndex(x=>(x.phrase+"|"+x.meaning)===k); if(i>=0)a.splice(i,1); else a.unshift(w); setHard(a); }
     function renderHard(){
       const a=getHard(); hardListEl.innerHTML="";
-      document.getElementById("emptyHard").style.display = a.length?"none":"";
+      document.getElementById("emptyHard").style.display = a.length ? "none" : "";
       a.forEach(w=>hardListEl.appendChild(makeCard(w)));
     }
 
     // ===== 기록 =====
-    function saveHistory(date, words){ localStorage.setItem(S.history(date), JSON.stringify(words)); }
+    function saveHistory(date, words){ localStorage.setItem(KEYS.history(date), JSON.stringify(words)); }
     function getAllHistory(){
       return Object.keys(localStorage)
         .filter(k=>k.startsWith("voca-history-"))
@@ -208,9 +212,9 @@
     }
     function renderHistory(filterDate="", q=""){
       const box=document.getElementById("historyList"); box.innerHTML="";
-      let all = getAllHistory();
-      if (filterDate) all = all.filter(h=>h.date===filterDate);
-      if (q){
+      let all=getAllHistory();
+      if(filterDate) all=all.filter(h=>h.date===filterDate);
+      if(q){
         const qq=q.toLowerCase();
         all = all.map(h=>({
           date:h.date,
@@ -235,23 +239,28 @@
     const filterTextEl=document.getElementById("filterText");
     document.getElementById("applyFilter").onclick=()=>renderHistory(filterDateEl.value, filterTextEl.value.trim());
     document.getElementById("resetFilter").onclick=()=>{ filterDateEl.value=""; filterTextEl.value=""; renderHistory(); };
-    document.getElementById("clearHistory").onclick=()=>{ if(confirm("모든 기록을 삭제할까요?")){ getAllHistory().forEach(h=>localStorage.removeItem(S.history(h.date))); renderHistory(); } };
+    document.getElementById("clearHistory").onclick=()=>{ if(confirm("모든 기록을 삭제할까요?")){ getAllHistory().forEach(h=>localStorage.removeItem(KEYS.history(h.date))); renderHistory(); } };
 
-    // ===== 완료 → 기록 저장 + 다음날로 계속 전환 가능 =====
-    document.getElementById("markDone").onclick = async ()=>{
+    // ===== 상태 =====
+    const statusEl = document.getElementById("status");
+    function flash(msg){ statusEl.textContent=msg; setTimeout(()=>{statusEl.textContent="";}, 2000); }
+
+    // ===== 완료: 기록 저장 + 다음날로 계속 이동 =====
+    const markBtn = document.getElementById("markDone");
+    let currentWords = [];  // ★ 단 한 번만 선언
+    markBtn.onclick = async ()=>{
       if (!currentWords.length) return;
-      // 1) 현재 표시 날짜 기준으로 기록 저장
+      // 1) 현재 날짜 기록 저장
       saveHistory(currentDate, currentWords);
-      // 2) 다음날로 이동
+      // 2) 다음 날짜로 이동
       currentDate = addDays(currentDate, 1);
-      localStorage.setItem(S.virtualDate, currentDate);
-      dateBadge.textContent = currentDate;
-      // 3) 다음날 단어 로드
-      currentWords = await fetchWordsFor(currentDate);
+      localStorage.setItem(KEYS.virtualDate, currentDate);
+      document.getElementById("dateBadge").textContent = currentDate;
+      // 3) 다음 날짜 단어 로드
+      const next = await fetchWordsFor(currentDate);
+      currentWords = next;
       renderWords(currentWords);
-      // 안내
-      document.getElementById("status").textContent = "다음날 세트로 이동했습니다.";
-      setTimeout(()=>document.getElementById("status").textContent="", 2000);
+      flash("다음날 세트로 이동했습니다.");
     };
 
     // ===== 탭 =====
@@ -285,15 +294,11 @@
     };
     document.getElementById("stopAll").onclick=stopSpeaking;
 
-    // ===== 초기 로드: currentDate 기준으로 로드 =====
-    let currentWords = [];
+    // ===== 초기 로드: currentDate 기준 로드 =====
     (async ()=>{
       currentWords = await fetchWordsFor(currentDate);
-      if (!currentWords.length){
-        document.getElementById("emptyToday").style.display="";
-      } else {
-        renderWords(currentWords);
-      }
+      renderWords(currentWords);
+      if (!currentWords.length) flash("단어를 불러오지 못했어요. pool.json 또는 words.json을 확인하세요.");
     })();
   </script>
 </body>
