@@ -135,6 +135,15 @@
   <!-- 데이터 & 로직 -->
   <script type="module">
     /***********************
+     * 전역 (선언 순서 고정)  ← 중요!
+     ************************/
+    let isPlaying = false;          // 재생 상태 (가장 먼저 선언)
+    let pool = [];                  // pool.json 원본
+    let shuffledPool = [];          // 시드 셔플된 배열
+    let deleteMode = false;         // 기록 삭제 모드
+    let selectedToDelete = new Set();
+
+    /***********************
      * 유틸
      ************************/
     const $ = (sel, el=document)=>el.querySelector(sel);
@@ -336,9 +345,6 @@
      * 렌더링 & 재생
      ************************/
     const listEl = $('#list');
-    let pool = [];
-    let shuffledPool = [];
-    let isPlaying = false;
 
     async function renderWords(){
       if (pool.length === 0) {
@@ -416,9 +422,6 @@
     /***********************
      * 기록 보기 / 삭제 모드
      ************************/
-    let deleteMode = false;
-    let selectedToDelete = new Set();
-
     function getLogs(){ return JSON.parse(localStorage.getItem('studyLogs')||'[]'); }
     function setLogs(arr){ localStorage.setItem('studyLogs', JSON.stringify(arr)); }
 
@@ -535,7 +538,6 @@
     });
 
     // 초기 렌더(단어)
-    let isPlaying = false;
     renderWords();
   </script>
 </body>
