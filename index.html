@@ -83,7 +83,13 @@
     .input{border:1px solid var(--muted);border-radius:12px;padding:10px 12px;min-height:44px}
     .sheet .btn{width:100%}
     .sep{height:1px;background:var(--muted);margin:14px 0}
-    .logout{position:absolute;left:-60px;top:80px;transform:rotate(-90deg);background:#ff4b4b;color:#fff;border:none;border-radius:12px 12px 0 0;padding:8px 12px;font-weight:800}
+
+    /* ⬇️ 수정: 로그아웃 버튼을 일반 가로 버튼으로 */
+    .logout{
+      background:#ff4b4b; color:#fff; border:none;
+      border-radius:12px; padding:12px; font-weight:800;
+      width:100%; margin-top:10px; cursor:pointer;
+    }
 
     @media (max-width:560px){
       .title-text{font-size:18px}
@@ -174,7 +180,7 @@
           <div class="user-mail" id="meMail">—</div>
         </div>
       </div>
-      <button class="btn danger logout" id="logoutBtn">로그아웃</button>
+      <button class="logout" id="logoutBtn">로그아웃</button>
     </div>
   </aside>
 
@@ -204,7 +210,6 @@
     // ===== UI refs =====
     const sheet = document.getElementById('sheet');
     const dotBtn = document.getElementById('dotBtn');
-    const userPill = document.getElementById('userPill');
     const userName = document.getElementById('userName');
     const userMail = document.getElementById('userMail');
     const avatar = document.getElementById('avatar');
@@ -280,7 +285,6 @@
     let voices = [];
     function loadVoices(){
       voices = window.speechSynthesis.getVoices();
-      // 영어 후보(미국/영국/기타 en*)
       const en = voices.filter(v => /^en(-|_|$)/i.test(v.lang));
       const ko = voices.filter(v => /^ko(-|_|$)/i.test(v.lang));
       const fill = (sel, arr, fallback) => {
@@ -302,7 +306,6 @@
     function speak(text, lang){
       const u = new SpeechSynthesisUtterance(text);
       u.rate = parseFloat(rateRange.value || '1');
-      // voice pick by lang
       const pool = voices.filter(v => v.lang === lang || v.lang.toLowerCase().startsWith(lang.toLowerCase()));
       if (lang.startsWith('en')) u.voice = pool[0] || voices.find(v=>/^en/i.test(v.lang));
       else if (lang.startsWith('ko')) u.voice = pool[0] || voices.find(v=>/^ko/i.test(v.lang));
@@ -310,21 +313,16 @@
       speechSynthesis.speak(u);
     }
 
-    // date & storage helpers
     const fmt = d => d.toISOString().slice(0,10);
     let currentDay = new Date();
     dateLabel.textContent = fmt(currentDay);
 
-    const STORAGE = {
-      hard: 'hard-words',
-      done: 'done-days'
-    };
+    const STORAGE = { hard: 'hard-words', done: 'done-days' };
     const getHard = ()=> new Set(JSON.parse(localStorage.getItem(STORAGE.hard) || '[]'));
     const setHard = (s)=> localStorage.setItem(STORAGE.hard, JSON.stringify([...s]));
     const getDone = ()=> new Set(JSON.parse(localStorage.getItem(STORAGE.done) || '[]'));
     const addDone = (day)=> { const s=getDone(); s.add(day); localStorage.setItem(STORAGE.done, JSON.stringify([...s])); };
 
-    // fetch words (pool.json or words.json)
     async function fetchPool(){
       const tries = ['pool.json','words.json','/Voca/words.json'];
       for(const url of tries){
@@ -340,11 +338,9 @@
     let todayWords = [];
 
     function pickWordsByDate(dateStr){
-      // deterministic 10 selection by date
       const n = 10;
       const seed = [...dateStr].reduce((a,c)=>a+c.charCodeAt(0),0);
       const arr = [...pool];
-      // simple shuffle by seed
       for(let i=arr.length-1;i>0;i--){
         const j = (seed + i*9301 + 49297) % (i+1);
         [arr[i],arr[j]] = [arr[j],arr[i]];
@@ -391,15 +387,12 @@
       if(pool.length===0) pool = await fetchPool();
       todayWords = pickWordsByDate(dateLabel.textContent);
       render(todayWords);
-      // 완료 배지 토글
       const doneSet = getDone();
       completeBtn.textContent = doneSet.has(dateLabel.textContent) ? '✓ 오늘 완료됨' : '오늘분 완료';
     }
 
-    // init
     await loadDay(currentDay);
 
-    // controls
     prevDayBtn.onclick = async ()=>{
       currentDay.setDate(currentDay.getDate()-1);
       await loadDay(currentDay);
@@ -423,7 +416,6 @@
       const day = dateLabel.textContent;
       addDone(day);
       completeBtn.textContent = '✓ 오늘 완료됨';
-      // 다음날로 이동
       currentDay.setDate(currentDay.getDate()+1);
       loadDay(currentDay);
     };
@@ -440,8 +432,6 @@
       const pick = prompt(`완료한 날짜 중 보고 싶은 날을 입력하세요:\n${days.join(', ')}`, days[0]);
       if(pick){ currentDay = new Date(pick); loadDay(currentDay); }
     };
-
-    // change rate updates only next utterances
   </script>
 </body>
 </html>
