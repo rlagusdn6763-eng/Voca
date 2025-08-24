@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8" />
@@ -6,400 +6,432 @@
 <title>오늘의 회화 영단어</title>
 <style>
   :root{
-    --bg:#f7fafc; --panel:#ffffff; --text:#0f172a; --muted:#667085;
-    --primary:#22c55e; --primary-weak:#dcfce7; --accent:#0ea5e9;
-    --danger:#ef4444; --warn:#f59e0b; --star:#fbbf24; --border:#e5e7eb;
-    --chip:#eef2ff; --chip-text:#3730a3;
+    --bg:#f7fafc; --card:#ffffff; --ink:#0f172a; --muted:#475569;
+    --brand:#2563eb; --brand-ink:#fff; --ok:#16a34a; --warn:#d97706; --danger:#ef4444;
+    --line:#e5e7eb; --chip:#eef2ff; --chip-ink:#1d4ed8;
   }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Malgun Gothic,Helvetica,Arial,"Noto Sans",sans-serif}
-  .wrap{max-width:920px;margin:24px auto;padding:0 16px}
-  header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
-  h1{font-size:28px;margin:0;font-weight:800;letter-spacing:-.3px}
-  .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--primary-weak);color:#065f46;font-weight:700}
-  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
-  .btn{appearance:none;border:1px solid var(--border);background:#fff;color:var(--text);padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer;transition:.15s;box-shadow:0 1px 0 rgba(16,24,40,.04)}
-  .btn:hover{transform:translateY(-1px)}
-  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-  .btn.ghost{background:transparent}
-  .btn.warn{background:var(--warn);border-color:var(--warn);color:#111}
-  .btn.stop{background:#fff3f3;border-color:#fecaca;color:#b91c1c}
-  .datebox{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--border);padding:8px 12px;border-radius:12px}
-  .datebox input{border:0;background:transparent;font-weight:800;font-size:16px;color:var(--text)}
-  .slider{display:flex;align-items:center;gap:10px;margin:8px 0 4px}
-  .slider input{width:180px}
-  .meta-tip{font-size:12px;color:var(--muted)}
-  .grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px}
-  @media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px;display:flex;gap:12px;align-items:flex-start;position:relative}
-  .idx{min-width:36px;height:36px;border-radius:10px;background:var(--chip);color:var(--chip-text);display:flex;align-items:center;justify-content:center;font-weight:800}
-  .word{flex:1}
-  .en{font-size:18px;font-weight:800}
-  .ko{margin-top:6px;color:var(--muted);font-weight:600}
-  .ex{margin-top:8px;font-size:13px;color:#374151;background:#f8fafc;border:1px dashed var(--border);padding:8px;border-radius:10px}
-  .actions{display:flex;gap:6px}
-  .star{position:absolute;right:12px;top:12px;background:#fff8eb;border:1px solid #fde68a;color:#92400e;border-radius:999px;padding:6px 10px;font-weight:800;cursor:pointer}
-  .star.active{background:#fff7db;border-color:#fbbf24;color:#92400e;box-shadow:0 0 0 2px #fef3c7 inset}
-  .pill{display:inline-flex;align-items:center;gap:8px}
-  .done-ok{background:var(--primary);color:#fff;border:none}
-  /* modal */
-  .modal-back{position:fixed;inset:0;background:rgba(2,6,23,.52);display:none;align-items:center;justify-content:center;padding:16px;z-index:40}
-  .modal{max-width:520px;width:100%;background:#fff;border-radius:16px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(2,6,23,.25);overflow:hidden}
-  .modal header{padding:16px;border-bottom:1px solid var(--border)}
-  .modal .body{padding:16px;display:grid;gap:12px}
-  .field{display:grid;gap:6px}
-  .field input{padding:12px;border:1px solid var(--border);border-radius:10px}
-  .list{display:grid;gap:8px;max-height:60vh;overflow:auto}
-  .chip{display:inline-flex;gap:8px;align-items:center;background:#f1f5f9;color:#0f172a;border-radius:999px;padding:6px 10px;border:1px solid #e2e8f0;font-weight:700}
-  .navline{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
-  .hard-link{margin-left:auto}
-  .muted{color:var(--muted)}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,AppleSDGothicNeo,"Noto Sans KR",sans-serif}
+  header{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px}
+  h1{margin:0;font-size:22px;font-weight:800;letter-spacing:-0.01em}
+  .container{max-width:980px;margin:0 auto;padding:18px}
+  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer}
+  .btn.brand{background:var(--brand);color:var(--brand-ink);border-color:transparent}
+  .btn.ok{background:var(--ok);color:#fff;border-color:transparent}
+  .btn.ghost{background:var(--card)}
+  .btn.danger{background:var(--danger);color:#fff;border-color:transparent}
+  .chip{background:var(--chip);color:var(--chip-ink);padding:6px 10px;border-radius:999px;font-weight:700}
+  .pill{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);
+    border-radius:999px;padding:8px 12px}
+  .hide{display:none}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .toolbar{justify-content:space-between;margin:12px 0}
+  .date-chip{font-weight:800}
+  .range{accent-color:#1d4ed8}
+
+  /* 리스트 */
+  .item{display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;
+        padding:12px;border-bottom:1px solid var(--line)}
+  .item:last-child{border-bottom:0}
+  .idx{width:30px;height:30px;border-radius:9px;background:var(--chip);color:var(--chip-ink);
+       display:flex;align-items:center;justify-content:center;font-weight:800}
+  .en{font-weight:800;font-size:16px}
+  .ko{color:var(--muted)}
+  .ex{color:var(--muted);font-size:13px;margin-top:3px}
+  .star{font-size:20px;color:#d97706;cursor:pointer;user-select:none}
+
+  /* 상단 사용자 */
+  #auth-pill strong{line-height:1}
+  #auth-pill small{color:var(--muted)}
+
+  /* 모달 */
+  .backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+  .modal{width:100%;max-width:430px;background:#fff;border-radius:16px;border:1px solid var(--line);box-shadow:0 24px 48px rgba(0,0,0,.18)}
+  .modal header{position:static;border-bottom:1px solid var(--line);padding:14px 16px}
+  .modal .body{padding:14px 16px}
+  .field{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+  .field input{padding:12px;border:1px solid var(--line);border-radius:12px;font-size:16px}
+  .divider{display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--muted);font-weight:700}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+  .filter-row{gap:8px}
+  input[type="date"]{padding:8px 10px;border:1px solid var(--line);border-radius:10px}
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <h1>오늘의 회화 영단어</h1>
-      <div id="doneBadge" class="badge" style="display:none">✔ 오늘분 학습 완료</div>
-    </header>
+  <header>
+    <h1>오늘의 회화 영단어</h1>
 
-    <div class="toolbar">
-      <div class="datebox">
-        <button class="btn" id="prevDay">◀</button>
-        <input type="date" id="datePick" />
-        <button class="btn" id="nextDay">▶</button>
-      </div>
-      <button class="btn primary" id="btnPlayAll">전체 재생</button>
-      <button class="btn stop" id="btnStopAll">정지</button>
-      <button class="btn" id="btnDoneToday">오늘분 완료</button>
-      <button class="btn" id="btnLogin">로그인</button>
-      <button class="btn ghost hard-link" id="btnHard">★ 어려운 단어</button>
-    </div>
+    <div class="row">
+      <span id="badge-done" class="chip hide">오늘분 학습 완료</span>
 
-    <div class="slider">
-      <span class="muted">속도</span>
-      <input type="range" id="rate" min="0.6" max="1.4" step="0.1" value="1.0">
-      <span id="rateVal" class="muted">1.0x</span>
-    </div>
-    <div class="meta-tip">발음이 어색하면 기기 설정에서 English(US/UK), 한국어 음성을 설치해 주세요.</div>
-
-    <div class="navline">
-      <span class="chip">표시: <strong id="countInfo">0</strong>개</span>
-      <span class="chip">학습 날짜: <strong id="labelDate">-</strong></span>
-      <span class="chip" id="loginChip" style="display:none">안내: <strong id="who"></strong></span>
-    </div>
-
-    <section id="list" class="grid" aria-live="polite"></section>
-
-    <!-- 로그인/회원가입 모달 -->
-    <div id="authBack" class="modal-back" aria-hidden="true">
-      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
-        <header>
-          <h3 id="authTitle" style="margin:0">로그인 / 회원가입</h3>
-          <button class="btn ghost" id="closeAuth">닫기</button>
-        </header>
-        <div class="body">
-          <p class="muted">이메일·비밀번호 로그인 또는 Google 계정으로 간편 로그인</p>
-          <div class="field">
-            <label>이메일</label>
-            <input id="email" type="email" placeholder="you@example.com" />
+      <div id="auth-pill" class="pill">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div id="user-avatar" class="idx">?</div>
+          <div style="display:flex;flex-direction:column">
+            <strong id="user-name">로그인 필요</strong>
+            <small id="user-email"></small>
           </div>
-          <div class="field">
-            <label>비밀번호</label>
-            <input id="pw" type="password" placeholder="8자리 이상" />
-          </div>
-          <div style="display:flex; gap:8px">
-            <button class="btn" id="doLogin" style="flex:1">로그인</button>
-            <button class="btn primary" id="doSignup" style="flex:1">회원가입</button>
-          </div>
-          <div class="muted" style="text-align:center">또는</div>
-          <button class="btn" id="doGoogle">Google로 로그인</button>
         </div>
+        <button id="btn-open-login" class="btn brand">로그인</button>
+        <button id="btn-logout" class="btn danger hide">로그아웃</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- 상단 툴바 -->
+    <div class="row toolbar">
+      <div class="row">
+        <button id="btn-prev" class="btn">◀</button>
+        <span id="date-label" class="chip date-chip">YYYY-MM-DD</span>
+        <button id="btn-next" class="btn">▶</button>
+      </div>
+
+      <div class="row">
+        <button id="btn-playall" class="btn brand">전체 재생</button>
+        <button id="btn-stop" class="btn">정지</button>
+        <button id="btn-done" class="btn ok">오늘분 완료</button>
+        <button id="btn-hard-list" class="btn">★ 어려운 단어</button>
+        <button id="btn-history" class="btn">기록</button>
       </div>
     </div>
 
-    <!-- 어려운 단어 모달 -->
-    <div id="hardBack" class="modal-back" aria-hidden="true">
-      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="hardTitle">
-        <header>
-          <h3 id="hardTitle" style="margin:0">★ 어려운 단어</h3>
-          <button class="btn ghost" id="closeHard">닫기</button>
-        </header>
-        <div class="body">
-          <div id="hardList" class="list"></div>
+    <div class="row" style="gap:16px;margin:6px 0 12px">
+      <div class="card" style="display:flex;align-items:center;gap:14px">
+        <label>속도</label>
+        <input id="rate" type="range" min="0.6" max="1.4" step="0.1" value="1" class="range"/>
+        <span id="rate-val">1.0x</span>
+      </div>
+      <div class="card" style="display:flex;align-items:center;gap:8px">
+        <label for="voice">영어 음성</label>
+        <select id="voice"></select>
+      </div>
+    </div>
+
+    <!-- 리스트 -->
+    <div id="list" class="card"></div>
+  </div>
+
+  <!-- 로그인 모달 -->
+  <div id="login-pp" class="backdrop">
+    <div class="modal">
+      <header class="row" style="justify-content:space-between">
+        <strong>로그인 / 회원가입</strong>
+        <button id="close-login" class="btn">닫기</button>
+      </header>
+      <div class="body">
+        <div class="field">
+          <label>이메일</label>
+          <input id="inp-email" type="email" placeholder="you@example.com"/>
         </div>
+        <div class="field">
+          <label>비밀번호</label>
+          <input id="inp-pass" type="password" placeholder="8자리 이상"/>
+        </div>
+        <div class="row">
+          <button id="email-login" class="btn" style="flex:1">로그인</button>
+          <button id="email-sign" class="btn brand" style="flex:1">회원가입</button>
+        </div>
+        <div class="divider">또는</div>
+        <button id="google-login" class="btn" style="width:100%">Google로 로그인</button>
+        <p class="muted" style="color:var(--muted);margin-top:10px">
+          구글 로그인이 안 되면 Firebase 콘솔의 <b>인증 &gt; 로그인 방법 &gt; Google</b>을 ‘사용’으로 켜고,
+          <b>승인된 도메인</b>에 <code>rlagusdn6763-eng.github.io</code>가 등록되어 있는지 확인하세요.
+        </p>
       </div>
     </div>
   </div>
 
-<!-- Firebase SDK (모듈러 CDN) -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-
-  // ====== Firebase 설정 (네 프로젝트 값) ======
-  const firebaseConfig = {
-    apiKey: "AIzaSyBtN9HptAjl3wzemzKIr8nHvRHyOsvjsNI",
-    authDomain: "voca-khw.firebaseapp.com",
-    projectId: "voca-khw",
-    storageBucket: "voca-khw.firebasestorage.app",
-    messagingSenderId: "697341566223",
-    appId: "1:697341566223:web:2a40f413b1edeb543c727a",
-    measurementId: "G-Y5XZEX3W9X"
-  };
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  // 리다이렉트 결과 처리(모바일 폴백)
-  getRedirectResult(auth).catch(()=>{});
-
-  // ====== DOM ======
-  const $ = s => document.querySelector(s);
-  const listEl = $("#list"), countInfo=$("#countInfo"), labelDate=$("#labelDate");
-  const doneBadge=$("#doneBadge"), rate=$("#rate"), rateVal=$("#rateVal");
-  const datePick=$("#datePick");
-  const loginChip=$("#loginChip"), who=$("#who");
-
-  // ====== 상태 ======
-  const fmt = (d)=> d.toISOString().slice(0,10);
-  const todayStr = fmt(new Date());
-  let currentDate = todayStr;
-  let wordsToday = [];       // words.json(오늘)
-  let showingWords = [];     // 화면에 표시 중(선택 날짜)
-  let speaking = false;
-  let currentUser = null;
-  const uidKey = ()=> currentUser ? `uid:${currentUser.uid}` : "uid:guest";
-  const store = {
-    get(path, def){ try{ return JSON.parse(localStorage.getItem(path)) ?? def; }catch{return def}},
-    set(path, val){ localStorage.setItem(path, JSON.stringify(val)); }
-  };
-
-  // ====== 음성 ======
-  let voices = [];
-  const refreshVoices = ()=>{
-    voices = window.speechSynthesis.getVoices();
-  }
-  window.speechSynthesis.onvoiceschanged = refreshVoices; refreshVoices();
-  const pickVoice = (langStartsWith)=> voices.find(v => v.lang?.toLowerCase().startsWith(langStartsWith));
-  const speakOnce = (text, langLike="en", rateVal=1.0)=>{
-    return new Promise(res=>{
-      const u = new SpeechSynthesisUtterance(text);
-      const v = pickVoice(langLike);
-      if(v) u.voice = v;
-      u.rate = rateVal;
-      u.onend = ()=>res();
-      window.speechSynthesis.speak(u);
-    });
-  };
-
-  // ====== 데이터 로드 ======
-  async function loadTodayJson(){
-    const bust = `v=${Date.now()}`;
-    const r = await fetch(`./words.json?${bust}`);
-    if(!r.ok){ wordsToday=[]; return; }
-    wordsToday = await r.json();
-  }
-
-  // 선택 날짜에 맞는 단어셋
-  function resolveWordsForDate(dateStr){
-    const baseKey = uidKey();
-    const history = store.get(`${baseKey}:history`,{});
-    if(dateStr === todayStr){
-      // 오늘: words.json 우선, 없으면 히스토리
-      return wordsToday?.length ? wordsToday : (history[dateStr]?.words ?? []);
-    }
-    // 과거/미래: 히스토리
-    return history[dateStr]?.words ?? [];
-  }
-
-  // 완료 체크
-  function isDone(dateStr){
-    const history = store.get(`${uidKey()}:history`,{});
-    return Boolean(history[dateStr]?.done);
-  }
-
-  // 완료 처리 + 히스토리 저장
-  function markDone(dateStr, words){
-    const baseKey = uidKey();
-    const history = store.get(`${baseKey}:history`,{});
-    history[dateStr] = { words, done:true, ts: Date.now() };
-    store.set(`${baseKey}:history`, history);
-    renderDoneBadge();
-  }
-
-  // 어려운 단어
-  function toggleHard(item){
-    const key = `${uidKey()}:hard`;
-    const list = store.get(key,[]);
-    const idx = list.findIndex(x=>x.phrase===item.phrase && x.meaning===item.meaning);
-    if(idx>=0) list.splice(idx,1); else list.unshift(item);
-    store.set(key,list);
-    renderList(showingWords); // 버튼 active 반영
-  }
-  function getHard(){ return store.get(`${uidKey()}:hard`,[]); }
-
-  // ====== 화면 렌더 ======
-  function renderDoneBadge(){
-    doneBadge.style.display = isDone(currentDate) ? "inline-flex" : "none";
-  }
-  function card(item, i){
-    const hardNow = getHard().some(x=>x.phrase===item.phrase && x.meaning===item.meaning);
-    const ex = item.example ? `<div class="ex">예문: ${item.example}</div>` : "";
-    return `
-      <div class="card">
-        <div class="idx">${i+1}</div>
-        <div class="word">
-          <div class="en">${item.phrase}</div>
-          <div class="ko">${item.meaning}</div>
-          ${ex}
-          <div class="actions" style="margin-top:10px">
-            <button class="btn" data-act="say-en" data-i="${i}">EN발음</button>
-            <button class="btn" data-act="say-ko" data-i="${i}">KO발음</button>
-          </div>
+  <!-- 어려운 단어 모달 -->
+  <div id="hard-pp" class="backdrop">
+    <div class="modal">
+      <header class="row" style="justify-content:space-between">
+        <strong>★ 어려운 단어</strong>
+        <button id="close-hard" class="btn">닫기</button>
+      </header>
+      <div class="body">
+        <div class="row filter-row">
+          <input id="hard-q" placeholder="검색…" style="flex:1;padding:10px;border:1px solid var(--line);border-radius:10px"/>
+          <button id="hard-clear" class="btn danger">전부 삭제</button>
         </div>
-        <button class="star ${hardNow?'active':''}" title="어려운 단어에 추가/해제" data-act="hard" data-i="${i}">★</button>
+        <div id="hard-list" class="card" style="margin-top:10px"></div>
       </div>
-    `;
-  }
-  function renderList(words){
-    showingWords = words;
-    listEl.innerHTML = words.map((w,i)=>card(w,i)).join("") || `<div class="muted">이 날짜의 단어가 없습니다.</div>`;
-    countInfo.textContent = words.length;
-    // 이벤트 위임
-    listEl.onclick = async (e)=>{
-      const btn = e.target.closest("button[data-act]");
-      if(!btn) return;
-      const i = +btn.dataset.i;
-      const it = showingWords[i];
-      if(btn.dataset.act==="say-en"){
-        await speakOnce(it.phrase,"en", +rate.value);
-      }else if(btn.dataset.act==="say-ko"){
-        await speakOnce(it.meaning,"ko", +rate.value);
-      }else if(btn.dataset.act==="hard"){
-        toggleHard(it);
-      }
+    </div>
+  </div>
+
+  <!-- 기록 모달 -->
+  <div id="hist-pp" class="backdrop">
+    <div class="modal">
+      <header class="row" style="justify-content:space-between">
+        <strong>학습 기록</strong>
+        <button id="close-hist" class="btn">닫기</button>
+      </header>
+      <div class="body">
+        <div class="row filter-row">
+          <input id="date-from" type="date"/>
+          <input id="date-to" type="date"/>
+          <button id="hist-filter" class="btn">검색</button>
+          <button id="hist-clear" class="btn danger">기록 초기화</button>
+        </div>
+        <div id="hist-list" class="card" style="margin-top:10px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase (module) + App -->
+  <script type="module">
+    /* ===== Firebase ===== */
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+             GoogleAuthProvider, signInWithPopup, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBtN9HptAjl3wzemzKIr8nHvRHyOsvjsNI",
+      authDomain: "voca-khw.firebaseapp.com",
+      projectId: "voca-khw",
+      storageBucket: "voca-khw.firebasestorage.app",
+      messagingSenderId: "697341566223",
+      appId: "1:697341566223:web:2a40f413b1edeb543c727a",
+      measurementId: "G-Y5XZEX3W9X"
     };
-  }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-  // 날짜 전환
-  function setDate(dStr){
-    currentDate = dStr;
-    datePick.value = dStr;
-    labelDate.textContent = dStr;
-    const ws = resolveWordsForDate(dStr);
-    renderList(ws);
-    renderDoneBadge();
-  }
+    /* ===== helpers ===== */
+    const $ = s => document.querySelector(s);
+    const fmt = d => d.toISOString().slice(0,10);
+    const today = () => fmt(new Date());
+    const keyUser = () => (auth.currentUser?.uid||'guest');
 
-  // ====== 전체 재생/정지 ======
-  async function playAll(){
-    if(speaking) return;
-    speaking = true;
-    for(const it of showingWords){
-      if(!speaking) break;
-      await speakOnce(it.phrase,"en", +rate.value);
-      if(!speaking) break;
-      await speakOnce(it.meaning,"ko", +rate.value);
+    // state
+    let currentDate = today();
+    $('#date-label').textContent = currentDate;
+
+    // voices
+    let voices = [];
+    const voiceSel = $('#voice');
+    const rate = $('#rate'); const rateVal = $('#rate-val');
+
+    function loadVoices(){
+      voices = speechSynthesis.getVoices().filter(v=>/en/i.test(v.lang));
+      voiceSel.innerHTML = voices.map((v,i)=>`<option value="${i}">${v.name} (${v.lang})</option>`).join('') || `<option>기본(en-US)</option>`;
     }
-    speaking = false;
-  }
-  function stopAll(){
-    speaking = false;
-    window.speechSynthesis.cancel();
-  }
+    speechSynthesis.onvoiceschanged = loadVoices; loadVoices();
 
-  // ====== Auth UI ======
-  const authBack=$("#authBack"), closeAuth=$("#closeAuth");
-  const hardBack=$("#hardBack"), closeHard=$("#closeHard");
-  $("#btnLogin").onclick = ()=> authBack.style.display="flex";
-  closeAuth.onclick = ()=> authBack.style.display="none";
-  $("#btnHard").onclick = ()=>{
-    const arr = getHard();
-    $("#hardList").innerHTML = arr.length
-      ? arr.map(x=>`<div class="card"><div class="word"><div class="en">${x.phrase}</div><div class="ko">${x.meaning}</div></div></div>`).join("")
-      : `<div class="muted">아직 추가된 어려운 단어가 없어요.</div>`;
-    hardBack.style.display="flex";
-  };
-  closeHard.onclick = ()=> hardBack.style.display="none";
+    rate.addEventListener('input', ()=> rateVal.textContent = `${Number(rate.value).toFixed(1)}x`);
 
-  $("#doLogin").onclick = async ()=>{
-    try{
-      const email = $("#email").value.trim(), pw=$("#pw").value.trim();
-      await signInWithEmailAndPassword(auth,email,pw);
-      alert("로그인 성공!");
-      authBack.style.display="none";
-    }catch(e){
-      alert("로그인 실패: "+e);
+    /* ===== words ===== */
+    const WORDS_URL = './words.json'; // Actions가 만드는 파일(10개)
+    async function fetchWords(){
+      const res = await fetch(WORDS_URL, {cache:'no-store'});
+      return await res.json(); // [{phrase, meaning, example}]
     }
-  };
-  $("#doSignup").onclick = async ()=>{
-    try{
-      const email = $("#email").value.trim(), pw=$("#pw").value.trim();
-      await createUserWithEmailAndPassword(auth,email,pw);
-      alert("회원가입 성공!");
-      authBack.style.display="none";
-    }catch(e){
-      // 설정 미비 안내
-      if(String(e).includes("operation-not-allowed") || String(e).includes("configuration-not-found")){
-        alert("Firebase 콘솔 > Authentication > Sign-in method 에서 Email/Password 제공자를 ‘사용’으로 켜주세요. Authorized domains에 rlagusdn6763-eng.github.io도 추가!");
+
+    function speakLine(text, lang='en-US'){
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = lang;
+      u.rate = Number(rate.value);
+      if(lang.startsWith('en') && voices.length && voiceSel.value !== '') {
+        const v = voices[Number(voiceSel.value)] || voices[0];
+        if(v) u.voice = v;
+      }
+      speechSynthesis.speak(u);
+      return new Promise(r=>{u.onend=r; u.onerror=r;});
+    }
+
+    async function playAll(list){
+      for(const w of list){
+        speechSynthesis.cancel();
+        await speakLine(w.phrase,'en-US');
+        if(w.example) await speakLine(w.example,'en-US');
+        await speakLine(w.meaning,'ko-KR');
+        if(stopped) break;
+      }
+    }
+    let stopped = false;
+    $('#btn-playall').addEventListener('click', async ()=>{
+      stopped = false;
+      const words = await fetchWords();
+      playAll(words);
+    });
+    $('#btn-stop').addEventListener('click', ()=>{
+      stopped = true; speechSynthesis.cancel();
+    });
+
+    /* ===== render list ===== */
+    function hardKey(){ return `hard:${keyUser()}`; }
+    function loadHard(){
+      try{ return JSON.parse(localStorage.getItem(hardKey())||'[]'); }catch{ return []; }
+    }
+    function saveHard(arr){ localStorage.setItem(hardKey(), JSON.stringify(arr)); }
+
+    function toggleHard(word){
+      const arr = loadHard();
+      const i = arr.findIndex(x=>x.phrase===word.phrase);
+      if(i>=0) arr.splice(i,1); else arr.unshift(word);
+      saveHard(arr);
+      renderHard();
+    }
+
+    async function renderList(){
+      const data = await fetchWords();
+      const hard = loadHard();
+      $('#list').innerHTML = data.map((w,i)=>{
+        const isHard = hard.some(x=>x.phrase===w.phrase);
+        return `
+          <div class="item">
+            <div class="idx">${i+1}</div>
+            <div>
+              <div class="en">${w.phrase}</div>
+              <div class="ko">${w.meaning}</div>
+              ${w.example?`<div class="ex">예문: ${w.example}</div>`:''}
+            </div>
+            <div class="row">
+              <button class="btn" onclick="speakOne('${encodeURIComponent(w.phrase)}','en')">EN</button>
+              <button class="btn" onclick="speakOne('${encodeURIComponent(w.meaning)}','ko')">KO</button>
+              <div class="star" title="어려운 단어 표시" onclick='toggleHard(${JSON.stringify(w)})'>${isHard?'★':'☆'}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    window.speakOne = (t,lang)=>{
+      const dec = decodeURIComponent(t);
+      speechSynthesis.cancel();
+      speakLine(dec, lang==='ko'?'ko-KR':'en-US');
+    };
+    window.toggleHard = toggleHard;
+
+    /* ===== 오늘 완료 / 기록 ===== */
+    function doneKey(date){ return `done:${keyUser()}:${date}`; }
+    function setDone(date){ localStorage.setItem(doneKey(date),'1'); }
+    function isDone(date){ return localStorage.getItem(doneKey(date))==='1'; }
+    function refreshDoneBadge(){
+      if(isDone(currentDate)) $('#badge-done').classList.remove('hide');
+      else $('#badge-done').classList.add('hide');
+    }
+    $('#btn-done').addEventListener('click', ()=>{
+      setDone(currentDate);
+      refreshDoneBadge();
+      alert('오늘분 완료로 기록했어요!');
+    });
+
+    /* ===== 날짜 이동 ===== */
+    function moveDate(delta){
+      const d = new Date(currentDate); d.setDate(d.getDate()+delta);
+      currentDate = fmt(d); $('#date-label').textContent = currentDate;
+      refreshDoneBadge();
+      renderList(); // 현재는 words.json 고정 10개(일 단위 전환은 이후 확장)
+    }
+    $('#btn-prev').addEventListener('click', ()=> moveDate(-1));
+    $('#btn-next').addEventListener('click', ()=> moveDate(1));
+
+    /* ===== 어려운 단어 모달 ===== */
+    const hardPP = $('#hard-pp');
+    $('#btn-hard-list').addEventListener('click', ()=>{ renderHard(); hardPP.style.display='flex'; });
+    $('#close-hard').addEventListener('click', ()=> hardPP.style.display='none');
+    $('#hard-clear').addEventListener('click', ()=>{
+      if(confirm('어려운 단어 전부 삭제할까요?')) saveHard([]), renderHard();
+    });
+    $('#hard-q').addEventListener('input', renderHard);
+
+    function renderHard(){
+      const q = ($('#hard-q').value||'').trim().toLowerCase();
+      const arr = loadHard().filter(w => !q || w.phrase.toLowerCase().includes(q) || w.meaning.includes(q));
+      $('#hard-list').innerHTML = arr.length? arr.map((w,i)=>`
+        <div class="item">
+          <div class="idx">${i+1}</div>
+          <div>
+            <div class="en">${w.phrase}</div>
+            <div class="ko">${w.meaning}</div>
+            ${w.example?`<div class="ex">예문: ${w.example}</div>`:''}
+          </div>
+          <div class="star" onclick='toggleHard(${JSON.stringify(w)})'>★</div>
+        </div>
+      `).join('') : '<div class="ex">표시한 어려운 단어가 없어요.</div>';
+    }
+
+    /* ===== 기록(완료일자) ===== */
+    const histPP = $('#hist-pp');
+    $('#btn-history').addEventListener('click', ()=>{ renderHistory(); histPP.style.display='flex'; });
+    $('#close-hist').addEventListener('click', ()=> histPP.style.display='none');
+    $('#hist-filter').addEventListener('click', renderHistory);
+    $('#hist-clear').addEventListener('click', ()=>{
+      if(!confirm('모든 완료 기록을 초기화할까요?')) return;
+      const prefix = `done:${keyUser()}:`;
+      Object.keys(localStorage).forEach(k=>{ if(k.startsWith(prefix)) localStorage.removeItem(k); });
+      renderHistory();
+    });
+
+    function renderHistory(){
+      const uid = keyUser();
+      let keys = Object.keys(localStorage).filter(k=>k.startsWith(`done:${uid}:`));
+      const rows = keys.map(k=>k.split(':').pop()).sort();
+      const f = $('#date-from').value, t = $('#date-to').value;
+      const inRange = d => (!f || d>=f) && (!t || d<=t);
+      const list = rows.filter(inRange);
+      $('#hist-list').innerHTML = list.length ? list.map((d,i)=>`
+        <div class="item" style="grid-template-columns:60px 1fr auto">
+          <div class="idx">${i+1}</div>
+          <div><strong>${d}</strong></div>
+          <span class="chip">완료</span>
+        </div>
+      `).join('') : '<div class="ex">완료 기록이 없어요.</div>';
+    }
+
+    /* ===== 로그인 UI ===== */
+    const loginPP = $('#login-pp');
+    $('#btn-open-login').addEventListener('click', ()=> loginPP.style.display='flex');
+    $('#close-login').addEventListener('click', ()=> loginPP.style.display='none');
+
+    $('#email-login').addEventListener('click', async ()=>{
+      try{
+        await signInWithEmailAndPassword(auth, $('#inp-email').value.trim(), $('#inp-pass').value);
+        loginPP.style.display='none';
+      }catch(e){ alert('로그인 실패: '+e.message); }
+    });
+    $('#email-sign').addEventListener('click', async ()=>{
+      try{
+        const cred = await createUserWithEmailAndPassword(auth, $('#inp-email').value.trim(), $('#inp-pass').value);
+        const nick = cred.user.email.split('@')[0];
+        await updateProfile(cred.user, {displayName:nick});
+        loginPP.style.display='none';
+      }catch(e){ alert('회원가입 실패: '+e.message); }
+    });
+    $('#google-login').addEventListener('click', async ()=>{
+      try{
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+        loginPP.style.display='none';
+      }catch(e){ alert('Google 로그인 실패: '+e.message+'\nFirebase 콘솔의 승인된 도메인을 확인하세요.'); }
+    });
+    $('#btn-logout').addEventListener('click', async ()=>{ try{ await signOut(auth);}catch(e){ alert('로그아웃 실패: '+e.message); } });
+
+    onAuthStateChanged(auth, (user)=>{
+      if(user){
+        const name = user.displayName || user.email?.split('@')[0] || '사용자';
+        $('#user-name').textContent = name;
+        $('#user-email').textContent = user.email || '';
+        $('#user-avatar').textContent = (name[0]||'?').toUpperCase();
+        $('#btn-open-login').classList.add('hide');
+        $('#btn-logout').classList.remove('hide');
       }else{
-        alert("회원가입 실패: "+e);
+        $('#user-name').textContent = '로그인 필요';
+        $('#user-email').textContent = '';
+        $('#user-avatar').textContent = '?';
+        $('#btn-logout').classList.add('hide');
+        $('#btn-open-login').classList.remove('hide');
       }
-    }
-  };
-  $("#doGoogle").onclick = async ()=>{
-    const provider = new GoogleAuthProvider();
-    try{
-      if(/Mobi|Android/i.test(navigator.userAgent)){
-        await signInWithRedirect(auth, provider); return;
-      }
-      await signInWithPopup(auth, provider);
-      alert("Google 로그인 성공!"); authBack.style.display="none";
-    }catch(e){
-      if(String(e).includes("configuration-not-found")||String(e).includes("operation-not-allowed")){
-        alert("Google 제공자를 Firebase 콘솔에서 ‘사용’으로 켜고, Authorized domains에 rlagusdn6763-eng.github.io 를 추가하세요.");
-      }else{
-        alert("Google 로그인 실패: "+e);
-      }
-    }
-  };
+      // 사용자 바뀌면 뱃지/하드리스트 갱신
+      refreshDoneBadge();
+      renderHard();
+    });
 
-  onAuthStateChanged(auth,(u)=>{
-    currentUser = u || null;
-    if(u){ loginChip.style.display="inline-flex"; who.textContent = u.email || u.uid; }
-    else { loginChip.style.display="none"; who.textContent=""; }
-    // 사용자 바뀌면 현재 날짜 다시 로드(개인 히스토리 분리)
-    setDate(currentDate);
-  });
-
-  // ====== 날짜 & 완료 UI ======
-  datePick.addEventListener("change", (e)=> setDate(e.target.value));
-  $("#prevDay").onclick = ()=> {
-    const d = new Date(currentDate); d.setDate(d.getDate()-1); setDate(fmt(d));
-  };
-  $("#nextDay").onclick = ()=> {
-    const d = new Date(currentDate); d.setDate(d.getDate()+1); setDate(fmt(d));
-  };
-  $("#btnDoneToday").onclick = ()=>{
-    if(!showingWords.length){ alert("표시된 단어가 없습니다."); return; }
-    markDone(currentDate, showingWords);
-    alert("기록 저장 완료! 날짜 기록 탭에서 언제든 볼 수 있어요.");
-  };
-
-  // ====== 전체 재생/정지 + 속도 ======
-  $("#btnPlayAll").onclick = playAll;
-  $("#btnStopAll").onclick = stopAll;
-  rate.oninput = ()=> rateVal.textContent = rate.value+"x";
-
-  // ====== 초기화 ======
-  (async function init(){
-    // 날짜 입력 기본값=오늘
-    datePick.value = todayStr;
-    labelDate.textContent = todayStr;
-    // 오늘 words.json 불러오기
-    await loadTodayJson();
-    // 오늘 날짜 세팅
-    setDate(todayStr);
-  })();
-</script>
+    /* ===== init ===== */
+    refreshDoneBadge();
+    renderList();
+  </script>
 </body>
 </html>
