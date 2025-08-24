@@ -65,7 +65,6 @@
     .full{width:100%}
     .logout{margin-top:8px}
 
-    /* 제목줄 우측 고정 도트 버튼 */
     .title-wrap{display:flex;align-items:center;gap:10px}
   </style>
 </head>
@@ -83,7 +82,9 @@
     <div class="bar">
       <button id="prevDay" class="chip" aria-label="이전">◀</button>
       <div id="dateText" class="chip">2025-08-24</div>
-      <button id="playToggle" class="chip" aria-label="재생/일시정지">▶</button>
+      <button id="nextDay" class="chip" aria-label="다음">▶</button>
+
+      <button id="goToday" class="btn ghost">오늘의 단어</button>
 
       <button id="playAll" class="btn primary">전체 재생</button>
       <button id="stopAll" class="btn ghost">정지</button>
@@ -131,7 +132,7 @@
   <!-- 데이터 & 로직 -->
   <script type="module">
     /***********************
-     * 0) 유틸
+     * 유틸
      ************************/
     const $ = (sel, el=document)=>el.querySelector(sel);
     const $$ = (sel, el=document)=>[...el.querySelectorAll(sel)];
@@ -139,7 +140,7 @@
     const todayStr = fmt(new Date());
 
     /***********************
-     * 1) 슬라이드 패널 제어
+     * 슬라이드 패널
      ************************/
     const sheet = $('#sheet');
     const overlay = $('#overlay');
@@ -149,10 +150,8 @@
     overlay.addEventListener('click', closeSheet);
 
     /***********************
-     * 2) Firebase Auth
-     *    (config만 바꿔 넣으면 바로 동작)
+     * Firebase Auth (설정값만 교체)
      ************************/
-    // 🔧 Firebase 설정 (당신의 콘솔 값으로 교체)
     const firebaseConfig = {
       apiKey: "AIzaSyBtN9HptAjl3wzemzKIr8nHvRHyOsvjsNI",
       authDomain: "voca-khw.firebaseapp.com",
@@ -163,7 +162,6 @@
       measurementId: "G-Y5XZEX3W9X"
     };
 
-    // CDN 모듈 사용
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
       getAuth, onAuthStateChanged,
@@ -175,14 +173,12 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // UI 요소
     const signedOut = $('#signedOut');
     const signedIn  = $('#signedIn');
     const meBadge   = $('#meBadge');
     const meName    = $('#meName');
     const meMail    = $('#meMail');
 
-    // 상태 변화
     onAuthStateChanged(auth, (user)=>{
       if (user) {
         const name = user.displayName || (user.email ? user.email.split('@')[0] : '사용자');
@@ -198,14 +194,12 @@
       }
     });
 
-    // 로그인/가입/구글/로그아웃
     $('#loginBtn').addEventListener('click', async ()=>{
       const email = $('#email').value.trim();
       const pw    = $('#pw').value.trim();
       try {
         await signInWithEmailAndPassword(auth, email, pw);
-        closeSheet();
-        alert('로그인되었습니다.');
+        closeSheet(); alert('로그인되었습니다.');
       } catch(e){ alert('로그인 실패: ' + e.message); }
     });
 
@@ -214,45 +208,44 @@
       const pw    = $('#pw').value.trim();
       try {
         await createUserWithEmailAndPassword(auth, email, pw);
-        closeSheet();
-        alert('회원가입 완료!');
+        closeSheet(); alert('회원가입 완료!');
       } catch(e){ alert('회원가입 실패: ' + e.message); }
     });
 
     $('#googleBtn').addEventListener('click', async ()=>{
       try {
         await signInWithPopup(auth, provider);
-        closeSheet();
-        alert('Google 로그인 완료!');
+        closeSheet(); alert('Google 로그인 완료!');
       } catch(e){ alert('Google 로그인 실패: ' + e.message); }
     });
 
     $('#logoutBtn').addEventListener('click', async ()=>{
       await signOut(auth);
-      closeSheet();
-      alert('로그아웃 되었습니다.');
+      closeSheet(); alert('로그아웃 되었습니다.');
     });
 
     /***********************
-     * 3) 단어 로딩 & 일자 로직
+     * 날짜/단어 로직
      ************************/
     const dateText = $('#dateText');
+    const goTodayBtn = $('#goToday');
     let currentDate = todayStr;
     dateText.textContent = currentDate;
 
-    // 날짜 이동
+    // 날짜 버튼
     $('#prevDay').addEventListener('click', ()=>{
       const d = new Date(currentDate); d.setDate(d.getDate()-1);
-      currentDate = fmt(d); dateText.textContent = currentDate;
-      renderWords();
+      currentDate = fmt(d); dateText.textContent = currentDate; renderWords();
+    });
+    $('#nextDay').addEventListener('click', ()=>{
+      const d = new Date(currentDate); d.setDate(d.getDate()+1);
+      currentDate = fmt(d); dateText.textContent = currentDate; renderWords();
+    });
+    goTodayBtn.addEventListener('click', ()=>{
+      currentDate = todayStr; dateText.textContent = currentDate; renderWords();
     });
 
-    $('#playToggle').addEventListener('click', ()=>{
-      // 간단 토글(아이콘만)
-      const t = $('#playToggle'); t.textContent = t.textContent === '▶' ? '⏸' : '▶';
-    });
-
-    // 오늘 완료 → 로그 기록 + 내일 날짜로 이동
+    // 완료 → 기록 + 다음날로 이동
     $('#doneBtn').addEventListener('click', ()=>{
       const logs = JSON.parse(localStorage.getItem('studyLogs')||'[]');
       if (!logs.includes(currentDate)) logs.push(currentDate);
@@ -263,14 +256,39 @@
       alert('오늘분 완료! 다음 날짜로 이동했습니다.');
     });
 
-    // words.json에서 로딩 (GitHub Pages 루트에 위치)
+    // 단어 로딩
     async function fetchWords(){
       const res = await fetch('./words.json', {cache:'no-cache'});
       return res.json(); // [{phrase, meaning, example}, ...]
     }
 
     /***********************
-     * 4) 음성 합성 (정확한 영어/한국어 선택)
+     * Seeded Shuffle (날짜마다 다른 10개 보장)
+     ************************/
+    // 간단한 시드 PRNG (mulberry32)
+    function mulberry32(a){
+      return function(){
+        var t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      }
+    }
+    function pickBySeed(arr, dateStr, count=10){
+      const seed = parseInt(dateStr.replaceAll('-',''),10);
+      const rng = mulberry32(seed);
+      // 인덱스 셔플 (Fisher–Yates, 시드 사용)
+      const idx = Array.from({length:arr.length}, (_,i)=>i);
+      for (let i=idx.length-1;i>0;i--){
+        const j = Math.floor(rng()*(i+1));
+        [idx[i],idx[j]] = [idx[j],idx[i]];
+      }
+      const chosen = idx.slice(0, Math.min(count, arr.length)).map(i=>arr[i]);
+      return chosen;
+    }
+
+    /***********************
+     * 음성 합성 (영/한 정확 선택)
      ************************/
     const voiceSelect = $('#voiceSelect');
     const rateInput   = $('#rate');
@@ -278,11 +296,9 @@
 
     function loadVoices(){
       voices = window.speechSynthesis.getVoices();
-      // 영어 음성만 노출 (명확한 영어 발음)
       const englishVoices = voices.filter(v => /^en(-|_)/i.test(v.lang));
       voiceSelect.innerHTML = englishVoices
         .map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
-      // 기본 en-US 우선 선택
       const prefer = englishVoices.find(v=>/en[-_]US/i.test(v.lang)) || englishVoices[0];
       if (prefer) voiceSelect.value = prefer.name;
     }
@@ -295,10 +311,8 @@
       if (!text) return;
       const utter = new SpeechSynthesisUtterance(text);
       utter.rate = parseFloat(rateInput.value || '1');
-      // 선택된 영어 음성 우선
       let voice = voices.find(v=>v.name === voiceSelect.value);
       if (!voice || !/^en(-|_)/i.test(voice.lang)) {
-        // 혹시 한국어가 선택돼있으면 en-US로 강제
         voice = voices.find(v=>/en[-_]US/i.test(v.lang)) || voices.find(v=>/^en/i.test(v.lang));
       }
       if (voice) { utter.voice = voice; utter.lang = voice.lang; }
@@ -308,21 +322,14 @@
     }
 
     /***********************
-     * 5) 렌더링
+     * 렌더링
      ************************/
     const listEl = $('#list');
     let pool = [];
 
-    function sliceByDate(all, dateStr){
-      // 날짜를 기반으로 10개 고정 슬라이싱 (안정적 인덱싱)
-      const seed = parseInt(dateStr.replaceAll('-',''),10);
-      const start = Math.abs(seed) % Math.max(1, all.length-10);
-      return all.slice(start, start+10);
-    }
-
     async function renderWords(){
       if (pool.length === 0) pool = await fetchWords();
-      const items = sliceByDate(pool, currentDate);
+      const items = pickBySeed(pool, currentDate, 10);
       listEl.innerHTML = '';
       items.forEach((w, idx)=>{
         const card = document.createElement('article');
@@ -342,15 +349,14 @@
             </div>
           </div>
         `;
-        // 음성 버튼
+        // 음성
         $('.en', card).addEventListener('click', ()=> speak(w.phrase, 'en-US'));
         $('.ko', card).addEventListener('click', ()=> {
-          // 한국어 설명은 한국어 음성으로
           const u = new SpeechSynthesisUtterance(w.meaning);
           u.lang = 'ko-KR'; u.rate = parseFloat(rateInput.value || '1');
           speechSynthesis.cancel(); speechSynthesis.speak(u);
         });
-        // 즐겨찾기(어려운 단어)
+        // 즐겨찾기
         $('.fav', card).addEventListener('click', ()=>{
           const favs = JSON.parse(localStorage.getItem('favs')||'[]');
           favs.push({...w, savedAt: Date.now()});
@@ -417,7 +423,6 @@
       const texts = [...$$('.word', listEl)].map(el=>el.textContent.trim()).filter(Boolean);
       for (const t of texts){
         speak(t,'en-US');
-        // 대략 길이에 비례한 대기
         await new Promise(r=>setTimeout(r, Math.max(800, t.length*90) / parseFloat(rateInput.value||'1')));
       }
     });
