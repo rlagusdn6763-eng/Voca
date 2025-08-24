@@ -5,51 +5,39 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>오늘의 회화 영단어</title>
 <style>
-  body {
-    margin: 0; font-family: 'Noto Sans KR', sans-serif;
-    background: #f9fafb; color: #111827;
-  }
-  header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 16px 20px; background: white; border-bottom: 1px solid #e5e7eb;
-    position: sticky; top: 0; z-index: 50;
-  }
-  header h1 { font-size: 20px; margin: 0; font-weight: 700; }
-  .user { display: flex; align-items: center; gap: 10px; }
-  .avatar {
-    width: 36px; height: 36px; border-radius: 50%; background: #2563eb;
-    color: white; display: flex; justify-content: center; align-items: center;
-    font-weight: 700;
-  }
-  .user-info { display: flex; flex-direction: column; }
-  .user-info small { color: #6b7280; font-size: 12px; }
-  .btn-logout {
-    padding: 6px 12px; border: none; border-radius: 8px;
-    background: #ef4444; color: white; font-size: 13px; cursor: pointer;
-  }
-
-  .container { padding: 20px; max-width: 800px; margin: auto; }
-  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-  button {
-    border: none; border-radius: 10px; padding: 10px 14px;
-    font-weight: 600; cursor: pointer; font-size: 14px;
-  }
-  .btn-main { background: #2563eb; color: white; }
-  .btn-green { background: #16a34a; color: white; }
-  .btn-gray { background: #e5e7eb; color: #111827; }
-
-  /* 단어 카드 */
-  .word-card {
-    background: white; padding: 16px; border-radius: 14px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 12px;
-  }
-  .word-head { display: flex; justify-content: space-between; align-items: center; }
-  .word-head h2 { margin: 0; font-size: 18px; font-weight: 700; }
-  .meaning { color: #374151; margin: 6px 0; }
-  .example { color: #6b7280; font-size: 13px; }
-  .star { font-size: 20px; cursor: pointer; color: #f59e0b; }
-  .actions { display: flex; gap: 8px; margin-top: 10px; }
-  .actions button { flex: 1; }
+  body {margin:0;font-family:'Noto Sans KR',sans-serif;background:#f9fafb;color:#111827;}
+  header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:#fff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:50}
+  h1{margin:0;font-size:20px;font-weight:700}
+  .user{display:flex;align-items:center;gap:10px}
+  .avatar{width:36px;height:36px;border-radius:50%;background:#2563eb;color:#fff;display:flex;justify-content:center;align-items:center;font-weight:700}
+  .user-info{display:flex;flex-direction:column}
+  .user-info small{color:#6b7280;font-size:12px}
+  .btn-logout{background:#ef4444;color:#fff;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap}
+  .container{padding:20px;max-width:860px;margin:auto}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+  button{background:#fff;border:1px solid #d1d5db;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#111827;text-align:center;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(11px,2.5vw,14px)}
+  button:hover{background:#f3f4f6}
+  .btn-main{background:#2563eb;color:#fff;border:none}
+  .btn-green{background:#16a34a;color:#fff;border:none}
+  .btn-danger{background:#ef4444;color:#fff;border:none}
+  .word-card{background:#fff;padding:16px;margin-bottom:12px;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+  .word-head{display:flex;justify-content:space-between;align-items:center}
+  .word-head h2{margin:0;font-size:21px;font-weight:700}
+  .meaning{font-size:16px;color:#374151;margin:6px 0}
+  .example{font-size:13px;color:#6b7280}
+  .star{font-size:20px;cursor:pointer;color:#f59e0b}
+  .actions{display:flex;gap:8px;margin-top:10px}
+  .actions button{flex:1}
+  /* 모달 공통 */
+  .backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:50}
+  .modal{background:#fff;border-radius:12px;max-width:400px;width:90%;box-shadow:0 20px 48px rgba(0,0,0,.18)}
+  .modal header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #e5e7eb}
+  .modal .body{padding:16px}
+  .field{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+  .field input{padding:10px;border:1px solid #e5e7eb;border-radius:8px}
+  .divider{display:flex;align-items:center;gap:10px;margin:12px 0;color:#6b7280;font-size:13px}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:#e5e7eb}
 </style>
 </head>
 <body>
@@ -66,29 +54,139 @@
   </header>
 
   <div class="container">
-    <div class="toolbar">
-      <button class="btn-main" id="btn-playall">전체 재생</button>
-      <button class="btn-gray" id="btn-stop">정지</button>
-      <button class="btn-green" id="btn-done">오늘분 완료</button>
-      <button class="btn-gray" id="btn-hard-list">★ 어려운 단어</button>
-      <button class="btn-gray" id="btn-history">기록</button>
+    <div class="controls">
+      <button id="prev-day">◀</button>
+      <button id="date-display">날짜</button>
+      <button id="next-day">▶</button>
+      <button id="btn-playall" class="btn-main">전체 재생</button>
+      <button id="btn-stop">정지</button>
+      <button id="btn-done" class="btn-green">오늘분 완료</button>
+      <button id="btn-hard" class="btn">★ 어려운 단어</button>
+      <button id="btn-history" class="btn">기록</button>
     </div>
+    <div id="list"></div>
+  </div>
 
-    <div id="list">
-      <!-- 단어 카드 예시 -->
-      <div class="word-card">
-        <div class="word-head">
-          <h2>make do with</h2>
-          <div class="star">☆</div>
+  <!-- 로그인 모달 -->
+  <div id="login-modal" class="backdrop">
+    <div class="modal">
+      <header><strong>로그인 / 회원가입</strong><button id="close-login" class="btn">닫기</button></header>
+      <div class="body">
+        <div class="field"><label>이메일</label><input id="inp-email" type="email"></div>
+        <div class="field"><label>비밀번호</label><input id="inp-pass" type="password"></div>
+        <div class="controls">
+          <button id="email-login" class="btn">로그인</button>
+          <button id="email-sign" class="btn btn-main">회원가입</button>
         </div>
-        <div class="meaning">임시방편으로 사용하다</div>
-        <div class="example">예문: We had to make do with what we had.</div>
-        <div class="actions">
-          <button class="btn-main">EN</button>
-          <button class="btn-gray">KO</button>
-        </div>
+        <div class="divider">또는</div>
+        <button id="google-login" class="btn">Google로 로그인</button>
       </div>
     </div>
   </div>
+
+  <!-- 어려운 단어 모달 -->
+  <div id="hard-modal" class="backdrop">
+    <div class="modal">
+      <header><strong>★ 어려운 단어</strong><button id="close-hard" class="btn">닫기</button></header>
+      <div class="body"><div id="hard-list"></div></div>
+    </div>
+  </div>
+
+  <!-- 기록 모달 -->
+  <div id="hist-modal" class="backdrop">
+    <div class="modal">
+      <header><strong>학습 기록</strong><button id="close-hist" class="btn">닫기</button></header>
+      <div class="body"><div id="hist-list"></div></div>
+    </div>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBtN9HptAjl3wzemzKIr8nHvRHyOsvjsNI",
+    authDomain: "voca-khw.firebaseapp.com",
+    projectId: "voca-khw",
+    storageBucket: "voca-khw.firebasestorage.app",
+    messagingSenderId: "697341566223",
+    appId: "1:697341566223:web:2a40f413b1edeb543c727a",
+    measurementId: "G-Y5XZEX3W9X"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const $=s=>document.querySelector(s);
+  const list=$('#list');
+  const badge=$('#badge-done');
+
+  async function fetchWords(){
+    try{const r=await fetch('./words.json',{cache:'no-store'});return await r.json();}catch(e){return[]}
+  }
+  async function renderList(){
+    const words=await fetchWords();
+    list.innerHTML=words.map(w=>`
+      <div class="word-card">
+        <div class="word-head">
+          <h2>${w.phrase}</h2>
+          <div class="star" onclick='toggleHard(${JSON.stringify(w)})'>☆</div>
+        </div>
+        <div class="meaning">${w.meaning}</div>
+        <div class="example">${w.example||""}</div>
+        <div class="actions">
+          <button onclick="speak('${encodeURIComponent(w.phrase)}','en')" class="btn-main">EN</button>
+          <button onclick="speak('${encodeURIComponent(w.meaning)}','ko')" class="btn">KO</button>
+        </div>
+      </div>`).join('');
+  }
+  window.speak=(t,lang)=>{const u=new SpeechSynthesisUtterance(decodeURIComponent(t));u.lang=lang==='ko'?'ko-KR':'en-US';speechSynthesis.cancel();speechSynthesis.speak(u);};
+
+  // 어려운 단어
+  function hardKey(){return'hard:'+ (auth.currentUser?.uid||'guest');}
+  function loadHard(){return JSON.parse(localStorage.getItem(hardKey())||'[]');}
+  function saveHard(arr){localStorage.setItem(hardKey(),JSON.stringify(arr));}
+  window.toggleHard=(w)=>{let arr=loadHard();if(arr.find(x=>x.phrase===w.phrase)){arr=arr.filter(x=>x.phrase!==w.phrase);}else arr.unshift(w);saveHard(arr);renderHard();};
+
+  function renderHard(){
+    const arr=loadHard();
+    $('#hard-list').innerHTML=arr.length?arr.map(w=>`<div class="word-card"><h2>${w.phrase}</h2><div>${w.meaning}</div></div>`).join(''):"<div>없음</div>";
+  }
+  $('#btn-hard').onclick=()=>{$('#hard-modal').style.display='flex';renderHard();}
+  $('#close-hard').onclick=()=>$('#hard-modal').style.display='none';
+
+  // 기록
+  function doneKey(date){return'done:'+(auth.currentUser?.uid||'guest')+':'+date;}
+  function setDone(date){localStorage.setItem(doneKey(date),'1');}
+  function isDone(date){return localStorage.getItem(doneKey(date))==='1';}
+  function renderHist(){
+    const prefix='done:'+(auth.currentUser?.uid||'guest')+':';
+    const dates=Object.keys(localStorage).filter(k=>k.startsWith(prefix)).map(k=>k.slice(prefix.length));
+    $('#hist-list').innerHTML=dates.length?dates.map(d=>`<div class="word-card">${d} 완료</div>`).join(''):"<div>기록 없음</div>";
+  }
+  $('#btn-history').onclick=()=>{$('#hist-modal').style.display='flex';renderHist();}
+  $('#close-hist').onclick=()=>$('#hist-modal').style.display='none';
+
+  // 완료
+  $('#btn-done').onclick=()=>{setDone(new Date().toISOString().slice(0,10));alert('오늘분 완료!')};
+
+  // 전체재생/정지
+  $('#btn-playall').onclick=async()=>{const ws=await fetchWords();for(const w of ws){await new Promise(r=>{const u=new SpeechSynthesisUtterance(w.phrase);u.lang='en-US';u.onend=r;speechSynthesis.speak(u);});}};
+  $('#btn-stop').onclick=()=>speechSynthesis.cancel();
+
+  // 로그인 모달
+  $('#close-login').onclick=()=>$('#login-modal').style.display='none';
+  $('#btn-logout').onclick=async()=>{await signOut(auth);};
+
+  $('#email-login').onclick=async()=>{try{await signInWithEmailAndPassword(auth,$('#inp-email').value,$('#inp-pass').value);$('#login-modal').style.display='none';}catch(e){alert(e.message)}};
+  $('#email-sign').onclick=async()=>{try{const cred=await createUserWithEmailAndPassword(auth,$('#inp-email').value,$('#inp-pass').value);await updateProfile(cred.user,{displayName:cred.user.email.split('@')[0]});$('#login-modal').style.display='none';}catch(e){alert(e.message)}};
+  $('#google-login').onclick=async()=>{try{await signInWithPopup(auth,new GoogleAuthProvider());$('#login-modal').style.display='none';}catch(e){alert(e.message)}};
+
+  onAuthStateChanged(auth,(u)=>{
+    if(u){$('#user-name').textContent=u.displayName||u.email.split('@')[0];$('#user-email').textContent=u.email;$('#user-avatar').textContent=(u.displayName?.[0]||u.email[0]||'?').toUpperCase();}
+    else{$('#user-name').textContent='로그인 필요';$('#user-email').textContent='';$('#user-avatar').textContent='?';$('#login-modal').style.display='flex';}
+  });
+
+  renderList();
+</script>
 </body>
 </html>
