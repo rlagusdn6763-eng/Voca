@@ -20,7 +20,7 @@
   .badge-ok{background:#e7f7f5;border-color:#bfe9e5;color:#0b4c47}
   .btn{border:1px solid var(--border);background:#f8fbff;color:var(--ink);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700}
   .btn:hover{border-color:#c9d6ea;background:#f2f7ff}
-  .btn.primary{background:#e8fbfb;border-color:#accent-weak;color:#086868}
+  .btn.primary{background:#e8fbfb;border-color:var(--accent-weak);color:#086868}
   .btn.ok{background:#e9f8f6;border-color:#bfe9e5;color:#0b4c47}
   .btn.warn{background:#fff5e8;border-color:#f6d3a1;color:#7a4a08}
   .datebox{display:flex;align-items:center;gap:8px}
@@ -44,6 +44,17 @@
   .footer{margin-top:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .select{background:#fff;color:var(--ink);border:1px solid var(--border);padding:8px 10px;border-radius:10px}
   .pill{padding:4px 8px;border-radius:999px;background:#eef6ff;border:1px solid var(--border);font-size:12px;color:#335}
+
+  /* Auth modal */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:50}
+  .modal{width:min(420px,90vw);background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.2);color:#0f172a}
+  .modal h3{margin:0 0 10px}
+  .modal label{display:block;margin:10px 0 4px;font-weight:700}
+  .modal input{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px}
+  .modal .row{justify-content:space-between}
+  .muted{color:#6b7280;font-size:13px}
+  .divider{display:flex;align-items:center;gap:8px;margin:8px 0}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:#e5e7eb}
 </style>
 </head>
 <body>
@@ -59,8 +70,12 @@
       <button id="speakAllBtn" class="btn primary">전체 재생</button>
       <button id="stopAllBtn" class="btn warn">정지</button>
       <button id="completeBtn" class="btn ok">오늘분 완료</button>
+      <button id="authBtn" class="btn">로그인</button>
     </div>
-    <div class="row" style="width:100%"><span class="sub">카드에서 발음(영→한) 재생 · 영어는 영어 음성, 한국어는 한국어 음성으로 읽어요.</span></div>
+    <div class="row" style="width:100%">
+      <span class="sub">카드에서 발음(영→한) 재생 · 영어는 영어 음성, 한국어는 한국어 음성으로 읽어요.</span>
+      <span id="whoami" class="chip" style="margin-left:auto;display:none"></span>
+    </div>
   </header>
 
   <main>
@@ -95,225 +110,389 @@
     </section>
   </main>
 
-<script>
-(() => {
-  /* ---------- 설정 & 저장 키 ---------- */
-  const WORDS_URLS = ["./words.json","./Voca/words.json"];
-  const POOL_URLS  = ["./pool.json","./Voca/pool.json"];
-  const STORE = {
-    offset:"voca-day-offset",
-    history:"voca-history",
-    completed:"voca-completed",
-    hard:"voca-hard"
-  };
+  <!-- Auth Modal -->
+  <div id="authModal" class="modal-backdrop">
+    <div class="modal">
+      <h3>로그인 / 회원가입</h3>
+      <div class="muted">이메일과 비밀번호로 로그인하거나, Google 계정으로 간편 로그인하세요.</div>
+      <label for="email">이메일</label>
+      <input id="email" type="email" placeholder="you@example.com" />
+      <label for="password">비밀번호</label>
+      <input id="password" type="password" placeholder="8자 이상 권장" />
 
-  /* ---------- 유틸 ---------- */
-  const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
-  const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-  const midnight = (d=new Date())=>{const x=new Date(d);x.setHours(0,0,0,0);return x;}
-  const loadJSON = async (urls)=>{
-    for (const u of urls){ try{ const r=await fetch(u,{cache:"no-store"}); if(r.ok) return await r.json(); }catch(e){} }
-    return null;
-  };
-  const seededPick=(arr,count,seedStr)=>{
-    let seed=0; for(const ch of seedStr) seed=(seed*31+ch.charCodeAt(0))>>>0;
-    const rnd=()=> (seed=(seed*1664525+1013904223)>>>0, (seed>>>0)/4294967296);
-    const idx=[...arr.keys()];
-    for(let i=idx.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1)); [idx[i],idx[j]]=[idx[j],idx[i]];}
-    return idx.slice(0,Math.min(count,arr.length)).map(i=>arr[i]);
-  };
+      <div class="row" style="margin-top:12px">
+        <button id="signinBtn" class="btn ok">로그인</button>
+        <button id="signupBtn" class="btn primary">회원가입</button>
+      </div>
 
-  /* ---------- 상태 ---------- */
-  let offset = Number(localStorage.getItem(STORE.offset)||"0");
-  const completedMap = JSON.parse(localStorage.getItem(STORE.completed)||"{}");
-  const history = JSON.parse(localStorage.getItem(STORE.history)||"[]");
-  const hard = JSON.parse(localStorage.getItem(STORE.hard)||"[]"); // {phrase, meaning, example, savedAt}
-  let stopAll = false;
+      <div class="divider"><span class="muted">또는</span></div>
+      <button id="googleBtn" class="btn" style="width:100%">Google로 로그인</button>
 
-  const getDisplayDate = ()=>{ const d=midnight(); d.setDate(d.getDate()+offset); return d; };
+      <div class="row" style="margin-top:12px">
+        <button id="closeAuth" class="btn">닫기</button>
+        <span class="muted">로그인하면 기록/어려운 단어가 계정에 동기화됩니다.</span>
+      </div>
+    </div>
+  </div>
 
-  /* ---------- 음성 ---------- */
-  const speak=(text,lang,rate=1)=>{
-    if(!window.speechSynthesis) return;
-    const u=new SpeechSynthesisUtterance(text); u.lang=lang; u.rate=rate;
-    const vs=speechSynthesis.getVoices().filter(v=>v.lang.startsWith(lang));
-    if(vs.length) u.voice=vs[0];
-    speechSynthesis.speak(u);
-  };
+<script type="module">
+/* ================= Firebase 초기화 ================= */
+// 1) 여기에 본인 Firebase Web App 설정 붙여넣기
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  appId: "YOUR_APP_ID",
+  // (선택) storageBucket, messagingSenderId 등 필요시 추가
+};
 
-  /* ---------- 엘리먼트 ---------- */
-  const dateLabel=$("#dateLabel"), doneBadge=$("#doneBadge"), listEl=$("#words"),
-        histList=$("#histList"), dateFilter=$("#dateFilter"),
-        hardList=$("#hardList"), hardCount=$("#hardCount");
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getAuth, onAuthStateChanged, signInWithEmailAndPassword,
+  createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, enableIndexedDbPersistence
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  /* ---------- 어려운 단어 ---------- */
-  const isSameWord=(a,b)=> (a.phrase||a.word)===(b.phrase||b.word) && (a.meaning||"")==(b.meaning||"");
-  const toggleHard=(word)=>{
-    const i=hard.findIndex(w=>isSameWord(w,word));
-    if(i>=0){ hard.splice(i,1); }
-    else{ hard.push({...word,savedAt:Date.now()}); }
-    localStorage.setItem(STORE.hard,JSON.stringify(hard));
-    updateHardUI(); renderTodayStarStates();
-  };
-  const updateHardUI=()=>{
-    hardCount.textContent=`${hard.length}개 저장됨`;
-    hardList.innerHTML="";
-    if(!hard.length){ hardList.innerHTML=`<div class="empty">저장된 어려운 단어가 없습니다.</div>`; return; }
-    hard.forEach(w=>{
-      const card=document.createElement("div"); card.className="card";
-      const top=document.createElement("div"); top.className="row";
-      const en=document.createElement("div"); en.className="en"; en.textContent=w.phrase||w.word||"";
-      const star=document.createElement("button"); star.className="star active"; star.innerHTML="★"; star.title="어려운 단어에서 제거";
-      star.onclick=()=>{ toggleHard(w); };
-      const play=document.createElement("button"); play.className="btn play"; play.textContent="▶ 발음";
-      play.onclick=()=>{ const rate=Number($("#rate").value||"1"); speak(en.textContent,"en-US",rate); if(w.meaning) setTimeout(()=>speak(w.meaning,"ko-KR",rate),350); };
-      top.append(en,star,play);
-      const ko=document.createElement("div"); ko.className="ko"; ko.textContent=w.meaning||"";
-      const ex=document.createElement("div"); ex.className="ex"; ex.textContent=w.example?`예문: ${w.example}`:"";
-      card.append(top,ko,ex); hardList.append(card);
-    });
-  };
-  const renderTodayStarStates=()=>{
-    listEl.querySelectorAll(".card").forEach(card=>{
-      const phrase=card.querySelector(".en")?.textContent||"";
-      const meaning=card.querySelector(".ko")?.textContent||"";
-      const inHard = hard.some(w=> (w.phrase||w.word)===phrase && (w.meaning||"")===meaning );
-      const star=card.querySelector(".star");
-      if(star) star.classList.toggle("active",inHard);
-    });
-  };
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+// 오프라인 캐시(선택)
+enableIndexedDbPersistence(db).catch(()=>{});
 
-  /* ---------- 오늘 탭 렌더 ---------- */
-  const renderWords=(words=[])=>{
-    listEl.innerHTML="";
-    if(!words.length){ listEl.innerHTML=`<div class="empty">단어가 없습니다.</div>`; return; }
-    words.forEach(w=>{
-      const card=document.createElement("div"); card.className="card";
-      const top=document.createElement("div"); top.className="row";
-      const en=document.createElement("div"); en.className="en"; en.textContent=w.phrase||w.word||"";
-      const star=document.createElement("button"); star.className="star"; star.innerHTML="★"; star.title="어려운 단어로 저장/해제";
-      star.onclick=()=>{ toggleHard({phrase:en.textContent, meaning:w.meaning||"", example:w.example||""}); };
-      const play=document.createElement("button"); play.className="btn play"; play.textContent="▶ 발음";
-      play.onclick=()=>{ const rate=Number($("#rate").value||"1"); speak(en.textContent,"en-US",rate); if(w.meaning) setTimeout(()=>speak(w.meaning,"ko-KR",rate),350); };
-      top.append(en,star,play);
-      const ko=document.createElement("div"); ko.className="ko"; ko.textContent=w.meaning||"";
-      const ex=document.createElement("div"); ex.className="ex"; ex.textContent=w.example?`예문: ${w.example}`:"";
-      card.append(top,ko,ex); listEl.append(card);
-    });
-    renderTodayStarStates();
-  };
+/* ================= 기존 앱 로직 ================= */
+const WORDS_URLS = ["./words.json","./Voca/words.json"];
+const POOL_URLS  = ["./pool.json","./Voca/pool.json"];
+const STORE = {
+  offset:"voca-day-offset",
+  history:"voca-history",
+  completed:"voca-completed",
+  hard:"voca-hard"
+};
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const midnight = (d=new Date())=>{const x=new Date(d);x.setHours(0,0,0,0);return x;}
+const loadJSON = async (urls)=>{
+  for (const u of urls){ try{ const r=await fetch(u,{cache:"no-store"}); if(r.ok) return await r.json(); }catch(e){} }
+  return null;
+};
+const seededPick=(arr,count,seedStr)=>{
+  let seed=0; for(const ch of seedStr) seed=(seed*31+ch.charCodeAt(0))>>>0;
+  const rnd=()=> (seed=(seed*1664525+1013904223)>>>0, (seed>>>0)/4294967296);
+  const idx=[...arr.keys()];
+  for(let i=idx.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1)); [idx[i],idx[j]]=[idx[j],idx[i]];}
+  return idx.slice(0,Math.min(count,arr.length)).map(i=>arr[i]);
+};
 
-  /* ---------- 기록 ---------- */
-  const populateHistoryFilter=()=>{
-    const dates=[...new Set(history.map(h=>h.date))].sort();
-    dateFilter.innerHTML = dates.length ? dates.map(d=>`<option value="${d}">${d}</option>`).join("") : `<option value="">기록 없음</option>`;
-  };
-  const renderHistory=()=>{
-    histList.innerHTML=""; const sel=dateFilter.value; const items=sel?history.filter(h=>h.date===sel):history;
-    if(!items.length){ histList.innerHTML=`<div class="empty">기록이 없습니다.</div>`; return; }
-    items.sort((a,b)=>a.date.localeCompare(b.date));
-    items.forEach(h=>{
-      const card=document.createElement("div"); card.className="card";
-      const head=document.createElement("div"); head.className="row";
-      head.innerHTML=`<strong>${h.date}</strong><span class="chip">완료: ${new Date(h.completedAt).toLocaleString()}</span>`;
-      card.append(head);
-      (h.words||[]).forEach(w=>{
-        const row=document.createElement("div"); row.style.marginTop="6px";
-        row.innerHTML=`<div class="en">${w.phrase||w.word}</div><div class="ko">${w.meaning||""}</div>${w.example?`<div class="ex">예문: ${w.example}</div>`:""}`;
-        card.append(row);
-      });
-      histList.append(card);
-    });
-  };
+let offset = Number(localStorage.getItem(STORE.offset)||"0");
+let completedMap = JSON.parse(localStorage.getItem(STORE.completed)||"{}");
+let history = JSON.parse(localStorage.getItem(STORE.history)||"[]");
+let hard = JSON.parse(localStorage.getItem(STORE.hard)||"[]");
+let stopAll = false;
 
-  /* ---------- 데이터 로드(오늘: words.json, 그외: pool.json 기반 10개) ---------- */
-  const loadForDate = async (dateObj)=>{
-    const dateStr=fmt(dateObj); dateLabel.textContent=dateStr; doneBadge.hidden=!completedMap[dateStr];
-    const isToday = (fmt(midnight())===dateStr);
+const getDisplayDate = ()=>{ const d=midnight(); d.setDate(d.getDate()+offset); return d; };
 
-    let todays=null;
-    const wjson = await loadJSON(WORDS_URLS);
-    if (isToday && Array.isArray(wjson)) {
-      todays = wjson; // 배열이면 오늘은 그대로 사용
-    } else if (wjson && Array.isArray(wjson.words) && (!wjson.date || wjson.date===dateStr)) {
-      todays = wjson.words;
-    }
+const speak=(text,lang,rate=1)=>{
+  if(!window.speechSynthesis) return;
+  const u=new SpeechSynthesisUtterance(text); u.lang=lang; u.rate=rate;
+  const vs=speechSynthesis.getVoices().filter(v=>v.lang.startsWith(lang));
+  if(vs.length) u.voice=vs[0];
+  speechSynthesis.speak(u);
+};
 
-    if (!todays || !todays.length){
-      const pool = await loadJSON(POOL_URLS);
-      todays = Array.isArray(pool) ? seededPick(pool,10,dateStr) : [];
-    }
-    renderWords(todays);
-    return todays;
-  };
+const dateLabel=$("#dateLabel"), doneBadge=$("#doneBadge"), listEl=$("#words"),
+      histList=$("#histList"), dateFilter=$("#dateFilter"),
+      hardList=$("#hardList"), hardCount=$("#hardCount"),
+      whoami=$("#whoami"), authBtn=$("#authBtn");
 
-  /* ---------- 상단 버튼 ---------- */
-  $("#prevBtn").onclick=async()=>{ offset-=1; localStorage.setItem(STORE.offset,String(offset)); await loadForDate(getDisplayDate()); };
-  $("#nextBtn").onclick=async()=>{ offset+=1; localStorage.setItem(STORE.offset,String(offset)); await loadForDate(getDisplayDate()); };
+const isSameWord=(a,b)=> (a.phrase||a.word)===(b.phrase||b.word) && (a.meaning||"")==(b.meaning||"");
 
-  /* 전체 재생/정지 */
-  $("#speakAllBtn").onclick=()=>{
-    stopAll=false;
-    const cards=listEl.querySelectorAll(".card");
-    const rate=Number($("#rate").value||"1"); let i=0;
-    const playNext=()=>{
-      if(stopAll || i>=cards.length) return;
-      const en=cards[i].querySelector(".en")?.textContent||"";
-      const ko=cards[i].querySelector(".ko")?.textContent||"";
-      speak(en,"en-US",rate);
-      setTimeout(()=>{ if(ko) speak(ko,"ko-KR",rate); setTimeout(()=>{i++;playNext();},500); },420);
-    };
-    playNext();
-  };
-  $("#stopAllBtn").onclick=()=>{ stopAll=true; speechSynthesis.cancel(); };
+const toggleHard=(word)=>{
+  const i=hard.findIndex(w=>isSameWord(w,word));
+  if(i>=0){ hard.splice(i,1); }
+  else{ hard.push({...word,savedAt:Date.now()}); }
+  localStorage.setItem(STORE.hard,JSON.stringify(hard));
+  updateHardUI(); renderTodayStarStates();
+  // 로그인 중이면 즉시 동기화
+  if (auth.currentUser) saveHardRemote().catch(console.error);
+};
 
-  /* 완료 → 기록 저장 + 다음날 이동 */
-  $("#completeBtn").onclick=async()=>{
-    const dateStr=fmt(getDisplayDate());
-    if(completedMap[dateStr]){ alert("이미 완료로 기록된 날짜입니다."); return; }
-    const words=[...document.querySelectorAll("#words .card")].map(c=>({
-      phrase:c.querySelector(".en")?.textContent||"",
-      meaning:c.querySelector(".ko")?.textContent||"",
-      example:(c.querySelector(".ex")?.textContent||"").replace(/^예문:\s*/,"")
-    }));
-    completedMap[dateStr]=true; localStorage.setItem(STORE.completed,JSON.stringify(completedMap));
-    history.push({date:dateStr,words,completedAt:Date.now()}); localStorage.setItem(STORE.history,JSON.stringify(history));
-    doneBadge.hidden=false; populateHistoryFilter();
-    offset+=1; localStorage.setItem(STORE.offset,String(offset));
-    await loadForDate(getDisplayDate());
-  };
-
-  /* 탭 */
-  $$(".tab-btn").forEach(btn=>{
-    btn.onclick=()=>{
-      $$(".tab-btn").forEach(b=>b.classList.remove("active"));
-      btn.classList.add("active");
-      const tab=btn.dataset.tab;
-      $("#todayTab").hidden=tab!=="today";
-      $("#historyTab").hidden=tab!=="history";
-      $("#hardTab").hidden=tab!=="hard";
-      if(tab==="history"){ populateHistoryFilter(); renderHistory(); }
-      if(tab==="hard"){ updateHardUI(); }
-    };
+const updateHardUI=()=>{
+  hardCount.textContent=`${hard.length}개 저장됨`;
+  hardList.innerHTML="";
+  if(!hard.length){ hardList.innerHTML=`<div class="empty">저장된 어려운 단어가 없습니다.</div>`; return; }
+  hard.forEach(w=>{
+    const card=document.createElement("div"); card.className="card";
+    const top=document.createElement("div"); top.className="row";
+    const en=document.createElement("div"); en.className="en"; en.textContent=w.phrase||w.word||"";
+    const star=document.createElement("button"); star.className="star active"; star.innerHTML="★"; star.title="어려운 단어에서 제거";
+    star.onclick=()=>{ toggleHard(w); };
+    const play=document.createElement("button"); play.className="btn play"; play.textContent="▶ 발음";
+    play.onclick=()=>{ const rate=Number($("#rate").value||"1"); speak(en.textContent,"en-US",rate); if(w.meaning) setTimeout(()=>speak(w.meaning,"ko-KR",rate),350); };
+    top.append(en,star,play);
+    const ko=document.createElement("div"); ko.className="ko"; ko.textContent=w.meaning||"";
+    const ex=document.createElement("div"); ex.className="ex"; ex.textContent=w.example?`예문: ${w.example}`:"";
+    card.append(top,ko,ex); hardList.append(card);
   });
-  $("#viewDayBtn").onclick=()=>renderHistory();
-  $("#clearHistBtn").onclick=()=>{
-    if(!confirm("모든 기록을 삭제할까요?")) return;
-    localStorage.removeItem(STORE.history); localStorage.removeItem(STORE.completed); localStorage.removeItem(STORE.offset);
-    while(history.length) history.pop(); for(const k in completedMap) delete completedMap[k]; offset=0;
-    populateHistoryFilter(); renderHistory(); loadForDate(getDisplayDate());
-  };
-  $("#clearHardBtn").onclick=()=>{
-    if(!hard.length) return alert("저장된 단어가 없습니다.");
-    if(!confirm("저장된 어려운 단어를 모두 비울까요?")) return;
-    hard.splice(0,hard.length); localStorage.setItem(STORE.hard,JSON.stringify(hard));
-    updateHardUI(); renderTodayStarStates();
-  };
+};
 
-  /* 초기화 */
-  speechSynthesis?.addEventListener("voiceschanged",()=>{});
-  (async()=>{ await loadForDate(getDisplayDate()); populateHistoryFilter(); updateHardUI(); })();
-})();
+const renderTodayStarStates=()=>{
+  listEl.querySelectorAll(".card").forEach(card=>{
+    const phrase=card.querySelector(".en")?.textContent||"";
+    const meaning=card.querySelector(".ko")?.textContent||"";
+    const inHard = hard.some(w=> (w.phrase||w.word)===phrase && (w.meaning||"")===meaning );
+    const star=card.querySelector(".star");
+    if(star) star.classList.toggle("active",inHard);
+  });
+};
+
+const renderWords=(words=[])=>{
+  listEl.innerHTML="";
+  if(!words.length){ listEl.innerHTML=`<div class="empty">단어가 없습니다.</div>`; return; }
+  words.forEach(w=>{
+    const card=document.createElement("div"); card.className="card";
+    const top=document.createElement("div"); top.className="row";
+    const en=document.createElement("div"); en.className="en"; en.textContent=w.phrase||w.word||"";
+    const star=document.createElement("button"); star.className="star"; star.innerHTML="★"; star.title="어려운 단어로 저장/해제";
+    star.onclick=()=>{ toggleHard({phrase:en.textContent, meaning:w.meaning||"", example:w.example||""}); };
+    const play=document.createElement("button"); play.className="btn play"; play.textContent="▶ 발음";
+    play.onclick=()=>{ const rate=Number($("#rate").value||"1"); speak(en.textcontent,"en-US",rate); };
+    play.onclick=()=>{ const rate=Number($("#rate").value||"1"); speak(en.textContent,"en-US",rate); if(w.meaning) setTimeout(()=>speak(w.meaning,"ko-KR",rate),350); };
+    top.append(en,star,play);
+    const ko=document.createElement("div"); ko.className="ko"; ko.textContent=w.meaning||"";
+    const ex=document.createElement("div"); ex.className="ex"; ex.textContent=w.example?`예문: ${w.example}`:"";
+    card.append(top,ko,ex); listEl.append(card);
+  });
+  renderTodayStarStates();
+};
+
+const populateHistoryFilter=()=>{
+  const dates=[...new Set(history.map(h=>h.date))].sort();
+  dateFilter.innerHTML = dates.length ? dates.map(d=>`<option value="${d}">${d}</option>`).join("") : `<option value="">기록 없음</option>`;
+};
+const renderHistory=()=>{
+  histList.innerHTML=""; const sel=dateFilter.value; const items=sel?history.filter(h=>h.date===sel):history;
+  if(!items.length){ histList.innerHTML=`<div class="empty">기록이 없습니다.</div>`; return; }
+  items.sort((a,b)=>a.date.localeCompare(b.date));
+  items.forEach(h=>{
+    const card=document.createElement("div"); card.className="card";
+    const head=document.createElement("div"); head.className="row";
+    head.innerHTML=`<strong>${h.date}</strong><span class="chip">완료: ${new Date(h.completedAt).toLocaleString()}</span>`;
+    card.append(head);
+    (h.words||[]).forEach(w=>{
+      const row=document.createElement("div"); row.style.marginTop="6px";
+      row.innerHTML=`<div class="en">${w.phrase||w.word}</div><div class="ko">${w.meaning||""}</div>${w.example?`<div class="ex">예문: ${w.example}</div>`:""}`;
+      card.append(row);
+    });
+    histList.append(card);
+  });
+};
+
+const loadForDate = async (dateObj)=>{
+  const dateStr=fmt(dateObj); dateLabel.textContent=dateStr; doneBadge.hidden=!completedMap[dateStr];
+  const isToday = (fmt(midnight())===dateStr);
+  let todays=null;
+  const wjson = await loadJSON(WORDS_URLS);
+  if (isToday && Array.isArray(wjson)) {
+    todays = wjson;
+  } else if (wjson && Array.isArray(wjson.words) && (!wjson.date || wjson.date===dateStr)) {
+    todays = wjson.words;
+  }
+  if (!todays || !todays.length){
+    const pool = await loadJSON(POOL_URLS);
+    todays = Array.isArray(pool) ? seededPick(pool,10,dateStr) : [];
+  }
+  renderWords(todays);
+  return todays;
+};
+
+/* ======= 상단 버튼 ======= */
+$("#prevBtn").onclick=async()=>{ offset-=1; localStorage.setItem(STORE.offset,String(offset)); await loadForDate(getDisplayDate()); };
+$("#nextBtn").onclick=async()=>{ offset+=1; localStorage.setItem(STORE.offset,String(offset)); await loadForDate(getDisplayDate()); };
+
+/* 전체 재생/정지 */
+$("#speakAllBtn").onclick=()=>{
+  stopAll=false;
+  const cards=listEl.querySelectorAll(".card");
+  const rate=Number($("#rate").value||"1"); let i=0;
+  const playNext=()=>{
+    if(stopAll || i>=cards.length) return;
+    const en=cards[i].querySelector(".en")?.textContent||"";
+    const ko=cards[i].querySelector(".ko")?.textContent||"";
+    speak(en,"en-US",rate);
+    setTimeout(()=>{ if(ko) speak(ko,"ko-KR",rate); setTimeout(()=>{i++;playNext();},500); },420);
+  };
+  playNext();
+};
+$("#stopAllBtn").onclick=()=>{ stopAll=true; speechSynthesis.cancel(); };
+
+/* 완료 → 기록 저장 + 다음날 이동 (로그인 시 원격 저장도) */
+$("#completeBtn").onclick=async()=>{
+  const dateStr=fmt(getDisplayDate());
+  if(completedMap[dateStr]){ alert("이미 완료로 기록된 날짜입니다."); return; }
+  const words=[...document.querySelectorAll("#words .card")].map(c=>({
+    phrase:c.querySelector(".en")?.textContent||"",
+    meaning:c.querySelector(".ko")?.textContent||"",
+    example:(c.querySelector(".ex")?.textContent||"").replace(/^예문:\s*/,"")
+  }));
+  completedMap[dateStr]=true; localStorage.setItem(STORE.completed,JSON.stringify(completedMap));
+  history.push({date:dateStr,words,completedAt:Date.now()}); localStorage.setItem(STORE.history,JSON.stringify(history));
+  doneBadge.hidden=false; populateHistoryFilter();
+
+  if (auth.currentUser) { try { await saveHistoryRemote(dateStr, words); } catch(e){ console.error(e); } }
+
+  offset+=1; localStorage.setItem(STORE.offset,String(offset));
+  await loadForDate(getDisplayDate());
+};
+
+/* 탭 */
+$$(".tab-btn").forEach(btn=>{
+  btn.onclick=()=>{
+    $$(".tab-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    const tab=btn.dataset.tab;
+    $("#todayTab").hidden=tab!=="today";
+    $("#historyTab").hidden=tab!=="history";
+    $("#hardTab").hidden=tab!=="hard";
+    if(tab==="history"){ populateHistoryFilter(); renderHistory(); }
+    if(tab==="hard"){ updateHardUI(); }
+  };
+});
+$("#viewDayBtn").onclick=()=>renderHistory();
+$("#clearHistBtn").onclick=()=>{
+  if(!confirm("모든 기록을 삭제할까요?")) return;
+  localStorage.removeItem(STORE.history); localStorage.removeItem(STORE.completed); localStorage.removeItem(STORE.offset);
+  history=[]; completedMap={}; offset=0;
+  populateHistoryFilter(); renderHistory(); loadForDate(getDisplayDate());
+};
+$("#clearHardBtn").onclick=()=>{
+  if(!hard.length) return alert("저장된 단어가 없습니다.");
+  if(!confirm("저장된 어려운 단어를 모두 비울까요?")) return;
+  hard=[]; localStorage.setItem(STORE.hard,JSON.stringify(hard));
+  updateHardUI(); renderTodayStarStates();
+};
+
+/* ================== Auth UI ================== */
+const authModal = $("#authModal");
+const openAuth = ()=> authModal.style.display="flex";
+const closeAuth = ()=> authModal.style.display="none";
+$("#authBtn").onclick = ()=> {
+  if (auth.currentUser) signOut(auth);
+  else openAuth();
+};
+$("#closeAuth").onclick = closeAuth;
+
+$("#signinBtn").onclick = async ()=>{
+  const email = $("#email").value.trim();
+  const pw = $("#password").value;
+  if(!email || !pw) return alert("이메일/비밀번호를 입력하세요.");
+  try{
+    await signInWithEmailAndPassword(auth, email, pw);
+    closeAuth();
+  }catch(e){ alert("로그인 실패: " + (e.message||e)); }
+};
+$("#signupBtn").onclick = async ()=>{
+  const email = $("#email").value.trim();
+  const pw = $("#password").value;
+  if(!email || !pw) return alert("이메일/비밀번호를 입력하세요.");
+  try{
+    await createUserWithEmailAndPassword(auth, email, pw);
+    closeAuth();
+  }catch(e){ alert("회원가입 실패: " + (e.message||e)); }
+};
+$("#googleBtn").onclick = async ()=>{
+  try{
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+    closeAuth();
+  }catch(e){ alert("Google 로그인 실패: " + (e.message||e)); }
+};
+
+/* ============== 원격 동기화(Firestore) ============== */
+// 데이터 구조:
+// users/{uid}/meta: { createdAt, lastLoginAt }
+// users/{uid}/state: { offset, completedMap(객체), hard(배열) }
+// users/{uid}/history/{YYYY-MM-DD}: { words: [...], completedAt }
+
+async function ensureUserDocs(uid){
+  const metaRef = doc(db, "users", uid, "meta", "profile");
+  const snap = await getDoc(metaRef);
+  if(!snap.exists()){
+    await setDoc(metaRef, { createdAt: Date.now() });
+  }
+  const stateRef = doc(db, "users", uid, "state", "app");
+  const ss = await getDoc(stateRef);
+  if(!ss.exists()){
+    await setDoc(stateRef, { offset: 0, completedMap: {}, hard: [] });
+  }
+}
+async function saveStateRemote(){
+  const uid = auth.currentUser?.uid; if(!uid) return;
+  const stateRef = doc(db, "users", uid, "state", "app");
+  await setDoc(stateRef, {
+    offset, completedMap, hard
+  }, { merge:true });
+}
+async function loadStateRemote(){
+  const uid = auth.currentUser?.uid; if(!uid) return;
+  const stateRef = doc(db, "users", uid, "state", "app");
+  const s = await getDoc(stateRef);
+  if(s.exists()){
+    const data = s.data();
+    offset = Number(data.offset ?? offset);
+    completedMap = data.completedMap || completedMap;
+    hard = Array.isArray(data.hard) ? data.hard : hard;
+    localStorage.setItem(STORE.offset, String(offset));
+    localStorage.setItem(STORE.completed, JSON.stringify(completedMap));
+    localStorage.setItem(STORE.hard, JSON.stringify(hard));
+  }
+}
+async function saveHistoryRemote(dateStr, words){
+  const uid = auth.currentUser?.uid; if(!uid) return;
+  const hRef = doc(db, "users", uid, "history", dateStr);
+  await setDoc(hRef, { words, completedAt: Date.now() }, { merge:true });
+  // 전체 히스토리 리스트를 로컬에도 유지
+  localStorage.setItem(STORE.history, JSON.stringify(history));
+}
+async function loadHistoryRemote(){
+  const uid = auth.currentUser?.uid; if(!uid) return;
+  const colRef = collection(db, "users", uid, "history");
+  const snap = await getDocs(colRef);
+  const list=[];
+  snap.forEach(d=>{
+    const data=d.data();
+    list.push({ date: d.id, words: data.words||[], completedAt: data.completedAt||Date.now() });
+  });
+  // 로컬에 반영(화면도 그걸 씀)
+  history = list.sort((a,b)=>a.date.localeCompare(b.date));
+  localStorage.setItem(STORE.history, JSON.stringify(history));
+}
+async function saveHardRemote(){ await saveStateRemote(); }
+
+/* ============== Auth 상태 변화 처리 ============== */
+onAuthStateChanged(auth, async (user)=>{
+  if (user){
+    $("#authBtn").textContent = "로그아웃";
+    whoami.style.display="inline-block";
+    whoami.textContent = user.email || user.displayName || user.uid;
+    await ensureUserDocs(user.uid);
+    // 서버 상태 → 로컬로 동기화 후 화면 갱신
+    await loadStateRemote();
+    await loadHistoryRemote();
+    populateHistoryFilter(); renderHistory(); updateHardUI(); renderTodayStarStates();
+  }else{
+    $("#authBtn").textContent = "로그인";
+    whoami.style.display="none";
+  }
+});
+
+/* 초기 로드 */
+speechSynthesis?.addEventListener("voiceschanged",()=>{});
+await loadForDate(getDisplayDate());
+populateHistoryFilter();
+updateHardUI();
+
 </script>
 </body>
 </html>
