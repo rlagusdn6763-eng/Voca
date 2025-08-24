@@ -5,53 +5,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>오늘의 회화 영단어</title>
 <style>
-  :root{
-    --bg:#0f172a; --card:#111827; --muted:#94a3b8; --accent:#22d3ee; --ok:#10b981; --warn:#f59e0b;
-  }
+  :root{--bg:#0f172a;--card:#111827;--muted:#94a3b8;--accent:#22d3ee;}
   *{box-sizing:border-box}
-  body{
-    margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Pretendard,Apple SD Gothic Neo,Malgun Gothic,sans-serif;
-    background:linear-gradient(180deg,#0b1224,#0f172a 40%,#0b1224);
-    color:#e5e7eb;
-  }
-  header{
-    max-width:920px; margin:32px auto 12px; padding:0 16px;
-    display:flex; flex-wrap:wrap; align-items:center; gap:12px;
-  }
-  h1{font-size:32px; margin:0 8px 0 0;}
-  .sub{color:var(--muted); font-size:14px}
-  .row{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
-  .chip{border:1px solid #243244; padding:6px 10px; border-radius:999px; font-size:13px; background:#0b1220}
-  .btn{
-    border:1px solid #233046; background:#0d1325; color:#e5e7eb;
-    padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600;
-  }
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Pretendard,Apple SD Gothic Neo,Malgun Gothic,sans-serif;background:linear-gradient(180deg,#0b1224,#0f172a 40%,#0b1224);color:#e5e7eb}
+  header{max-width:920px;margin:32px auto 12px;padding:0 16px;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+  h1{font-size:32px;margin:0 8px 0 0}
+  .sub{color:var(--muted);font-size:14px}
+  .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .chip{border:1px solid #243244;padding:6px 10px;border-radius:999px;font-size:13px;background:#0b1220}
+  .btn{border:1px solid #233046;background:#0d1325;color:#e5e7eb;padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:600}
   .btn:hover{border-color:#2f3f61}
   .btn.primary{border-color:#155e75;background:#09303b}
   .btn.ok{border-color:#0b6b4a;background:#0a2b22}
   .btn.warn{border-color:#915d09;background:#2c2007}
-  .datebox{display:flex; align-items:center; gap:8px}
-  .date{font-variant-numeric:tabular-nums; font-weight:700; letter-spacing:0.2px}
-  main{max-width:920px; margin:10px auto 32px; padding:0 16px}
-  .card{
-    background:linear-gradient(180deg,#0f172a,#0b1220);
-    border:1px solid #233046; border-radius:16px; padding:14px 16px; display:grid; gap:6px;
-  }
-  .grid{display:grid; gap:12px}
-  @media(min-width:720px){ .grid{grid-template-columns:1fr 1fr} }
-  .en{font-size:18px; font-weight:700}
-  .ko{font-size:14px; color:var(--muted)}
-  .ex{font-size:13px; color:#c7d2fe}
+  .datebox{display:flex;align-items:center;gap:8px}
+  .date{font-variant-numeric:tabular-nums;font-weight:700;letter-spacing:.2px}
+  main{max-width:920px;margin:10px auto 32px;padding:0 16px}
+  .card{background:linear-gradient(180deg,#0f172a,#0b1220);border:1px solid #233046;border-radius:16px;padding:14px 16px;display:grid;gap:6px}
+  .grid{display:grid;gap:12px}
+  @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
+  .en{font-size:18px;font-weight:700}
+  .ko{font-size:14px;color:var(--muted)}
+  .ex{font-size:13px;color:#c7d2fe}
   .play{margin-left:auto}
-  .tabs{display:flex; gap:8px; margin:18px 0}
-  .tab-btn{padding:8px 12px; border:1px solid #233046; background:#0b1220; border-radius:10px; cursor:pointer}
-  .tab-btn.active{border-color:#2aa7b8; background:#0b1f29}
-  .list{display:grid; gap:10px}
-  .empty{color:var(--muted); padding:10px}
-  .footer{margin-top:18px; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-  .status{font-size:13px; padding:6px 10px; border-radius:999px; border:1px solid #233046; color:#a7f3d0}
-  .danger{color:#fecaca}
-  .select{background:#0b1220; color:#e5e7eb; border:1px solid #233046; padding:8px 10px; border-radius:10px}
+  .tabs{display:flex;gap:8px;margin:18px 0}
+  .tab-btn{padding:8px 12px;border:1px solid #233046;background:#0b1220;border-radius:10px;cursor:pointer}
+  .tab-btn.active{border-color:#2aa7b8;background:#0b1f29}
+  .list{display:grid;gap:10px}
+  .empty{color:var(--muted);padding:10px}
+  .footer{margin-top:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .select{background:#0b1220;color:#e5e7eb;border:1px solid #233046;padding:8px 10px;border-radius:10px}
 </style>
 </head>
 <body>
@@ -67,9 +50,7 @@
       <button id="speakAllBtn" class="btn primary">전체 재생</button>
       <button id="completeBtn" class="btn ok">오늘분 완료</button>
     </div>
-    <div class="row" style="width:100%">
-      <span class="sub">클릭해서 발음 들어보기 · 영어는 영어 음성, 뜻은 한국어 음성으로 읽어줘요</span>
-    </div>
+    <div class="row" style="width:100%"><span class="sub">클릭해서 발음 들어보기 · 영어는 영어 음성, 뜻은 한국어 음성으로 읽어요</span></div>
   </header>
 
   <main>
@@ -81,10 +62,8 @@
     <section id="todayTab">
       <div id="words" class="grid"></div>
       <div class="footer">
-        <label class="chip">속도
-          <input id="rate" type="range" min="0.6" max="1.4" step="0.1" value="1" style="vertical-align:middle;margin-left:8px">
-        </label>
-        <span class="sub">발음이 어색하면 기기 설정의 영어/한국어 음성을 최신으로 바꿔보세요.</span>
+        <label class="chip">속도 <input id="rate" type="range" min="0.6" max="1.4" step="0.1" value="1" style="vertical-align:middle;margin-left:8px"></label>
+        <span class="sub">발음이 어색하면 기기의 영어/한국어 음성을 최신으로 바꿔보세요.</span>
       </div>
     </section>
 
@@ -100,259 +79,146 @@
 
 <script>
 (() => {
-  // ===== 설정 & 키 =====
-  const WORDS_URLS = ["./words.json", "./Voca/words.json"];
-  const POOL_URLS  = ["./pool.json", "./Voca/pool.json"];
+  const WORDS_URLS = ["./words.json","./Voca/words.json"];
+  const POOL_URLS  = ["./pool.json","./Voca/pool.json"];
   const STORE = {
-    offset: "voca-day-offset",      // 오늘로부터 며칠 이동했는지 (완료 시 +1)
-    history: "voca-history",        // [{date, words, completedAt}]
-    completed: "voca-completed"     // { "YYYY-MM-DD": true }
+    offset:"voca-day-offset",
+    history:"voca-history",
+    completed:"voca-completed"
   };
 
-  // ===== 유틸 =====
-  const $ = (s) => document.querySelector(s);
-  const $$ = (s) => document.querySelectorAll(s);
-  const fmt = (d) => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth()+1).padStart(2,"0");
-    const day = String(d.getDate()).padStart(2,"0");
-    return `${y}-${m}-${day}`;
-  };
-  const midnight = (d=new Date()) => { const x=new Date(d); x.setHours(0,0,0,0); return x; }
-  const loadJSON = async (urls) => {
-    for (const u of urls){
-      try{
-        const r = await fetch(u, {cache:"no-store"});
-        if (r.ok) return await r.json();
-      }catch(e){}
-    }
+  const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+  const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  const midnight = (d=new Date())=>{const x=new Date(d);x.setHours(0,0,0,0);return x;}
+  const loadJSON = async (urls)=>{
+    for (const u of urls){ try{ const r=await fetch(u,{cache:"no-store"}); if(r.ok) return await r.json(); }catch(e){} }
     return null;
   };
-  const seededPick = (arr, count, seedStr) => {
-    // 간단 LCG 시드
-    let seed = 0;
-    for (let i=0;i<seedStr.length;i++) seed = (seed*31 + seedStr.charCodeAt(i)) >>> 0;
-    const rnd = () => (seed = (seed*1664525 + 1013904223) >>> 0, (seed>>>0)/4294967296);
-    const idx = arr.map((_,i)=>i);
-    // Fisher-Yates
-    for (let i=idx.length-1;i>0;i--){
-      const j = Math.floor(rnd()*(i+1));
-      [idx[i], idx[j]] = [idx[j], idx[i]];
-    }
-    return idx.slice(0, Math.min(count, arr.length)).map(i => arr[i]);
+  const seededPick=(arr,count,seedStr)=>{
+    let seed=0; for(const ch of seedStr) seed=(seed*31+ch.charCodeAt(0))>>>0;
+    const rnd=()=> (seed=(seed*1664525+1013904223)>>>0, (seed>>>0)/4294967296);
+    const idx=[...arr.keys()];
+    for(let i=idx.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1)); [idx[i],idx[j]]=[idx[j],idx[i]];}
+    return idx.slice(0,Math.min(count,arr.length)).map(i=>arr[i]);
   };
 
-  // ===== 상태 =====
-  let offset = Number(localStorage.getItem(STORE.offset) || "0");
-  const completedMap = JSON.parse(localStorage.getItem(STORE.completed) || "{}");
-  const history = JSON.parse(localStorage.getItem(STORE.history) || "[]");
+  let offset = Number(localStorage.getItem(STORE.offset)||"0");
+  const completedMap = JSON.parse(localStorage.getItem(STORE.completed)||"{}");
+  const history = JSON.parse(localStorage.getItem(STORE.history)||"[]");
 
-  const getDisplayDate = () => {
-    const d = midnight();
-    d.setDate(d.getDate()+offset);
-    return d;
-  };
+  const getDisplayDate = ()=>{ const d=midnight(); d.setDate(d.getDate()+offset); return d; };
 
-  // ===== 음성 =====
-  const speak = (text, lang, rate=1) => {
-    if (!window.speechSynthesis) return;
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang;
-    u.rate = rate;
-    // voice 고르기(언어 우선)
-    const voices = speechSynthesis.getVoices().filter(v=>v.lang.startsWith(lang));
-    if (voices.length) u.voice = voices[0];
+  const speak=(text,lang,rate=1)=>{
+    if(!window.speechSynthesis) return;
+    const u=new SpeechSynthesisUtterance(text); u.lang=lang; u.rate=rate;
+    const vs=speechSynthesis.getVoices().filter(v=>v.lang.startsWith(lang)); if(vs.length) u.voice=vs[0];
     speechSynthesis.speak(u);
   };
 
-  // ===== 렌더 =====
-  const dateLabel = $("#dateLabel");
-  const doneBadge = $("#doneBadge");
-  const listEl = $("#words");
-  const histList = $("#histList");
-  const dateFilter = $("#dateFilter");
+  const dateLabel=$("#dateLabel"), doneBadge=$("#doneBadge"), listEl=$("#words"), histList=$("#histList"), dateFilter=$("#dateFilter");
 
-  const renderWords = (words) => {
-    if (!Array.isArray(words)) words = [];
-    listEl.innerHTML = "";
-    if (!words.length){
-      listEl.innerHTML = `<div class="empty">단어가 없습니다.</div>`;
-      return;
-    }
+  const renderWords=(words=[])=>{
+    listEl.innerHTML="";
+    if(!words.length){ listEl.innerHTML=`<div class="empty">단어가 없습니다.</div>`; return; }
     words.forEach(w=>{
-      const card = document.createElement("div");
-      card.className = "card";
-      const top = document.createElement("div");
-      top.className = "row";
-      const en = document.createElement("div");
-      en.className = "en";
-      en.textContent = w.phrase || w.word || "";
-      const play = document.createElement("button");
-      play.className = "btn play";
-      play.textContent = "▶ 발음";
-      play.onclick = () => {
-        const rate = Number($("#rate").value || "1");
-        speak(en.textContent, "en-US", rate);
-        if (w.meaning) setTimeout(()=>speak(w.meaning, "ko-KR", rate), 350);
-      };
-      top.append(en, play);
-
-      const ko = document.createElement("div");
-      ko.className = "ko";
-      ko.textContent = w.meaning || "";
-
-      const ex = document.createElement("div");
-      ex.className = "ex";
-      ex.textContent = w.example ? `예문: ${w.example}` : "";
-
-      card.append(top, ko, ex);
-      listEl.append(card);
+      const card=document.createElement("div"); card.className="card";
+      const top=document.createElement("div"); top.className="row";
+      const en=document.createElement("div"); en.className="en"; en.textContent=w.phrase||w.word||"";
+      const play=document.createElement("button"); play.className="btn play"; play.textContent="▶ 발음";
+      play.onclick=()=>{ const rate=Number($("#rate").value||"1"); speak(en.textContent,"en-US",rate); if(w.meaning) setTimeout(()=>speak(w.meaning,"ko-KR",rate),350); };
+      top.append(en,play);
+      const ko=document.createElement("div"); ko.className="ko"; ko.textContent=w.meaning||"";
+      const ex=document.createElement("div"); ex.className="ex"; ex.textContent=w.example?`예문: ${w.example}`:"";
+      card.append(top,ko,ex); listEl.append(card);
     });
   };
 
-  const populateHistoryFilter = () => {
-    const dates = [...new Set(history.map(h=>h.date))].sort();
-    dateFilter.innerHTML = dates.length
-      ? dates.map(d=>`<option value="${d}">${d}</option>`).join("")
-      : `<option value="">기록 없음</option>`;
+  const populateHistoryFilter=()=>{
+    const dates=[...new Set(history.map(h=>h.date))].sort();
+    dateFilter.innerHTML = dates.length ? dates.map(d=>`<option value="${d}">${d}</option>`).join("") : `<option value="">기록 없음</option>`;
   };
-
-  const renderHistory = () => {
-    histList.innerHTML = "";
-    const sel = dateFilter.value;
-    const items = sel ? history.filter(h=>h.date===sel) : history;
-    if (!items.length){ histList.innerHTML = `<div class="empty">기록이 없습니다.</div>`; return; }
+  const renderHistory=()=>{
+    histList.innerHTML=""; const sel=dateFilter.value; const items=sel?history.filter(h=>h.date===sel):history;
+    if(!items.length){ histList.innerHTML=`<div class="empty">기록이 없습니다.</div>`; return; }
     items.sort((a,b)=>a.date.localeCompare(b.date));
     items.forEach(h=>{
-      const box = document.createElement("div");
-      box.className = "card";
-      const head = document.createElement("div");
-      head.className = "row";
-      head.innerHTML = `<strong>${h.date}</strong><span class="chip">완료: ${new Date(h.completedAt).toLocaleString()}</span>`;
+      const box=document.createElement("div"); box.className="card";
+      const head=document.createElement("div"); head.className="row";
+      head.innerHTML=`<strong>${h.date}</strong><span class="chip">완료: ${new Date(h.completedAt).toLocaleString()}</span>`;
       box.append(head);
       (h.words||[]).forEach(w=>{
-        const row = document.createElement("div");
-        row.style.marginTop = "6px";
-        row.innerHTML = `<div class="en">${w.phrase||w.word}</div>
-                         <div class="ko">${w.meaning||""}</div>
-                         ${w.example?`<div class="ex">예문: ${w.example}</div>`:""}`;
+        const row=document.createElement("div"); row.style.marginTop="6px";
+        row.innerHTML=`<div class="en">${w.phrase||w.word}</div><div class="ko">${w.meaning||""}</div>${w.example?`<div class="ex">예문: ${w.example}</div>`:""}`;
         box.append(row);
       });
       histList.append(box);
     });
   };
 
-  // ===== 데이터 로딩 =====
-  const loadForDate = async (dateObj) => {
-    const dateStr = fmt(dateObj);
-    dateLabel.textContent = dateStr;
-    doneBadge.hidden = !completedMap[dateStr];
+  // ★ 핵심 수정: 오늘(오프셋 0)일 때만 words.json 사용, 그 외 날짜는 pool.json에서 날짜별 랜덤
+  const loadForDate = async (dateObj)=>{
+    const dateStr=fmt(dateObj); dateLabel.textContent=dateStr; doneBadge.hidden=!completedMap[dateStr];
+    const isToday = (fmt(midnight())===dateStr);
 
-    // 1) words.json 우선
-    let todays = null;
+    let todays=null;
     const wjson = await loadJSON(WORDS_URLS);
-    if (Array.isArray(wjson)) {
-      todays = wjson; // 배열이면 그 자체가 단어목록
-    } else if (wjson && Array.isArray(wjson.words)) {
-      // {date, words:[...]} 구조
-      if (!wjson.date || wjson.date === dateStr) todays = wjson.words;
+    if (isToday && Array.isArray(wjson)) {
+      todays = wjson;
+    } else if (wjson && Array.isArray(wjson.words) && (!wjson.date || wjson.date===dateStr)) {
+      todays = wjson.words;
     }
 
-    // 2) 없으면 pool.json에서 날짜 기반으로 10개 추출
     if (!todays || !todays.length){
       const pool = await loadJSON(POOL_URLS);
-      if (Array.isArray(pool)){
-        todays = seededPick(pool, 10, dateStr);
-      } else {
-        todays = [];
-      }
+      todays = Array.isArray(pool) ? seededPick(pool,10,dateStr) : [];
     }
-
     renderWords(todays);
     return todays;
   };
 
-  // ===== 이벤트 =====
-  $("#prevBtn").onclick = async () => {
-    offset -= 1;
-    localStorage.setItem(STORE.offset, String(offset));
-    await loadForDate(getDisplayDate());
+  $("#prevBtn").onclick=async()=>{ offset-=1; localStorage.setItem(STORE.offset,String(offset)); await loadForDate(getDisplayDate()); };
+  $("#nextBtn").onclick=async()=>{ offset+=1; localStorage.setItem(STORE.offset,String(offset)); await loadForDate(getDisplayDate()); };
+  $("#speakAllBtn").onclick=()=>{
+    const cards=listEl.querySelectorAll(".card"); const rate=Number($("#rate").value||"1"); let i=0;
+    const playNext=()=>{ if(i>=cards.length) return; const en=cards[i].querySelector(".en")?.textContent||""; const ko=cards[i].querySelector(".ko")?.textContent||"";
+      speak(en,"en-US",rate); setTimeout(()=>{ if(ko) speak(ko,"ko-KR",rate); setTimeout(()=>{i++;playNext();},500); },400);
+    }; playNext();
   };
-  $("#nextBtn").onclick = async () => {
-    offset += 1;
-    localStorage.setItem(STORE.offset, String(offset));
-    await loadForDate(getDisplayDate());
-  };
-  $("#speakAllBtn").onclick = () => {
-    const cards = listEl.querySelectorAll(".card");
-    const rate = Number($("#rate").value || "1");
-    let i = 0;
-    const playNext = () => {
-      if (i>=cards.length) return;
-      const en = cards[i].querySelector(".en")?.textContent || "";
-      const ko = cards[i].querySelector(".ko")?.textContent || "";
-      speak(en, "en-US", rate);
-      setTimeout(()=>{ if (ko) speak(ko, "ko-KR", rate); setTimeout(()=>{i++; playNext();}, 500); }, 400);
-    };
-    playNext();
-  };
-  $("#completeBtn").onclick = async () => {
-    const dateStr = fmt(getDisplayDate());
-    if (completedMap[dateStr]) {
-      alert("이미 완료로 기록된 날짜입니다.");
-      return;
-    }
-    // 현재 화면의 단어들을 수집
-    const words = [...listEl.querySelectorAll(".card")].map(c=>({
-      phrase: c.querySelector(".en")?.textContent || "",
-      meaning: c.querySelector(".ko")?.textContent || "",
-      example: (c.querySelector(".ex")?.textContent || "").replace(/^예문:\s*/,"")
+  $("#completeBtn").onclick=async()=>{
+    const dateStr=fmt(getDisplayDate());
+    if(completedMap[dateStr]){ alert("이미 완료로 기록된 날짜입니다."); return; }
+    const words=[...document.querySelectorAll("#words .card")].map(c=>({
+      phrase:c.querySelector(".en")?.textContent||"",
+      meaning:c.querySelector(".ko")?.textContent||"",
+      example:(c.querySelector(".ex")?.textContent||"").replace(/^예문:\s*/,"")
     }));
-    // 기록 저장
-    completedMap[dateStr] = true;
-    localStorage.setItem(STORE.completed, JSON.stringify(completedMap));
-    history.push({date: dateStr, words, completedAt: Date.now()});
-    localStorage.setItem(STORE.history, JSON.stringify(history));
-
-    doneBadge.hidden = false;
-    populateHistoryFilter();
-
-    // 다음날로 이동
-    offset += 1;
-    localStorage.setItem(STORE.offset, String(offset));
+    completedMap[dateStr]=true; localStorage.setItem(STORE.completed,JSON.stringify(completedMap));
+    history.push({date:dateStr,words,completedAt:Date.now()}); localStorage.setItem(STORE.history,JSON.stringify(history));
+    doneBadge.hidden=false; populateHistoryFilter();
+    offset+=1; localStorage.setItem(STORE.offset,String(offset));
     await loadForDate(getDisplayDate());
   };
 
-  // 탭
   $$(".tab-btn").forEach(btn=>{
-    btn.onclick = () => {
+    btn.onclick=()=>{
       $$(".tab-btn").forEach(b=>b.classList.remove("active"));
       btn.classList.add("active");
-      const tab = btn.dataset.tab;
-      $("#todayTab").hidden = tab!=="today";
-      $("#historyTab").hidden = tab!=="history";
-      if (tab==="history") { populateHistoryFilter(); renderHistory(); }
+      const tab=btn.dataset.tab;
+      $("#todayTab").hidden=tab!=="today";
+      $("#historyTab").hidden=tab!=="history";
+      if(tab==="history"){ populateHistoryFilter(); renderHistory(); }
     };
   });
-  $("#viewDayBtn").onclick = () => renderHistory();
-  $("#clearHistBtn").onclick = () => {
-    if (!confirm("모든 기록을 삭제할까요?")) return;
-    localStorage.removeItem(STORE.history);
-    localStorage.removeItem(STORE.completed);
-    localStorage.removeItem(STORE.offset);
-    while(history.length) history.pop();
-    for (const k in completedMap) delete completedMap[k];
-    offset = 0;
-    populateHistoryFilter(); renderHistory();
-    loadForDate(getDisplayDate());
+  $("#viewDayBtn").onclick=()=>renderHistory();
+  $("#clearHistBtn").onclick=()=>{
+    if(!confirm("모든 기록을 삭제할까요?")) return;
+    localStorage.removeItem(STORE.history); localStorage.removeItem(STORE.completed); localStorage.removeItem(STORE.offset);
+    while(history.length) history.pop(); for(const k in completedMap) delete completedMap[k]; offset=0;
+    populateHistoryFilter(); renderHistory(); loadForDate(getDisplayDate());
   };
 
-  // ===== 초기화 =====
-  speechSynthesis?.addEventListener("voiceschanged", ()=>{ /* preload voices */ });
-  (async () => {
-    await loadForDate(getDisplayDate());
-    populateHistoryFilter();
-  })();
+  speechSynthesis?.addEventListener("voiceschanged",()=>{});
+  (async()=>{ await loadForDate(getDisplayDate()); populateHistoryFilter(); })();
 })();
 </script>
 </body>
