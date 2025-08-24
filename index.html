@@ -6,51 +6,30 @@
 <title>오늘의 회화 영단어</title>
 <style>
   :root{
-    --brand:#2563eb;
-    --brand-2:#1e40af;
-    --ok:#10b981;
-    --warn:#f59e0b;
-    --danger:#ef4444;
-    --bg:#f7f8fb;
-    --card:#ffffff;
-    --text:#111827;
-    --muted:#6b7280;
-    --ring:rgba(37,99,235,.15);
+    --brand:#2563eb; --brand-2:#1e40af;
+    --ok:#10b981; --warn:#f59e0b; --danger:#ef4444;
+    --bg:#f7f8fb; --card:#ffffff; --text:#111827; --muted:#6b7280;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
+
+  /* 상단 바 */
   header{
     position:sticky;top:0;z-index:20;
-    display:flex;align-items:center;justify-content:space-between;gap:12px;
-    padding:14px 18px;background:var(--brand);color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.08)
+    display:flex;align-items:center;justify-content:flex-start;
+    gap:12px;padding:14px 18px;background:var(--brand);color:#fff;
+    box-shadow:0 2px 10px rgba(0,0,0,.08)
   }
   header .title{font-weight:800;font-size:20px;letter-spacing:.2px;white-space:nowrap}
-  header .right{display:flex;align-items:center;gap:8px}
-  .chip{
-    display:flex;align-items:center;gap:10px;
-    padding:10px 12px;border-radius:999px;background:#fff;color:var(--text);
-    box-shadow:0 4px 14px rgba(0,0,0,.08);max-width:78vw
-  }
-  .chip .avatar{
-    width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
-    font-weight:800;color:#fff;background:var(--brand)
-  }
-  .chip .label{font-size:13px;color:var(--muted);max-width:50vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .ghost-btn{
-    background:#fff;border:none;color:var(--brand);font-weight:700;border-radius:10px;padding:8px 12px;cursor:pointer;
-  }
+
   main{max-width:960px;margin:18px auto;padding:0 16px 64px}
+
+  /* 컨트롤들 */
   .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0 16px}
-  .pill{
-    display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid #e5e7eb;border-radius:12px;
-    padding:8px 10px;box-shadow:0 4px 10px rgba(0,0,0,.04)
-  }
+  .pill{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid #e5e7eb;border-radius:12px;padding:8px 10px;box-shadow:0 4px 10px rgba(0,0,0,.04)}
   .navbtn{width:44px;height:44px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-weight:900;cursor:pointer}
   .datebox{min-width:170px;text-align:center;font-weight:800}
-  .btn{
-    background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px 14px;
-    font-weight:800;cursor:pointer;white-space:nowrap;max-width:42vw;overflow:hidden;text-overflow:ellipsis
-  }
+  .btn{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;white-space:nowrap;max-width:42vw;overflow:hidden;text-overflow:ellipsis}
   .btn.brand{background:var(--brand);color:#fff;border-color:transparent}
   .btn.warn{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
   .btn.ok{background:#ecfdf5;border-color:#bbf7d0;color:#065f46}
@@ -60,15 +39,10 @@
   .slider input{width:100%}
   .select{min-width:190px}
   .section-title{font-weight:900;margin:6px 4px 10px;color:#111827}
+
   /* 단어 카드 */
-  .card{
-    background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:14px 12px;margin:10px 0;
-    box-shadow:0 6px 16px rgba(0,0,0,.05);position:relative
-  }
-  .badge{
-    position:absolute;left:12px;top:12px;width:28px;height:28px;border-radius:10px;background:#eef2ff;
-    color:#3730a3;font-weight:800;display:grid;place-items:center
-  }
+  .card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:14px 12px;margin:10px 0;box-shadow:0 6px 16px rgba(0,0,0,.05);position:relative}
+  .badge{position:absolute;left:12px;top:12px;width:28px;height:28px;border-radius:10px;background:#eef2ff;color:#3730a3;font-weight:800;display:grid;place-items:center}
   .word-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
   .phrase{font-weight:900;font-size:18px}
   .meaning{color:var(--muted);margin:6px 0 2px}
@@ -76,15 +50,16 @@
   .controls{display:flex;gap:8px}
   .tiny{border:1px solid #e5e7eb;background:#fff;padding:6px 10px;border-radius:10px;font-weight:800}
   .star{border:1px solid #fde68a;background:#fffbeb;color:#b45309}
+
+  /* 완료 배지 */
+  .done-badge{display:inline-flex;align-items:center;gap:6px;background:#ecfdf5;color:#065f46;border:1px solid #bbf7d0;padding:6px 10px;border-radius:999px;font-weight:800}
+
   /* 사이드 로그인 패널 */
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:90}
   .overlay.active{display:block}
-  .panel{
-    position:fixed;top:0;right:-340px;width:320px;height:100%;background:#fff;z-index:100;
-    box-shadow:-6px 0 20px rgba(0,0,0,.18);transition:right .28s ease;display:flex;flex-direction:column
-  }
+  .panel{position:fixed;top:0;right:-340px;width:320px;height:100%;background:#fff;z-index:100;box-shadow:-6px 0 20px rgba(0,0,0,.18);transition:right .28s ease;display:flex;flex-direction:column}
   .panel.open{right:0}
-  .panel header{background:#fff;color:var(--text);box-shadow:none;border-bottom:1px solid #eef2ff;position:static}
+  .panel header{background:#fff;color:var(--text);box-shadow:none;border-bottom:1px solid #eef2ff;position:static;display:flex;justify-content:space-between;align-items:center;padding:12px 14px}
   .panel .content{padding:14px 16px;overflow:auto}
   .panel h3{margin:6px 0 12px;font-size:18px;color:var(--brand);font-weight:900}
   .field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
@@ -95,34 +70,33 @@
   .gbtn{background:#fff;border:1px solid #e5e7eb;margin-top:10px}
   .logout{background:var(--danger);color:#fff;margin-top:14px}
   .closeX{background:none;border:none;font-size:20px;cursor:pointer}
-  /* 배지 */
-  .done-badge{
-    display:inline-flex;align-items:center;gap:6px;background:#ecfdf5;color:#065f46;border:1px solid #bbf7d0;
-    padding:6px 10px;border-radius:999px;font-weight:800
+
+  /* 동그란 계정 버튼(●) */
+  .fab{
+    position:fixed; right:12px; top:96px; z-index:110;
+    width:48px;height:48px;border-radius:50%;
+    display:grid;place-items:center;
+    background:var(--brand); color:#fff; font-weight:900;
+    box-shadow:0 8px 18px rgba(37,99,235,.35); cursor:pointer; user-select:none;
   }
+  .fab span{pointer-events:none}
+  .fab:active{transform:scale(.98)}
+
   /* 작은 화면 폰트/버튼 1줄 유지 */
   .btn,.tiny{font-size:14px}
-  @media (max-width:420px){
-    .btn,.tiny{font-size:13px}
-    .title{font-size:18px}
-  }
+  @media (max-width:420px){ .btn,.tiny{font-size:13px} .title{font-size:18px} }
 </style>
 </head>
 <body>
-  <!-- 상단 -->
+  <!-- 상단바: 제목만 보이게 (로그인 정보는 숨김) -->
   <header>
     <div class="title">오늘의 회화 영단어</div>
-    <div class="right">
-      <div id="userChip" class="chip" style="display:none">
-        <div class="avatar" id="userAvatar">U</div>
-        <div>
-          <div id="userName" style="font-weight:800;">사용자</div>
-          <div id="userEmail" class="label">user@example.com</div>
-        </div>
-      </div>
-      <button class="ghost-btn" id="openLogin">로그인</button>
-    </div>
   </header>
+
+  <!-- 동그란 계정 버튼 (눌러야 패널 노출) -->
+  <div class="fab" id="fabAccount" title="계정">
+    <span id="fabLetter">●</span>
+  </div>
 
   <main>
     <!-- 날짜 + 컨트롤 -->
@@ -156,14 +130,19 @@
     <div id="list"></div>
   </main>
 
-  <!-- 로그인 패널 -->
+  <!-- 로그인 패널 (여기에만 개인정보 노출) -->
   <div class="overlay" id="overlay"></div>
   <aside class="panel" id="panel">
-    <header style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px">
+    <header>
       <strong>로그인 / 회원가입</strong>
       <button class="closeX" id="closePanel">✖</button>
     </header>
     <div class="content">
+      <div id="userCard" style="display:none;margin-bottom:12px;padding:10px;border:1px solid #e5e7eb;border-radius:12px;background:#f9fafb">
+        <div style="font-weight:900;margin-bottom:4px" id="ucName">사용자</div>
+        <div style="color:#6b7280" id="ucEmail">user@example.com</div>
+      </div>
+
       <h3>이메일로 로그인</h3>
       <div class="field">
         <label for="email">이메일</label>
@@ -185,8 +164,7 @@
 
   <!-- 앱 스크립트 -->
   <script type="module">
-    /************ Firebase (본인 프로젝트 값으로 교체하세요) ************/
-    // Firebase Web v10 modular CDN
+    /************ Firebase (본인 프로젝트 값 유지) ************/
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import {
       getAuth, onAuthStateChanged,
@@ -194,7 +172,6 @@
       GoogleAuthProvider, signInWithPopup
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-    // ↓↓↓ 이 부분을 본인 콘솔의 설정으로 바꾸세요 ↓↓↓
     const firebaseConfig = {
       apiKey: "AIzaSyBtN9HptAjl3wzemzKIr8nHvRHyOsvjsNI",
       authDomain: "voca-khw.firebaseapp.com",
@@ -204,42 +181,40 @@
       appId: "1:697341566223:web:2a40f413b1edeb543c727a",
       measurementId: "G-Y5XZEX3W9X"
     };
-    // ↑↑↑ 교체 끝
-
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    /************ UI 요소 ************/
+    /************ 패널/계정 버튼 ************/
     const overlay = document.getElementById('overlay');
     const panel = document.getElementById('panel');
-    const openLogin = document.getElementById('openLogin');
+    const fab = document.getElementById('fabAccount');
+    const fabLetter = document.getElementById('fabLetter');
     const closePanel = document.getElementById('closePanel');
-    const loginBtn = document.getElementById('loginBtn');
-    const signupBtn = document.getElementById('signupBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const googleBtn = document.getElementById('googleBtn');
 
     const emailEl = document.getElementById('email');
     const passEl  = document.getElementById('password');
-    const userChip = document.getElementById('userChip');
-    const userName = document.getElementById('userName');
-    const userEmail = document.getElementById('userEmail');
-    const userAvatar = document.getElementById('userAvatar');
+    const loginBtn = document.getElementById('loginBtn');
+    const signupBtn = document.getElementById('signupBtn');
+    const googleBtn = document.getElementById('googleBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    const userCard = document.getElementById('userCard');
+    const ucName = document.getElementById('ucName');
+    const ucEmail = document.getElementById('ucEmail');
 
     function togglePanel(open){
       const willOpen = open ?? !panel.classList.contains('open');
       panel.classList.toggle('open', willOpen);
       overlay.classList.toggle('active', willOpen);
     }
-    openLogin.addEventListener('click', ()=>togglePanel(true));
-    closePanel.addEventListener('click', ()=>togglePanel(false));
+    fab.addEventListener('click', ()=>togglePanel(true));
     overlay.addEventListener('click', ()=>togglePanel(false));
+    closePanel.addEventListener('click', ()=>togglePanel(false));
 
     loginBtn.addEventListener('click', async ()=>{
-      try{
-        await signInWithEmailAndPassword(auth, emailEl.value, passEl.value);
-      }catch(err){ alert('로그인 실패: '+err.message); }
+      try{ await signInWithEmailAndPassword(auth, emailEl.value, passEl.value); }
+      catch(err){ alert('로그인 실패: '+err.message); }
     });
     signupBtn.addEventListener('click', async ()=>{
       try{
@@ -248,32 +223,35 @@
       }catch(err){ alert('회원가입 실패: '+err.message); }
     });
     googleBtn.addEventListener('click', async ()=>{
-      try{
-        await signInWithPopup(auth, provider);
-      }catch(err){ alert('Google 로그인 실패: '+err.message); }
+      try{ await signInWithPopup(auth, provider); }
+      catch(err){ alert('Google 로그인 실패: '+err.message); }
     });
     logoutBtn.addEventListener('click', async ()=>{
-      try{ await signOut(auth); }catch(err){ alert('로그아웃 실패: '+err.message); }
+      try{ await signOut(auth); } catch(err){ alert('로그아웃 실패: '+err.message); }
     });
 
     onAuthStateChanged(auth, (user)=>{
       const loggedIn = !!user;
-      userChip.style.display = loggedIn ? 'flex' : 'none';
-      logoutBtn.style.display = loggedIn ? 'inline-block' : 'none';
-      openLogin.textContent = loggedIn ? '계정' : '로그인';
+      // 동그란 버튼의 표시만 바꿈 (개인정보는 패널에서만)
       if(user){
-        userName.textContent = user.displayName || (user.email?.split('@')[0] ?? '사용자');
-        userEmail.textContent = user.email ?? '';
-        userAvatar.textContent = (user.displayName?.[0] || user.email?.[0] || 'U').toUpperCase();
-        togglePanel(false);
+        const name = user.displayName || (user.email?.split('@')[0] ?? '유');
+        fabLetter.textContent = (name[0] || '유').toUpperCase();
+        userCard.style.display = 'block';
+        ucName.textContent = user.displayName || name;
+        ucEmail.textContent = user.email ?? '';
+        logoutBtn.style.display = 'inline-block';
+      }else{
+        fabLetter.textContent = '●'; // 비로그인 표시
+        userCard.style.display = 'none';
+        logoutBtn.style.display = 'none';
       }
     });
 
     /************ 학습 로직 ************/
-    const START_DATE = '2025-08-01'; // 기준일(변경 가능)
-    const CHUNK = 10;               // 하루 단어 개수
+    const START_DATE = '2025-08-01'; // 기준일
+    const CHUNK = 10;               // 하루 단어 수
 
-    // UI 참조
+    // UI
     const dateLabel = document.getElementById('dateLabel');
     const prevDay = document.getElementById('prevDay');
     const nextDay = document.getElementById('nextDay');
@@ -288,13 +266,12 @@
     const openLogBtn = document.getElementById('openLog');
 
     // 상태
-    let pool = [];        // 전체 단어 풀
-    let currentDate = new Date(); // 표시 날짜
+    let pool = [];
+    let currentDate = new Date();
     let voices = [];
-    let currentUtter = null;
     let isHardView = false;
 
-    // 저장소 키
+    // 저장 키
     const LS_HARD = 'voca_hard';
     const LS_DONE = 'voca_done_dates';
 
@@ -317,29 +294,23 @@
     loadVoices();
 
     function speak(text){
-      stopSpeak();
+      speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
-      const v = voices[voiceSelect.value|0];
-      if(v) u.voice = v;
+      const v = voices[voiceSelect.value|0]; if(v) u.voice=v;
       u.rate = parseFloat(rateEl.value)||1.0;
-      currentUtter = u;
       speechSynthesis.speak(u);
     }
-    function stopSpeak(){
-      speechSynthesis.cancel();
-      currentUtter = null;
-    }
+    function stopSpeak(){ speechSynthesis.cancel(); }
 
     // 데이터 로드
     async function loadPool(){
-      // pool.json 또는 words.json 어느 쪽이든 우선 시도
       const urls = ['pool.json','words.json','Voca/words.json'];
       for(const url of urls){
         try{
           const res = await fetch(url+`?v=${Date.now()}`);
           if(res.ok){
-            pool = await res.json();
-            if(Array.isArray(pool) && pool.length) return;
+            const data = await res.json();
+            if(Array.isArray(data) && data.length){ pool = data; return; }
           }
         }catch(e){}
       }
@@ -351,36 +322,21 @@
       if(!pool.length) return [];
       const offset = Math.max(0, diffDays(START_DATE, dateStr));
       const start = (offset*CHUNK) % pool.length;
-      const out = [];
-      for(let i=0;i<CHUNK;i++){
-        out.push(pool[(start+i)%pool.length]);
-      }
+      const out=[]; for(let i=0;i<CHUNK;i++) out.push(pool[(start+i)%pool.length]);
       return out;
     }
 
-    // 어려운 단어 저장/조회
-    function getHard(){
-      try{ return JSON.parse(localStorage.getItem(LS_HARD)||'[]'); }catch{ return [] }
+    // 어려운 단어
+    const getHard = ()=>{ try{return JSON.parse(localStorage.getItem(LS_HARD)||'[]')}catch{return[]} };
+    const setHard = (a)=>localStorage.setItem(LS_HARD, JSON.stringify(a));
+    const isHard = (p)=>getHard().includes(p);
+    function toggleHardWord(p){
+      const a=getHard(); const i=a.indexOf(p); if(i>=0) a.splice(i,1); else a.push(p); setHard(a); render();
     }
-    function setHard(arr){
-      localStorage.setItem(LS_HARD, JSON.stringify(arr));
-    }
-    function toggleHardWord(phrase){
-      const arr = getHard();
-      const idx = arr.findIndex(x=>x===phrase);
-      if(idx>=0) arr.splice(idx,1); else arr.push(phrase);
-      setHard(arr);
-      render(); // 상태 반영
-    }
-    function isHard(phrase){ return getHard().includes(phrase); }
 
     // 완료 기록
-    function getDone(){
-      try{ return JSON.parse(localStorage.getItem(LS_DONE)||'{}'); }catch{ return {} }
-    }
-    function setDone(map){
-      localStorage.setItem(LS_DONE, JSON.stringify(map));
-    }
+    const getDone = ()=>{ try{return JSON.parse(localStorage.getItem(LS_DONE)||'{}')}catch{return{}} };
+    const setDone = (m)=>localStorage.setItem(LS_DONE, JSON.stringify(m));
 
     function render(){
       const dateStr = fmt(currentDate);
@@ -394,93 +350,72 @@
 
       if(isHardView){
         const cap = document.createElement('div');
-        cap.className = 'section-title';
+        cap.className='section-title';
         cap.textContent = `★ 어려운 단어 (${data.length})`;
         listEl.appendChild(cap);
       }
 
       data.forEach((w,idx)=>{
-        const card = document.createElement('div');
-        card.className = 'card';
+        const card=document.createElement('div'); card.className='card';
+        const badge=document.createElement('div'); badge.className='badge'; badge.textContent=idx+1; card.appendChild(badge);
+        const top=document.createElement('div'); top.className='word-row';
 
-        const badge = document.createElement('div');
-        badge.className = 'badge';
-        badge.textContent = idx+1;
-        card.appendChild(badge);
-
-        const top = document.createElement('div');
-        top.className='word-row';
-
-        const left = document.createElement('div');
-        const phr = document.createElement('div'); phr.className='phrase'; phr.textContent = w.phrase;
-        const mean = document.createElement('div'); mean.className='meaning'; mean.textContent = w.meaning;
-        const ex = document.createElement('div'); ex.className='example'; ex.textContent = w.example ? `예문: ${w.example}` : '';
+        const left=document.createElement('div');
+        const phr=document.createElement('div'); phr.className='phrase'; phr.textContent=w.phrase;
+        const mean=document.createElement('div'); mean.className='meaning'; mean.textContent=w.meaning;
+        const ex=document.createElement('div'); ex.className='example'; ex.textContent=w.example?`예문: ${w.example}`:'';
         left.appendChild(phr); left.appendChild(mean); if(w.example) left.appendChild(ex);
 
-        const ctrls = document.createElement('div'); ctrls.className='controls';
-        const enBtn = document.createElement('button'); enBtn.className='tiny'; enBtn.textContent='EN'; enBtn.onclick=()=>speak(w.phrase);
-        const koBtn = document.createElement('button'); koBtn.className='tiny'; koBtn.textContent='KO'; koBtn.onclick=()=>speak(w.meaning);
-        const star = document.createElement('button'); star.className='tiny star'; star.textContent = isHard(w.phrase)?'★': '☆';
-        star.title='어려운 단어로 저장/해제'; star.onclick=()=>toggleHardWord(w.phrase);
+        const ctrls=document.createElement('div'); ctrls.className='controls';
+        const enBtn=document.createElement('button'); enBtn.className='tiny'; enBtn.textContent='EN'; enBtn.onclick=()=>speak(w.phrase);
+        const koBtn=document.createElement('button'); koBtn.className='tiny'; koBtn.textContent='KO'; koBtn.onclick=()=>speak(w.meaning);
+        const star=document.createElement('button'); star.className='tiny star'; star.textContent=isHard(w.phrase)?'★':'☆'; star.title='어려운 단어 저장/해제'; star.onclick=()=>toggleHardWord(w.phrase);
         ctrls.appendChild(enBtn); ctrls.appendChild(koBtn); ctrls.appendChild(star);
 
         top.appendChild(left); top.appendChild(ctrls);
-        card.appendChild(top);
-        listEl.appendChild(card);
+        card.appendChild(top); listEl.appendChild(card);
       });
     }
 
     // 이벤트
-    prevDay.addEventListener('click', ()=>{ currentDate = new Date(currentDate.getTime()-86400000); render(); });
-    nextDay.addEventListener('click', ()=>{ currentDate = new Date(currentDate.getTime()+86400000); render(); });
-    playAllBtn.addEventListener('click', async ()=>{
+    document.getElementById('prevDay').addEventListener('click', ()=>{ currentDate=new Date(currentDate.getTime()-86400000); render(); });
+    document.getElementById('nextDay').addEventListener('click', ()=>{ currentDate=new Date(currentDate.getTime()+86400000); render(); });
+    document.getElementById('playAll').addEventListener('click', async ()=>{
       stopSpeak();
-      const items = listEl.querySelectorAll('.card .phrase');
-      for(const el of items){
+      const phrases=[...document.querySelectorAll('.card .phrase')].map(el=>el.textContent);
+      for(const t of phrases){
         await new Promise(res=>{
-          const u = new SpeechSynthesisUtterance(el.textContent);
-          const v = voices[voiceSelect.value|0]; if(v) u.voice=v;
-          u.rate = parseFloat(rateEl.value)||1.0;
-          u.onend = res; speechSynthesis.speak(u);
+          const u=new SpeechSynthesisUtterance(t);
+          const v=window.speechSynthesis.getVoices().filter(v=>/en-|en_|English/i.test(v.lang))[document.getElementById('voiceSelect').value|0];
+          if(v) u.voice=v; u.rate=parseFloat(document.getElementById('rate').value)||1.0;
+          u.onend=res; speechSynthesis.speak(u);
         });
       }
     });
-    stopAllBtn.addEventListener('click', stopSpeak);
+    document.getElementById('stopAll').addEventListener('click', ()=>speechSynthesis.cancel());
 
-    markDoneBtn.addEventListener('click', ()=>{
-      const map = getDone();
-      const key = fmt(currentDate);
-      if(!map[key]){
-        map[key] = { at: new Date().toISOString() };
-        setDone(map);
-        alert('오늘분 완료로 기록했습니다 ✅');
-        render();
-      }else{
-        alert('이미 완료로 기록된 날짜입니다.');
-      }
+    document.getElementById('markDone').addEventListener('click', ()=>{
+      const m=getDone(); const k=fmt(currentDate);
+      if(!m[k]){ m[k]={at:new Date().toISOString()}; setDone(m); alert('오늘분 완료로 기록했습니다 ✅'); render(); }
+      else alert('이미 완료로 기록된 날짜입니다.');
     });
 
-    toggleHardBtn.addEventListener('click', ()=>{
-      isHardView = !isHardView;
-      toggleHardBtn.classList.toggle('ok', isHardView);
-      toggleHardBtn.textContent = isHardView ? '★ 어려운 단어(보기중)' : '★ 어려운 단어';
+    document.getElementById('toggleHard').addEventListener('click', (e)=>{
+      isHardView=!isHardView;
+      e.currentTarget.classList.toggle('ok', isHardView);
+      e.currentTarget.textContent=isHardView?'★ 어려운 단어(보기중)':'★ 어려운 단어';
       render();
     });
 
-    openLogBtn.addEventListener('click', ()=>{
-      const map = getDone();
-      const days = Object.keys(map).sort();
+    document.getElementById('openLog').addEventListener('click', ()=>{
+      const m=getDone(); const days=Object.keys(m).sort();
       if(!days.length){ alert('완료 기록이 없습니다.'); return; }
-      alert('완료한 날짜\n\n' + days.join('\n'));
+      alert('완료한 날짜\n\n'+days.join('\n'));
     });
-
-    rateEl.addEventListener('change', ()=>{ /* 즉시 반영 */ });
-    voiceSelect.addEventListener('change', ()=>{ /* 즉시 반영 */ });
 
     // 시작
     (async function init(){
       await loadPool();
-      currentDate = new Date(); // 오늘
       render();
     })();
   </script>
