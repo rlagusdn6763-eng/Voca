@@ -1,423 +1,455 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>오늘의 회화 영단어</title>
-<style>
-  :root{
-    --brand:#2563eb; --brand-2:#1e40af;
-    --ok:#10b981; --warn:#f59e0b; --danger:#ef4444;
-    --bg:#f7f8fb; --card:#ffffff; --text:#111827; --muted:#6b7280;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>오늘의 회화 영단어</title>
+  <style>
+    :root{
+      --blue:#1e56a0;
+      --blue-dark:#18447f;
+      --bg:#f6f8fc;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#606b85;
+      --shadow:0 10px 24px rgba(0,0,0,.08);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "맑은 고딕", "돋움", Dotum, sans-serif;
+    }
 
-  /* 상단 바 */
-  header{
-    position:sticky;top:0;z-index:20;
-    display:flex;align-items:center;justify-content:flex-start;
-    gap:12px;padding:14px 18px;background:var(--brand);color:#fff;
-    box-shadow:0 2px 10px rgba(0,0,0,.08)
-  }
-  header .title{font-weight:800;font-size:20px;letter-spacing:.2px;white-space:nowrap}
+    /* 헤더 */
+    header{
+      position:sticky; top:0; z-index:100;
+      background:var(--blue);
+      color:#fff;
+      padding:16px 20px;
+      box-shadow:var(--shadow);
+    }
+    .header-inner{
+      max-width:960px;
+      margin:0 auto;
+      display:flex; align-items:center; justify-content:center;
+      position:relative;
+    }
+    .title{
+      font-weight:800;
+      font-size:20px;
+      letter-spacing:.2px;
+    }
+    /* ● 버튼 – 제목 줄 오른쪽 상단 고정 */
+    #menuToggle{
+      position:absolute; right:0; top:50%; transform:translateY(-50%);
+      width:36px; height:36px; border-radius:999px;
+      border:none; outline:none; cursor:pointer;
+      background:#fff; color:var(--blue);
+      font-size:18px; font-weight:900;
+      box-shadow:0 4px 12px rgba(0,0,0,.15);
+    }
 
-  main{max-width:960px;margin:18px auto;padding:0 16px 64px}
+    /* 메인 */
+    main{max-width:960px; margin:20px auto; padding:0 16px}
 
-  /* 컨트롤들 */
-  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0 16px}
-  .pill{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid #e5e7eb;border-radius:12px;padding:8px 10px;box-shadow:0 4px 10px rgba(0,0,0,.04)}
-  .navbtn{width:44px;height:44px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-weight:900;cursor:pointer}
-  .datebox{min-width:170px;text-align:center;font-weight:800}
-  .btn{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;white-space:nowrap;max-width:42vw;overflow:hidden;text-overflow:ellipsis}
-  .btn.brand{background:var(--brand);color:#fff;border-color:transparent}
-  .btn.warn{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
-  .btn.ok{background:#ecfdf5;border-color:#bbf7d0;color:#065f46}
-  .btn:active{transform:translateY(1px)}
-  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-  .slider{flex:1;padding:12px 14px;background:#fff;border:1px solid #e5e7eb;border-radius:12px}
-  .slider input{width:100%}
-  .select{min-width:190px}
-  .section-title{font-weight:900;margin:6px 4px 10px;color:#111827}
+    .toolbar{
+      display:grid; grid-template-columns:1fr auto auto; gap:12px;
+      align-items:center; margin-bottom:14px;
+    }
+    .date-wrap{
+      display:flex; gap:8px; align-items:center; justify-content:center;
+    }
+    .chip{
+      background:#fff; border:1px solid #e6ebf5;
+      border-radius:999px; height:40px; padding:0 14px;
+      display:inline-flex; align-items:center; gap:8px;
+      font-weight:700;
+      box-shadow:var(--shadow);
+    }
+    .btn{
+      background:#fff; border:1px solid #e6ebf5;
+      border-radius:999px; height:40px; padding:0 16px;
+      font-weight:700; cursor:pointer;
+      box-shadow:var(--shadow);
+    }
+    .btn.primary{background:var(--blue); color:#fff; border:none}
+    .btn.stop{background:#fff3f3; color:#b42318; border:1px solid #ffd3d3}
+    .btn:active{transform:translateY(1px)}
 
-  /* 단어 카드 */
-  .card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:14px 12px;margin:10px 0;box-shadow:0 6px 16px rgba(0,0,0,.05);position:relative}
-  .badge{position:absolute;left:12px;top:12px;width:28px;height:28px;border-radius:10px;background:#eef2ff;color:#3730a3;font-weight:800;display:grid;place-items:center}
-  .word-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-  .phrase{font-weight:900;font-size:18px}
-  .meaning{color:var(--muted);margin:6px 0 2px}
-  .example{color:#374151;margin:6px 0 0;font-size:14px}
-  .controls{display:flex;gap:8px}
-  .tiny{border:1px solid #e5e7eb;background:#fff;padding:6px 10px;border-radius:10px;font-weight:800}
-  .star{border:1px solid #fde68a;background:#fffbeb;color:#b45309}
+    .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin:10px 0 18px}
+    .row .group{
+      background:#fff; border:1px solid #e6ebf5; border-radius:12px;
+      padding:10px 12px; display:flex; gap:12px; align-items:center;
+      box-shadow:var(--shadow);
+    }
+    .label{font-size:14px; color:var(--muted); font-weight:700}
 
-  /* 완료 배지 */
-  .done-badge{display:inline-flex;align-items:center;gap:6px;background:#ecfdf5;color:#065f46;border:1px solid #bbf7d0;padding:6px 10px;border-radius:999px;font-weight:800}
+    select, input[type="range"]{
+      height:36px; border-radius:10px; border:1px solid #e6ebf5; padding:0 10px;
+      background:#fff;
+    }
+    input[type="range"]{height:auto}
 
-  /* 사이드 로그인 패널 */
-  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:90}
-  .overlay.active{display:block}
-  .panel{position:fixed;top:0;right:-340px;width:320px;height:100%;background:#fff;z-index:100;box-shadow:-6px 0 20px rgba(0,0,0,.18);transition:right .28s ease;display:flex;flex-direction:column}
-  .panel.open{right:0}
-  .panel header{background:#fff;color:var(--text);box-shadow:none;border-bottom:1px solid #eef2ff;position:static;display:flex;justify-content:space-between;align-items:center;padding:12px 14px}
-  .panel .content{padding:14px 16px;overflow:auto}
-  .panel h3{margin:6px 0 12px;font-size:18px;color:var(--brand);font-weight:900}
-  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
-  .field input{padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px}
-  .full{width:100%;padding:10px 12px;border:none;border-radius:10px;font-weight:800;cursor:pointer}
-  .login{background:var(--brand);color:#fff}
-  .signup{background:var(--ok);color:#fff;margin-top:8px}
-  .gbtn{background:#fff;border:1px solid #e5e7eb;margin-top:10px}
-  .logout{background:var(--danger);color:#fff;margin-top:14px}
-  .closeX{background:none;border:none;font-size:20px;cursor:pointer}
+    /* 카드 */
+    .card{
+      background:var(--card);
+      border:1px solid #ecf0f7;
+      border-radius:var(--radius);
+      padding:16px 14px;
+      box-shadow:var(--shadow);
+      margin-bottom:12px;
+    }
+    .card .head{
+      display:flex; align-items:center; gap:10px; margin-bottom:6px
+    }
+    .idx{
+      width:28px; height:28px; border-radius:9px;
+      background:#eef3ff; color:var(--blue); font-weight:800;
+      display:inline-flex; align-items:center; justify-content:center;
+    }
+    .phrase{font-weight:800; font-size:18px}
+    .meaning{color:#334155; margin:.25rem 0 .5rem}
+    .ex{color:#6b7280; font-size:14px}
+    .actions{margin-top:10px; display:flex; gap:8px; align-items:center}
+    .pill{height:34px; padding:0 12px; border-radius:999px; border:1px solid #e6ebf5; background:#fff; font-weight:700; cursor:pointer}
+    .star{margin-left:auto; height:34px; width:34px; border-radius:10px; border:1px solid #ffe1a3; background:#fff8e1; cursor:pointer}
+    .star.active{background:#ffecb3}
 
-  /* 동그란 계정 버튼(●) */
-  .fab{
-    position:fixed; right:12px; top:96px; z-index:110;
-    width:48px;height:48px;border-radius:50%;
-    display:grid;place-items:center;
-    background:var(--brand); color:#fff; font-weight:900;
-    box-shadow:0 8px 18px rgba(37,99,235,.35); cursor:pointer; user-select:none;
-  }
-  .fab span{pointer-events:none}
-  .fab:active{transform:scale(.98)}
-
-  /* 작은 화면 폰트/버튼 1줄 유지 */
-  .btn,.tiny{font-size:14px}
-  @media (max-width:420px){ .btn,.tiny{font-size:13px} .title{font-size:18px} }
-</style>
+    /* 슬라이드 패널 */
+    #overlay{
+      position:fixed; inset:0; background:rgba(2,6,23,.35);
+      opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:1200;
+    }
+    #overlay.active{opacity:1; pointer-events:auto}
+    #panel{
+      position:fixed; top:0; right:-340px; width:320px; height:100%;
+      background:#fff; box-shadow:-10px 0 24px rgba(0,0,0,.18);
+      transition:right .25s ease; z-index:1300; padding:18px;
+      display:flex; flex-direction:column; gap:12px;
+    }
+    #panel.active{right:0}
+    .panel-title{font-size:18px; font-weight:800; margin-bottom:4px}
+    .field{display:flex; flex-direction:column; gap:6px}
+    .input{height:40px; border-radius:10px; border:1px solid #e6ebf5; padding:0 12px}
+    .panel-btn{height:42px; border-radius:10px; border:none; font-weight:800; cursor:pointer}
+    .panel-btn.primary{background:var(--blue); color:#fff}
+    .panel-btn.ghost{background:#f1f5ff; color:var(--blue)}
+    .profile{
+      display:flex; gap:10px; align-items:center; background:#f8fafc; border:1px solid #eef2f7;
+      padding:10px; border-radius:12px; margin-bottom:6px
+    }
+    .avatar{
+      width:36px; height:36px; border-radius:12px; background:var(--blue); color:#fff;
+      display:inline-flex; align-items:center; justify-content:center; font-weight:900
+    }
+    .ellipsis{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    @media (max-width:420px){
+      .phrase{font-size:17px}
+    }
+  </style>
 </head>
 <body>
-  <!-- 상단바: 제목만 보이게 (로그인 정보는 숨김) -->
   <header>
-    <div class="title">오늘의 회화 영단어</div>
+    <div class="header-inner">
+      <div class="title">오늘의 회화 영단어</div>
+      <!-- 제목 줄 오른쪽 상단 고정 버튼 -->
+      <button id="menuToggle" aria-label="사용자">●</button>
+    </div>
   </header>
 
-  <!-- 동그란 계정 버튼 (눌러야 패널 노출) -->
-  <div class="fab" id="fabAccount" title="계정">
-    <span id="fabLetter">●</span>
-  </div>
-
   <main>
-    <!-- 날짜 + 컨트롤 -->
+    <!-- 상단 툴바 -->
     <div class="toolbar">
-      <div class="row pill">
-        <button class="navbtn" id="prevDay" aria-label="이전 날짜">◀</button>
-        <div class="datebox" id="dateLabel">2025-01-01</div>
-        <button class="navbtn" id="nextDay" aria-label="다음 날짜">▶</button>
+      <div class="date-wrap">
+        <button class="btn" id="prevDay" title="이전 날짜">◀</button>
+        <div class="chip"><span id="dateText">YYYY-MM-DD</span></div>
+        <button class="btn" id="playAll" title="전체 재생">▶</button>
       </div>
-
-      <div class="row">
-        <button class="btn brand" id="playAll">전체 재생</button>
-        <button class="btn" id="stopAll">정지</button>
-        <button class="btn ok" id="markDone">오늘분 완료</button>
-        <button class="btn warn" id="toggleHard">★ 어려운 단어</button>
-        <button class="btn" id="openLog">기록</button>
-      </div>
-
-      <div class="row" style="flex:1">
-        <div class="slider">
-          <div class="section-title" style="margin:0 0 6px">속도</div>
-          <input id="rate" type="range" min="0.6" max="1.6" step="0.1" value="1.0" />
-        </div>
-        <select id="voiceSelect" class="btn select" title="영어 음성 선택"></select>
-      </div>
-
-      <div id="doneBadge" class="done-badge" style="display:none;margin-left:6px">✔ 오늘분 학습 완료</div>
+      <button class="btn stop" id="stopAll">정지</button>
+      <button class="btn primary" id="completeToday">오늘분 완료</button>
     </div>
 
-    <!-- 단어 리스트 -->
+    <!-- 재생 옵션 -->
+    <div class="row">
+      <div class="group">
+        <span class="label">속도</span>
+        <input id="rate" type="range" min="0.6" max="1.6" step="0.1" value="1.0"/>
+        <span id="rateVal">1.0x</span>
+      </div>
+
+      <div class="group">
+        <span class="label">영어 음성</span>
+        <select id="enVoice"></select>
+      </div>
+
+      <div class="group">
+        <span class="label">한국어 음성</span>
+        <select id="koVoice"></select>
+      </div>
+    </div>
+
+    <!-- 단어 목록 -->
     <div id="list"></div>
   </main>
 
-  <!-- 로그인 패널 (여기에만 개인정보 노출) -->
-  <div class="overlay" id="overlay"></div>
-  <aside class="panel" id="panel">
-    <header>
-      <strong>로그인 / 회원가입</strong>
-      <button class="closeX" id="closePanel">✖</button>
-    </header>
-    <div class="content">
-      <div id="userCard" style="display:none;margin-bottom:12px;padding:10px;border:1px solid #e5e7eb;border-radius:12px;background:#f9fafb">
-        <div style="font-weight:900;margin-bottom:4px" id="ucName">사용자</div>
-        <div style="color:#6b7280" id="ucEmail">user@example.com</div>
+  <!-- 어두운 배경 & 패널 -->
+  <div id="overlay"></div>
+  <aside id="panel" aria-hidden="true">
+    <div class="panel-title">계정</div>
+    <!-- 로그인 후 보이는 섹션 -->
+    <div id="profileBox" style="display:none">
+      <div class="profile">
+        <div class="avatar" id="profileInitial">유</div>
+        <div style="min-width:0">
+          <div class="ellipsis" id="profileName" style="font-weight:800">홍길동</div>
+          <div class="ellipsis" id="profileEmail" style="color:var(--muted)">you@example.com</div>
+        </div>
       </div>
+      <button class="panel-btn ghost" id="logoutBtn">로그아웃</button>
+    </div>
 
-      <h3>이메일로 로그인</h3>
+    <!-- 로그인 폼 (예시, 실제 인증 로직은 Firebase에 연결해서 사용) -->
+    <div id="loginBox">
       <div class="field">
         <label for="email">이메일</label>
-        <input id="email" type="email" placeholder="you@example.com" />
+        <input class="input" id="email" type="email" placeholder="you@example.com"/>
       </div>
       <div class="field">
-        <label for="password">비밀번호</label>
-        <input id="password" type="password" placeholder="8자리 이상" />
+        <label for="pw">비밀번호</label>
+        <input class="input" id="pw" type="password" placeholder="8자리 이상"/>
       </div>
-      <button class="full login" id="loginBtn">로그인</button>
-      <button class="full signup" id="signupBtn">회원가입</button>
-
-      <div style="margin:12px 0;color:var(--muted);text-align:center">또는</div>
-      <button class="full gbtn" id="googleBtn">Google로 로그인</button>
-
-      <button class="full logout" id="logoutBtn" style="display:none">로그아웃</button>
+      <button class="panel-btn primary" id="loginBtn">로그인</button>
+      <button class="panel-btn ghost" id="signupBtn">회원가입</button>
     </div>
   </aside>
 
-  <!-- 앱 스크립트 -->
-  <script type="module">
-    /************ Firebase (본인 프로젝트 값 유지) ************/
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import {
-      getAuth, onAuthStateChanged,
-      signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut,
-      GoogleAuthProvider, signInWithPopup
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  <script>
+    // ===== 날짜 표기 =====
+    const dateText = document.getElementById('dateText');
+    const todayKey = new Date().toISOString().slice(0,10);
+    let currentKey = todayKey;
+    function renderDate(){ dateText.textContent = currentKey; }
+    renderDate();
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBtN9HptAjl3wzemzKIr8nHvRHyOsvjsNI",
-      authDomain: "voca-khw.firebaseapp.com",
-      projectId: "voca-khw",
-      storageBucket: "voca-khw.firebasestorage.app",
-      messagingSenderId: "697341566223",
-      appId: "1:697341566223:web:2a40f413b1edeb543c727a",
-      measurementId: "G-Y5XZEX3W9X"
-    };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
-
-    /************ 패널/계정 버튼 ************/
-    const overlay = document.getElementById('overlay');
-    const panel = document.getElementById('panel');
-    const fab = document.getElementById('fabAccount');
-    const fabLetter = document.getElementById('fabLetter');
-    const closePanel = document.getElementById('closePanel');
-
-    const emailEl = document.getElementById('email');
-    const passEl  = document.getElementById('password');
-    const loginBtn = document.getElementById('loginBtn');
-    const signupBtn = document.getElementById('signupBtn');
-    const googleBtn = document.getElementById('googleBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-
-    const userCard = document.getElementById('userCard');
-    const ucName = document.getElementById('ucName');
-    const ucEmail = document.getElementById('ucEmail');
-
-    function togglePanel(open){
-      const willOpen = open ?? !panel.classList.contains('open');
-      panel.classList.toggle('open', willOpen);
-      overlay.classList.toggle('active', willOpen);
-    }
-    fab.addEventListener('click', ()=>togglePanel(true));
-    overlay.addEventListener('click', ()=>togglePanel(false));
-    closePanel.addEventListener('click', ()=>togglePanel(false));
-
-    loginBtn.addEventListener('click', async ()=>{
-      try{ await signInWithEmailAndPassword(auth, emailEl.value, passEl.value); }
-      catch(err){ alert('로그인 실패: '+err.message); }
-    });
-    signupBtn.addEventListener('click', async ()=>{
-      try{
-        await createUserWithEmailAndPassword(auth, emailEl.value, passEl.value);
-        alert('회원가입 성공! 자동 로그인되었습니다.');
-      }catch(err){ alert('회원가입 실패: '+err.message); }
-    });
-    googleBtn.addEventListener('click', async ()=>{
-      try{ await signInWithPopup(auth, provider); }
-      catch(err){ alert('Google 로그인 실패: '+err.message); }
-    });
-    logoutBtn.addEventListener('click', async ()=>{
-      try{ await signOut(auth); } catch(err){ alert('로그아웃 실패: '+err.message); }
-    });
-
-    onAuthStateChanged(auth, (user)=>{
-      const loggedIn = !!user;
-      // 동그란 버튼의 표시만 바꿈 (개인정보는 패널에서만)
-      if(user){
-        const name = user.displayName || (user.email?.split('@')[0] ?? '유');
-        fabLetter.textContent = (name[0] || '유').toUpperCase();
-        userCard.style.display = 'block';
-        ucName.textContent = user.displayName || name;
-        ucEmail.textContent = user.email ?? '';
-        logoutBtn.style.display = 'inline-block';
-      }else{
-        fabLetter.textContent = '●'; // 비로그인 표시
-        userCard.style.display = 'none';
-        logoutBtn.style.display = 'none';
-      }
-    });
-
-    /************ 학습 로직 ************/
-    const START_DATE = '2025-08-01'; // 기준일
-    const CHUNK = 10;               // 하루 단어 수
-
-    // UI
-    const dateLabel = document.getElementById('dateLabel');
-    const prevDay = document.getElementById('prevDay');
-    const nextDay = document.getElementById('nextDay');
-    const listEl = document.getElementById('list');
-    const playAllBtn = document.getElementById('playAll');
-    const stopAllBtn = document.getElementById('stopAll');
-    const rateEl = document.getElementById('rate');
-    const voiceSelect = document.getElementById('voiceSelect');
-    const markDoneBtn = document.getElementById('markDone');
-    const doneBadge = document.getElementById('doneBadge');
-    const toggleHardBtn = document.getElementById('toggleHard');
-    const openLogBtn = document.getElementById('openLog');
-
-    // 상태
-    let pool = [];
-    let currentDate = new Date();
+    // ===== TTS 음성 준비 (영어/한국어 분리) =====
+    const rate = document.getElementById('rate');
+    const rateVal = document.getElementById('rateVal');
+    const enVoiceSel = document.getElementById('enVoice');
+    const koVoiceSel = document.getElementById('koVoice');
     let voices = [];
-    let isHardView = false;
+    let enVoices = [];
+    let koVoices = [];
 
-    // 저장 키
-    const LS_HARD = 'voca_hard';
-    const LS_DONE = 'voca_done_dates';
-
-    // 유틸
-    const fmt = (d)=>d.toISOString().slice(0,10);
-    const toDate = (s)=>new Date(s+'T00:00:00');
-    const diffDays = (from,to)=>Math.floor((toDate(to)-toDate(from))/(1000*60*60*24));
-
-    // 음성
     function loadVoices(){
-      voices = window.speechSynthesis.getVoices().filter(v=>/en-|en_|English/i.test(v.lang));
-      voiceSelect.innerHTML = '';
-      voices.forEach((v,i)=>{
-        const opt = document.createElement('option');
-        opt.value = i; opt.textContent = `${v.name} (${v.lang})`;
-        voiceSelect.appendChild(opt);
-      });
+      voices = window.speechSynthesis.getVoices();
+      enVoices = voices.filter(v => (v.lang || '').toLowerCase().startsWith('en'));
+      koVoices = voices.filter(v => (v.lang || '').toLowerCase().startsWith('ko'));
+
+      // 채우기
+      function fill(select, items, fallback){
+        const prev = select.value;
+        select.innerHTML = items.map(v => {
+          const lab = `${v.name} (${v.lang})${v.default ? ' • 기본' : ''}`;
+          return `<option value="${v.name}">${lab}</option>`;
+        }).join('') || `<option value="">(기기에서 ${fallback} 음성을 찾을 수 없음)</option>`;
+        // 기본 선택
+        const match = items.find(v => v.default) || items[0];
+        if (match) select.value = match.name;
+        if (prev && items.find(v => v.name === prev)) select.value = prev;
+      }
+
+      fill(enVoiceSel, enVoices, '영어');
+      fill(koVoiceSel, koVoices, '한국어');
     }
+
     window.speechSynthesis.onvoiceschanged = loadVoices;
-    loadVoices();
+    // iOS 등에서 즉시 목록이 없을 수 있어 한 번 호출
+    setTimeout(loadVoices, 200);
 
-    function speak(text){
-      speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      const v = voices[voiceSelect.value|0]; if(v) u.voice=v;
-      u.rate = parseFloat(rateEl.value)||1.0;
-      speechSynthesis.speak(u);
+    rate.addEventListener('input', () => rateVal.textContent = `${Number(rate.value).toFixed(1)}x`);
+
+    function getVoiceByName(name){
+      return voices.find(v => v.name === name);
     }
-    function stopSpeak(){ speechSynthesis.cancel(); }
+    function pickEnVoice(){ return getVoiceByName(enVoiceSel.value) || enVoices[0]; }
+    function pickKoVoice(){ return getVoiceByName(koVoiceSel.value) || koVoices[0]; }
 
-    // 데이터 로드
-    async function loadPool(){
-      const urls = ['pool.json','words.json','Voca/words.json'];
-      for(const url of urls){
-        try{
-          const res = await fetch(url+`?v=${Date.now()}`);
-          if(res.ok){
-            const data = await res.json();
-            if(Array.isArray(data) && data.length){ pool = data; return; }
-          }
-        }catch(e){}
+    // ===== 단어 로드 & 렌더 =====
+    const list = document.getElementById('list');
+    let words = [];
+    async function loadWords(){
+      try{
+        const res = await fetch('words.json', {cache:'no-store'});
+        words = await res.json();
+        renderWords();
+      }catch(e){
+        list.innerHTML = `<div class="card">단어를 불러오지 못했습니다. (${e})</div>`;
       }
-      alert('단어 풀을 불러오지 못했습니다.');
     }
+    loadWords();
 
-    // 오늘 분 계산
-    function getTodayChunk(dateStr){
-      if(!pool.length) return [];
-      const offset = Math.max(0, diffDays(START_DATE, dateStr));
-      const start = (offset*CHUNK) % pool.length;
-      const out=[]; for(let i=0;i<CHUNK;i++) out.push(pool[(start+i)%pool.length]);
-      return out;
-    }
-
-    // 어려운 단어
-    const getHard = ()=>{ try{return JSON.parse(localStorage.getItem(LS_HARD)||'[]')}catch{return[]} };
-    const setHard = (a)=>localStorage.setItem(LS_HARD, JSON.stringify(a));
-    const isHard = (p)=>getHard().includes(p);
-    function toggleHardWord(p){
-      const a=getHard(); const i=a.indexOf(p); if(i>=0) a.splice(i,1); else a.push(p); setHard(a); render();
-    }
-
-    // 완료 기록
-    const getDone = ()=>{ try{return JSON.parse(localStorage.getItem(LS_DONE)||'{}')}catch{return{}} };
-    const setDone = (m)=>localStorage.setItem(LS_DONE, JSON.stringify(m));
-
-    function render(){
-      const dateStr = fmt(currentDate);
-      dateLabel.textContent = dateStr;
-
-      const doneMap = getDone();
-      doneBadge.style.display = doneMap[dateStr] ? 'inline-flex' : 'none';
-
-      const data = isHardView ? pool.filter(w=>isHard(w.phrase)) : getTodayChunk(dateStr);
-      listEl.innerHTML = '';
-
-      if(isHardView){
-        const cap = document.createElement('div');
-        cap.className='section-title';
-        cap.textContent = `★ 어려운 단어 (${data.length})`;
-        listEl.appendChild(cap);
-      }
-
-      data.forEach((w,idx)=>{
-        const card=document.createElement('div'); card.className='card';
-        const badge=document.createElement('div'); badge.className='badge'; badge.textContent=idx+1; card.appendChild(badge);
-        const top=document.createElement('div'); top.className='word-row';
-
-        const left=document.createElement('div');
-        const phr=document.createElement('div'); phr.className='phrase'; phr.textContent=w.phrase;
-        const mean=document.createElement('div'); mean.className='meaning'; mean.textContent=w.meaning;
-        const ex=document.createElement('div'); ex.className='example'; ex.textContent=w.example?`예문: ${w.example}`:'';
-        left.appendChild(phr); left.appendChild(mean); if(w.example) left.appendChild(ex);
-
-        const ctrls=document.createElement('div'); ctrls.className='controls';
-        const enBtn=document.createElement('button'); enBtn.className='tiny'; enBtn.textContent='EN'; enBtn.onclick=()=>speak(w.phrase);
-        const koBtn=document.createElement('button'); koBtn.className='tiny'; koBtn.textContent='KO'; koBtn.onclick=()=>speak(w.meaning);
-        const star=document.createElement('button'); star.className='tiny star'; star.textContent=isHard(w.phrase)?'★':'☆'; star.title='어려운 단어 저장/해제'; star.onclick=()=>toggleHardWord(w.phrase);
-        ctrls.appendChild(enBtn); ctrls.appendChild(koBtn); ctrls.appendChild(star);
-
-        top.appendChild(left); top.appendChild(ctrls);
-        card.appendChild(top); listEl.appendChild(card);
+    function renderWords(){
+      list.innerHTML = '';
+      words.forEach((w, i) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="head">
+            <div class="idx">${i+1}</div>
+            <div class="phrase">${w.phrase}</div>
+          </div>
+          <div class="meaning">${w.meaning}</div>
+          ${w.example ? `<div class="ex">예문: ${w.example}</div>`:''}
+          <div class="actions">
+            <button class="pill en">EN</button>
+            <button class="pill ko">KO</button>
+            <button class="star" title="어려운 단어">★</button>
+          </div>
+        `;
+        // 버튼 동작
+        card.querySelector('.en').addEventListener('click', () => speakText(w.phrase, 'en'));
+        card.querySelector('.ko').addEventListener('click', () => speakText(w.meaning, 'ko'));
+        card.querySelector('.star').addEventListener('click', (ev) => {
+          ev.currentTarget.classList.toggle('active');
+          toggleHard(w);
+        });
+        list.appendChild(card);
       });
     }
 
-    // 이벤트
-    document.getElementById('prevDay').addEventListener('click', ()=>{ currentDate=new Date(currentDate.getTime()-86400000); render(); });
-    document.getElementById('nextDay').addEventListener('click', ()=>{ currentDate=new Date(currentDate.getTime()+86400000); render(); });
-    document.getElementById('playAll').addEventListener('click', async ()=>{
-      stopSpeak();
-      const phrases=[...document.querySelectorAll('.card .phrase')].map(el=>el.textContent);
-      for(const t of phrases){
-        await new Promise(res=>{
-          const u=new SpeechSynthesisUtterance(t);
-          const v=window.speechSynthesis.getVoices().filter(v=>/en-|en_|English/i.test(v.lang))[document.getElementById('voiceSelect').value|0];
-          if(v) u.voice=v; u.rate=parseFloat(document.getElementById('rate').value)||1.0;
-          u.onend=res; speechSynthesis.speak(u);
+    // ===== 재생 로직 (영/한 음성 강제 고정) =====
+    let queue = [];
+    let playing = false;
+
+    function speakText(text, langMode='en'){
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = Number(rate.value);
+      if(langMode === 'en'){
+        const v = pickEnVoice();
+        if (v){ utter.voice = v; utter.lang = v.lang; } else { utter.lang = 'en-US'; }
+      }else{
+        const v = pickKoVoice();
+        if (v){ utter.voice = v; utter.lang = v.lang; } else { utter.lang = 'ko-KR'; }
+      }
+      window.speechSynthesis.speak(utter);
+      return utter;
+    }
+
+    async function playAllWords(){
+      if(playing){ return; }
+      playing = true;
+      queue = [];
+      // EN -> KO 순차 재생
+      words.forEach(w => {
+        queue.push(()=>speakText(w.phrase,'en'));
+        queue.push(()=>speakText(w.meaning,'ko'));
+      });
+
+      // 순차 처리
+      while(queue.length && playing){
+        const job = queue.shift();
+        const u = job();
+        await new Promise(resolve=>{
+          u.onend = resolve;
+          u.onerror = resolve;
         });
       }
-    });
-    document.getElementById('stopAll').addEventListener('click', ()=>speechSynthesis.cancel());
+      playing = false;
+    }
 
-    document.getElementById('markDone').addEventListener('click', ()=>{
-      const m=getDone(); const k=fmt(currentDate);
-      if(!m[k]){ m[k]={at:new Date().toISOString()}; setDone(m); alert('오늘분 완료로 기록했습니다 ✅'); render(); }
-      else alert('이미 완료로 기록된 날짜입니다.');
+    function stopAll(){
+      playing = false;
+      queue = [];
+      window.speechSynthesis.cancel();
+    }
+
+    document.getElementById('playAll').addEventListener('click', playAllWords);
+    document.getElementById('stopAll').addEventListener('click', stopAll);
+
+    // ===== 어려운 단어(로컬 저장) =====
+    const HARD_KEY = 'voca-hard';
+    function getHard(){
+      try{ return JSON.parse(localStorage.getItem(HARD_KEY)||'[]'); }catch{ return []; }
+    }
+    function setHard(arr){
+      localStorage.setItem(HARD_KEY, JSON.stringify(arr));
+    }
+    function toggleHard(item){
+      const cur = getHard();
+      const idx = cur.findIndex(x=>x.phrase===item.phrase);
+      if(idx>=0){ cur.splice(idx,1); } else { cur.push(item); }
+      setHard(cur);
+    }
+
+    // ===== 날짜 이동 (UI만) =====
+    document.getElementById('prevDay').addEventListener('click', ()=>{
+      const d = new Date(currentKey);
+      d.setDate(d.getDate()-1);
+      currentKey = d.toISOString().slice(0,10);
+      renderDate();
     });
 
-    document.getElementById('toggleHard').addEventListener('click', (e)=>{
-      isHardView=!isHardView;
-      e.currentTarget.classList.toggle('ok', isHardView);
-      e.currentTarget.textContent=isHardView?'★ 어려운 단어(보기중)':'★ 어려운 단어';
-      render();
+    // ===== 오늘분 완료 (기록 예시) =====
+    document.getElementById('completeToday').addEventListener('click', ()=>{
+      const done = JSON.parse(localStorage.getItem('voca-done')||'{}');
+      done[currentKey] = {count: words.length, at: Date.now()};
+      localStorage.setItem('voca-done', JSON.stringify(done));
+      alert('오늘분 완료로 기록했습니다!');
     });
 
-    document.getElementById('openLog').addEventListener('click', ()=>{
-      const m=getDone(); const days=Object.keys(m).sort();
-      if(!days.length){ alert('완료 기록이 없습니다.'); return; }
-      alert('완료한 날짜\n\n'+days.join('\n'));
-    });
+    // ===== 패널 열고닫기 (바깥 클릭 / ESC 닫힘 포함) =====
+    const toggleBtn = document.getElementById('menuToggle');
+    const overlay = document.getElementById('overlay');
+    const panel = document.getElementById('panel');
+    function openPanel(){ overlay.classList.add('active'); panel.classList.add('active'); panel.setAttribute('aria-hidden','false'); }
+    function closePanel(){ overlay.classList.remove('active'); panel.classList.remove('active'); panel.setAttribute('aria-hidden','true'); }
+    toggleBtn.addEventListener('click', openPanel);
+    overlay.addEventListener('click', closePanel);
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closePanel(); });
 
-    // 시작
-    (async function init(){
-      await loadPool();
-      render();
-    })();
+    // ===== 가짜 로그인 데모 (UI만 동작) =====
+    const loginBox = document.getElementById('loginBox');
+    const profileBox = document.getElementById('profileBox');
+    const profileInitial = document.getElementById('profileInitial');
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const signupBtn = document.getElementById('signupBtn');
+
+    const DEMO_KEY = 'voca-demo-user';
+    function loadUser(){
+      try{
+        const u = JSON.parse(localStorage.getItem(DEMO_KEY)||'null');
+        if(u){
+          loginBox.style.display='none';
+          profileBox.style.display='';
+          profileInitial.textContent = (u.name||'유저').slice(0,1);
+          profileName.textContent = u.name||'사용자';
+          profileEmail.textContent = u.email||'you@example.com';
+        }else{
+          loginBox.style.display='';
+          profileBox.style.display='none';
+        }
+      }catch{
+        loginBox.style.display='';
+        profileBox.style.display='none';
+      }
+    }
+    loginBtn.addEventListener('click', ()=>{
+      const email = document.getElementById('email').value.trim();
+      const pw = document.getElementById('pw').value.trim();
+      if(!email || pw.length<4){ alert('이메일과 비밀번호(4자 이상)를 입력하세요.'); return; }
+      localStorage.setItem(DEMO_KEY, JSON.stringify({email, name: email.split('@')[0]}));
+      loadUser();
+    });
+    signupBtn.addEventListener('click', ()=>alert('회원가입은 실제 인증 연동 후 사용하세요.'));
+    logoutBtn.addEventListener('click', ()=>{ localStorage.removeItem(DEMO_KEY); loadUser(); });
+    loadUser();
   </script>
 </body>
 </html>
