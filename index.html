@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>오늘의 회화 영단어</title>
   <style>
-    :root { --bg:#0f172a; --card:#0b2238; --txt:#e5e7eb; --sub:#9ca3af; --line:#1f2937; --brand:#0ea5e9; }
+    :root{--bg:#0f172a;--card:#0b2238;--txt:#e5e7eb;--sub:#9ca3af;--line:#1f2937;--brand:#0ea5e9}
     body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans KR,sans-serif}
     .wrap{max-width:900px;margin:32px auto;padding:0 16px}
     h1{margin:0 0 10px;font-size:clamp(24px,5vw,40px);line-height:1.2}
     .subtxt{color:var(--sub);margin-bottom:14px}
     .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0}
-    button{background:var(--brand);border:none;color:white;padding:9px 14px;border-radius:12px;font-weight:700;cursor:pointer}
+    button{background:var(--brand);border:none;color:#fff;padding:9px 14px;border-radius:12px;font-weight:700;cursor:pointer}
     button.secondary{background:#374151}
     button.ghost{background:transparent;border:1px solid #334155;color:#cbd5e1}
     select,input[type="date"]{accent-color:#38bdf8;border-radius:8px;padding:6px 8px;background:#0f172a;color:#e5e7eb;border:1px solid #334155}
@@ -30,19 +30,23 @@
     .badge{background:#111827;border:1px solid #334155;border-radius:999px;padding:2px 8px;font-size:12px;margin-left:6px}
     .history-date{margin:16px 0 6px;font-weight:700;color:#38bdf8}
     .empty{color:#9ca3af;border:1px dashed #334155;border-radius:16px;padding:18px;text-align:center}
-    #status{margin-top:10px;color:#fbbf24;font-size:14px}
+    #status{margin-top:10px;color:#fbbf24;font-size:14px;min-height:18px}
+    .hint{color:#93c5fd;font-size:12px;margin-top:6px}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>회화 영단어 <span id="dateBadge" class="badge"></span> <span id="modeBadge" class="badge" style="opacity:.7"></span></h1>
+    <h1>회화 영단어
+      <span id="dateBadge" class="badge"></span>
+      <span id="modeBadge" class="badge" style="opacity:.7"></span>
+    </h1>
     <div class="subtxt">클릭해서 발음 들어보기 · ⭐로 단어 저장 · 예문 확인</div>
 
     <div class="controls">
       <button id="playAll">전체 재생</button>
       <button id="stopAll" class="secondary">정지</button>
       <select id="voiceSel" title="Voice"><option value="">기본 음성</option></select>
-      <label>속도 <input id="rate" type="range" min="0.6" max="1.4" step="0.05" value="1" /></label>
+      <label>속도 <input id="rate" type="range" min="0.6" max="1.4" step="0.05" value="1"/></label>
       <button id="markDone" class="ghost" title="기록 저장 후 다음날 세트로 이동">오늘 완료 → 기록 & 다음날</button>
     </div>
 
@@ -56,6 +60,7 @@
     <div id="todayPane">
       <div id="list" class="grid"></div>
       <div id="emptyToday" class="empty" style="display:none;">단어를 불러오지 못했어요.</div>
+      <div class="hint">pool.json은 리포지토리 루트 또는 Voca/에 있어야 합니다.</div>
     </div>
 
     <!-- 어려운 -->
@@ -67,7 +72,7 @@
     <!-- 기록 -->
     <div id="historyPane" style="display:none;">
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0">
-        <input id="filterDate" type="date" />
+        <input id="filterDate" type="date"/>
         <input id="filterText" placeholder="단어/뜻/예문 검색" style="flex:1;min-width:180px;padding:7px 10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e5e7eb"/>
         <button id="applyFilter" class="ghost">검색</button>
         <button id="resetFilter" class="secondary">초기화</button>
@@ -82,44 +87,51 @@
   </div>
 
   <script>
-    // ===== 날짜/키 =====
-    const realToday = new Date().toISOString().slice(0,10);
-    const KEYS = {
+    // ========= 공통 =========
+    const todayISO = new Date().toISOString().slice(0,10);
+    const K = {
       hard: "voca-hard-words",
       history: d => `voca-history-${d}`,
-      virtualDate: "voca-virtual-date",
+      vdate: "voca-virtual-date",
       voice: "voca-voice",
-      rate: "voca-rate"
+      rate:  "voca-rate"
     };
-    // 현재 표시 날짜(가상 이동 포함). 없으면 오늘.
-    let currentDate = localStorage.getItem(KEYS.virtualDate) || realToday;
+    let currentDate = safeGet(K.vdate) || todayISO;
+    let currentWords = [];
+    let busy = false;
+
     const dateBadge = document.getElementById("dateBadge");
     const modeBadge = document.getElementById("modeBadge");
+    const statusEl  = document.getElementById("status");
     dateBadge.textContent = currentDate;
 
-    function addDays(iso, n){
-      const d = new Date(iso + "T00:00:00");
-      d.setDate(d.getDate() + n);
-      return d.toISOString().slice(0,10);
+    function flash(msg, ms=2000){ statusEl.textContent = msg; setTimeout(()=>statusEl.textContent="", ms); }
+
+    function safeSet(key, val){
+      try{ localStorage.setItem(key, val); return true; }catch(e){ flash("❌ 저장 실패: 브라우저 저장소 접근 불가"); return false; }
+    }
+    function safeGet(key){
+      try{ return localStorage.getItem(key); }catch{ return null; }
     }
 
-    // ===== 음성 =====
-    let VOICES = [];
-    const voiceSel = document.getElementById("voiceSel");
-    const rateEl = document.getElementById("rate");
+    function addDays(iso, n){ const d=new Date(iso+"T00:00:00"); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
 
+    // ========= 음성 =========
+    let VOICES=[];
+    const voiceSel=document.getElementById("voiceSel");
+    const rateEl=document.getElementById("rate");
     function loadVoices(){
       VOICES = speechSynthesis.getVoices();
       const en = VOICES.filter(v => /^en(-|_|$)/i.test(v.lang) || /English/i.test(v.name));
       const show = en.length ? en : VOICES;
-      voiceSel.innerHTML = "<option value=''>기본 음성</option>" + show.map((v,i)=>`<option value="${i}">${v.name} (${v.lang})</option>`).join("");
-      const saved = localStorage.getItem(KEYS.voice);
+      voiceSel.innerHTML = "<option value=''>기본 음성</option>"+show.map((v,i)=>`<option value="${i}">${v.name} (${v.lang})</option>`).join("");
+      const saved = safeGet(K.voice);
       if (saved && +saved < show.length) voiceSel.value = saved; else if (en.length) voiceSel.value = 0;
     }
-    speechSynthesis.onvoiceschanged = loadVoices; loadVoices();
-    voiceSel.onchange = () => localStorage.setItem(KEYS.voice, voiceSel.value);
-    rateEl.value = localStorage.getItem(KEYS.rate) || "1";
-    rateEl.oninput = () => localStorage.setItem(KEYS.rate, rateEl.value);
+    speechSynthesis.onvoiceschanged=loadVoices; loadVoices();
+    voiceSel.onchange = ()=> safeSet(K.voice, voiceSel.value);
+    rateEl.value = safeGet(K.rate) || "1";
+    rateEl.oninput = ()=> safeSet(K.rate, rateEl.value);
 
     function speak(text, lang="en"){
       const u = new SpeechSynthesisUtterance(text);
@@ -127,61 +139,80 @@
       const show = en.length ? en : VOICES;
       const idx = parseInt(voiceSel.value,10);
       if (!isNaN(idx) && show[idx]) u.voice = show[idx];
-      u.lang = (lang === "ko") ? "ko-KR" : "en-US";
-      u.rate = parseFloat(rateEl.value || "1");
+      u.lang = (lang==="ko") ? "ko-KR" : "en-US";
+      u.rate = parseFloat(rateEl.value||"1");
       speechSynthesis.speak(u);
     }
     function stopSpeaking(){ speechSynthesis.cancel(); }
 
-    // ===== 공통 fetch =====
+    // ========= fetch helpers =========
     async function fetchJSON(urls){
       for(const u of urls){
         try{
-          const r = await fetch(`${u}?v=${Date.now()}`, {cache:"no-store"});
+          const r=await fetch(`${u}?v=${Date.now()}`,{cache:"no-store"});
           if(r.ok) return await r.json();
-        }catch{}
+        }catch(e){}
       }
       return null;
     }
-
-    // ===== pool & daily slice (항상 바뀌는 10개) =====
-    async function fetchPool(){
-      const data = await fetchJSON(["Voca/pool.json","pool.json","./pool.json"]);
-      return Array.isArray(data) ? data : null;
+    async function fetchWordsJSON(){ // for today
+      const d = await fetchJSON(["Voca/words.json","words.json","./words.json"]);
+      if (Array.isArray(d)) return d;
+      if (d && Array.isArray(d.words)) return d.words;
+      return null;
     }
+    async function fetchPool(){
+      const p = await fetchJSON(["Voca/pool.json","pool.json","./pool.json"]);
+      return Array.isArray(p) ? p : null;
+    }
+
+    // ========= 날짜별 10개 생성 (pool 기반) =========
     function hashStr(s){ let h=2166136261>>>0; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
     function rng(seed){ let t=seed>>>0; return ()=>{ t+=0x6D2B79F5; let r=Math.imul(t^(t>>>15),1|t); r^=r+Math.imul(r^(r>>>7),61|r); return ((r^(r>>>14))>>>0)/4294967296; }; }
     function shuffleDet(arr, seed){ const a=arr.slice(); const R=rng(seed); for(let i=a.length-1;i>0;i--){ const j=Math.floor(R()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
     function daysBetween(a,b){ const A=new Date(a+"T00:00:00"), B=new Date(b+"T00:00:00"); return Math.floor((B-A)/86400000); }
-    async function makeDaily10(dateStr){
+    async function daily10(dateStr){
       const pool = await fetchPool(); if(!pool || !pool.length) return [];
-      // 1) 고정 시드로 한 번 셔플 (v1)
+      // 고정 시드 한 번 셔플 후 날짜에 따라 10개씩 슬라이싱(순환)
       const seq = shuffleDet(pool, hashStr("VOCAPOOL_v1"));
-      // 2) 기준일로부터 경과일 * 10 만큼 이동하여 10개 슬라이스 (wrap)
-      const anchor = "2025-01-01";
+      const anchor="2025-01-01";
       const idx = daysBetween(anchor, dateStr);
-      const start = ((idx*10)%seq.length + seq.length) % seq.length;
-      const out = [];
-      for(let i=0;i<10;i++){
-        out.push(seq[(start+i)%seq.length]);
-      }
+      const start = ((idx*10)%seq.length + seq.length)%seq.length;
+      const out=[]; for(let i=0;i<10;i++){ out.push(seq[(start+i)%seq.length]); }
       return out;
     }
 
-    // ===== 오늘은 서버 words.json, 그 외는 daily10 =====
-    async function fetchWordsFor(dateStr){
-      if (dateStr === realToday){
-        const data = await fetchJSON(["Voca/words.json","words.json","./words.json"]);
-        if (Array.isArray(data)) { modeBadge.textContent="서버 words.json"; return data; }
-        if (data && Array.isArray(data.words)) { modeBadge.textContent="서버 words.json"; return data.words; }
+    // ========= 데이터 로드 =========
+    async function loadFor(dateStr){
+      try{
+        busy=true; document.getElementById("markDone").disabled=true;
+        currentDate = dateStr;
+        safeSet(K.vdate, currentDate);
+        dateBadge.textContent = currentDate;
+
+        let words = [];
+        if (dateStr === todayISO){
+          const w = await fetchWordsJSON();
+          if (w && w.length){ words = w; modeBadge.textContent="서버 words.json"; }
+          else { words = await daily10(dateStr); modeBadge.textContent="pool 기반(오늘)"; }
+        } else {
+          words = await daily10(dateStr);
+          modeBadge.textContent = words.length ? "pool 기반" : "데이터 없음";
+        }
+
+        currentWords = Array.isArray(words) ? words : [];
+        renderWords(currentWords);
+        if (!currentWords.length) document.getElementById("emptyToday").style.display="";
+        else document.getElementById("emptyToday").style.display="none";
+      } catch(e){
+        flash("❌ 로드 중 오류: "+(e?.message||e), 3000);
+      } finally {
+        busy=false; document.getElementById("markDone").disabled=false;
       }
-      const local = await makeDaily10(dateStr);
-      modeBadge.textContent = local.length ? "pool 기반" : "데이터 없음";
-      return local;
     }
 
-    // ===== 렌더 =====
-    const listEl = document.getElementById("list");
+    // ========= 렌더 =========
+    const listEl=document.getElementById("list");
     function makeCard(w){
       const el=document.createElement("div");
       el.className="card";
@@ -200,30 +231,28 @@
       bFav.onclick=()=>toggleHard(w);
       return el;
     }
-    function renderWords(arr){
-      listEl.innerHTML="";
-      arr.forEach(w=>listEl.appendChild(makeCard(w)));
-      document.getElementById("emptyToday").style.display = arr.length ? "none" : "";
-    }
+    function renderWords(arr){ listEl.innerHTML=""; arr.forEach(w=>listEl.appendChild(makeCard(w))); }
 
-    // ===== 어려운 단어 =====
-    const hardListEl = document.getElementById("hardList");
-    function getHard(){ try{return JSON.parse(localStorage.getItem(KEYS.hard)||"[]");}catch{return[];} }
-    function setHard(a){ localStorage.setItem(KEYS.hard, JSON.stringify(a)); renderHard(); }
-    function toggleHard(w){ const a=getHard(); const k=w.phrase+"|"+w.meaning+"|"+(w.example||""); const i=a.findIndex(x=>(x.phrase+"|"+x.meaning+"|"+(x.example||""))===k); if(i>=0)a.splice(i,1); else a.unshift(w); setHard(a); }
-    function renderHard(){
-      const a=getHard(); hardListEl.innerHTML="";
-      document.getElementById("emptyHard").style.display = a.length ? "none" : "";
-      a.forEach(w=>hardListEl.appendChild(makeCard(w)));
-    }
+    // ========= 어려운 단어 =========
+    const hardListEl=document.getElementById("hardList");
+    function getHard(){ try{return JSON.parse(safeGet(K.hard)||"[]");}catch{return[];} }
+    function setHard(a){ safeSet(K.hard, JSON.stringify(a)); renderHard(); }
+    function toggleHard(w){ const a=getHard(); const key=w.phrase+"|"+w.meaning+"|"+(w.example||""); const i=a.findIndex(x=>(x.phrase+"|"+x.meaning+"|"+(x.example||""))===key); if(i>=0)a.splice(i,1); else a.unshift(w); setHard(a); }
+    function renderHard(){ const a=getHard(); hardListEl.innerHTML=""; document.getElementById("emptyHard").style.display = a.length?"none":""; a.forEach(w=>hardListEl.appendChild(makeCard(w))); }
 
-    // ===== 기록 =====
-    function saveHistory(date, words){ localStorage.setItem(KEYS.history(date), JSON.stringify(words)); }
+    // ========= 기록 =========
+    function saveHistory(date, words){
+      const key=K.history(date);
+      const ok = safeSet(key, JSON.stringify(words||[]));
+      return ok && safeGet(key) != null; // 저장 확인
+    }
     function getAllHistory(){
-      return Object.keys(localStorage)
-        .filter(k=>k.startsWith("voca-history-"))
-        .map(k=>({date:k.replace("voca-history-",""), words: JSON.parse(localStorage.getItem(k)||"[]")}))
-        .sort((a,b)=> a.date<b.date?1:-1);
+      try{
+        return Object.keys(localStorage)
+          .filter(k=>k.startsWith("voca-history-"))
+          .map(k=>({date:k.replace("voca-history-",""), words: JSON.parse(localStorage.getItem(k)||"[]")}))
+          .sort((a,b)=>a.date<b.date?1:-1);
+      }catch{return [];}
     }
     function renderHistory(filterDate="", q=""){
       const box=document.getElementById("historyList"); box.innerHTML="";
@@ -249,37 +278,15 @@
       });
     }
 
-    // ===== 상태/도우미 =====
-    const statusEl = document.getElementById("status");
-    function flash(msg){ statusEl.textContent=msg; setTimeout(()=>statusEl.textContent="", 1800); }
+    // ========= 이벤트들 =========
+    document.getElementById("applyFilter").onclick=()=>renderHistory(
+      document.getElementById("filterDate").value,
+      document.getElementById("filterText").value.trim()
+    );
+    document.getElementById("resetFilter").onclick=()=>{ document.getElementById("filterDate").value=""; document.getElementById("filterText").value=""; renderHistory(); };
+    document.getElementById("clearHistory").onclick=()=>{ if(confirm("모든 기록을 삭제할까요?")){ getAllHistory().forEach(h=>localStorage.removeItem(K.history(h.date))); renderHistory(); } };
 
-    // ===== 완료: 기록 저장 + 다음날로 계속 이동 =====
-    const markBtn = document.getElementById("markDone");
-    let currentWords = []; // ★ 단 한 번만 선언
-    let busy = false;
-
-    async function loadFor(dateStr){
-      busy = true; markBtn.disabled = true;
-      currentDate = dateStr;
-      localStorage.setItem(KEYS.virtualDate, currentDate);
-      dateBadge.textContent = currentDate;
-      const words = await fetchWordsFor(currentDate);
-      currentWords = Array.isArray(words) ? words : [];
-      renderWords(currentWords);
-      busy = false; markBtn.disabled = false;
-    }
-
-    markBtn.onclick = async ()=>{
-      if (busy || !currentWords.length) return;
-      // 1) 현재 날짜 기록
-      saveHistory(currentDate, currentWords);
-      // 2) 다음날 로드
-      const nextDate = addDays(currentDate, 1);
-      await loadFor(nextDate);
-      flash("다음날 세트로 이동했습니다.");
-    };
-
-    // ===== 탭 =====
+    document.querySelectorAll(".tab").forEach(x=> x.onclick=()=>switchTab(x.dataset.tab));
     function switchTab(t){
       document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active", x.dataset.tab===t));
       document.getElementById("todayPane").style.display   = (t==="today")?"":"none";
@@ -291,36 +298,33 @@
         document.getElementById("filterText").value.trim()
       );
     }
-    document.querySelectorAll(".tab").forEach(x=>x.onclick=()=>switchTab(x.dataset.tab));
 
-    // ===== 기록 필터 UI =====
-    document.getElementById("applyFilter").onclick=()=>renderHistory(
-      document.getElementById("filterDate").value,
-      document.getElementById("filterText").value.trim()
-    );
-    document.getElementById("resetFilter").onclick=()=>{ document.getElementById("filterDate").value=""; document.getElementById("filterText").value=""; renderHistory(); };
-    document.getElementById("clearHistory").onclick=()=>{ if(confirm("모든 기록을 삭제할까요?")){ getAllHistory().forEach(h=>localStorage.removeItem(KEYS.history(h.date))); renderHistory(); } };
-
-    // ===== 전체 재생 =====
     document.getElementById("playAll").onclick=()=>{
       if(!currentWords.length || busy) return;
       stopSpeaking();
       let i=0; const seq=currentWords.map(w=>`${w.phrase}. ${w.meaning}.`);
-      function next(){
+      (function next(){
         if(i>=seq.length) return;
         const u=new SpeechSynthesisUtterance(seq[i++]);
-        const en = VOICES.filter(v => /^en(-|_|$)/i.test(v.lang) || /English/i.test(v.name));
-        const show = en.length ? en : VOICES;
-        const idx = parseInt(voiceSel.value,10);
-        if (!isNaN(idx) && show[idx]) u.voice = show[idx];
-        u.lang="en-US"; u.rate=parseFloat(rateEl.value||"1");
+        u.rate=parseFloat(rateEl.value||"1");
+        u.lang="en-US";
         u.onend=next; speechSynthesis.speak(u);
-      }
-      next();
+      })();
     };
     document.getElementById("stopAll").onclick=stopSpeaking;
 
-    // ===== 초기 로드: currentDate 기준 =====
+    document.getElementById("markDone").onclick = async ()=>{
+      if (busy) return;
+      // 기록은 단어가 비어도 시도 (빈 배열 저장)
+      const saved = saveHistory(currentDate, currentWords);
+      if (!saved) flash("⚠️ 기록 저장 확인 실패(브라우저 저장소 제한?)", 3000);
+      // 날짜 +1 이동은 항상 실행
+      const nd = addDays(currentDate, 1);
+      await loadFor(nd);
+      flash("다음날 세트로 이동했습니다.");
+    };
+
+    // ========= 초기 로드 =========
     (async ()=>{ await loadFor(currentDate); })();
   </script>
 </body>
