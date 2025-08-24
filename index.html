@@ -1,418 +1,405 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>오늘의 회화 영단어</title>
-  <style>
-    :root{
-      --bg:#f6faf9;
-      --card:#ffffff;
-      --text:#122022;
-      --muted:#5f7b83;
-      --primary:#0fb49a;
-      --primary-cta:#13c7aa;
-      --danger:#ef4444;
-      --chip:#eaf7f4;
-      --hard:#ffe9b0;
-      --border:#e7efee;
-      --ok:#10b981;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;background:var(--bg);color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Malgun Gothic,Noto Sans KR,sans-serif;
-      line-height:1.45;
-    }
-    .wrap{max-width:960px;margin:24px auto;padding:0 16px}
-    header{
-      display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between
-    }
-    h1{font-size:28px;margin:0;font-weight:800;letter-spacing:-.3px}
-    .status-badge{
-      display:inline-flex;align-items:center;gap:8px;background:#e8fbf2;color:#056c51;
-      padding:8px 12px;border-radius:999px;font-weight:700;border:1px solid #c9f3e3
-    }
-    .controls{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
-    button, .btn{
-      appearance:none;border:1px solid var(--border);background:var(--card);
-      padding:10px 14px;border-radius:12px;font-weight:700;color:var(--text);
-      box-shadow:0 1px 0 rgba(0,0,0,.03);cursor:pointer
-    }
-    .btn-primary{background:var(--primary-cta);border-color:var(--primary-cta);color:#fff}
-    .btn-ghost{background:transparent}
-    .btn-danger{background:#fee2e2;border-color:#fecaca;color:#b91c1c}
-    .btn-outline{background:#fff;border-color:var(--primary-cta);color:var(--primary-cta)}
-    .date-nav{display:flex;align-items:center;gap:8px}
-    .date-box{background:var(--card);border:1px solid var(--border);padding:10px 14px;border-radius:12px;font-weight:800}
-    .grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:10px}
-    @media(min-width:680px){.grid{grid-template-columns:1fr 1fr}}
-    .card{
-      background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 14px 12px;
-      display:flex;gap:12px;align-items:flex-start;position:relative
-    }
-    .idx{width:36px;height:36px;border-radius:10px;background:var(--chip);display:grid;place-items:center;font-weight:800;color:#0f6b5e}
-    .word{font-weight:800;font-size:18px}
-    .meaning{color:var(--muted);margin-top:2px}
-    .ex{margin-top:6px;font-size:14px;color:#2b3d41}
-    .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-    .chip{font-size:12px;padding:4px 8px;border-radius:999px;border:1px solid var(--border);background:#f8fbfb;color:#284549}
-    .hard{background:var(--hard);border-color:#ffd97a}
-    .actions{margin-left:auto;display:flex;gap:8px}
-    .muted{color:var(--muted)}
-    .footer-tips{margin:18px 0;color:var(--muted);font-size:14px}
-    .toolbar{display:flex;gap:8px;flex-wrap:wrap}
-    .tag{background:#eef7ff;border:1px solid #d3ebff;color:#275b8a}
-    .ok{color:var(--ok)}
-    /* modal */
-    .modal-back{position:fixed;inset:0;background:rgba(16,24,27,.4);display:none;place-items:center;padding:16px;z-index:50}
-    .modal{max-width:520px;width:100%;background:#fff;border-radius:16px;border:1px solid var(--border);padding:16px 16px 12px}
-    .modal h3{margin:4px 0 8px}
-    .row{display:flex;gap:8px}
-    .input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px}
-    .topbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .link{color:#0e8e7a;text-decoration:underline;cursor:pointer}
-    .history{margin-top:16px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px}
-    .table{width:100%;border-collapse:collapse}
-    .table th,.table td{border-bottom:1px solid var(--border);padding:8px 6px;text-align:left;font-size:14px}
-    .pill{padding:4px 8px;border-radius:999px;background:#f0fdfa;color:#035e49;border:1px solid #c9f3e3;font-weight:700}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>오늘의 회화 영단어</title>
+<style>
+  :root{
+    --bg:#f7fafc; --panel:#ffffff; --text:#0f172a; --muted:#667085;
+    --primary:#22c55e; --primary-weak:#dcfce7; --accent:#0ea5e9;
+    --danger:#ef4444; --warn:#f59e0b; --star:#fbbf24; --border:#e5e7eb;
+    --chip:#eef2ff; --chip-text:#3730a3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Malgun Gothic,Helvetica,Arial,"Noto Sans",sans-serif}
+  .wrap{max-width:920px;margin:24px auto;padding:0 16px}
+  header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+  h1{font-size:28px;margin:0;font-weight:800;letter-spacing:-.3px}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--primary-weak);color:#065f46;font-weight:700}
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+  .btn{appearance:none;border:1px solid var(--border);background:#fff;color:var(--text);padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer;transition:.15s;box-shadow:0 1px 0 rgba(16,24,40,.04)}
+  .btn:hover{transform:translateY(-1px)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.ghost{background:transparent}
+  .btn.warn{background:var(--warn);border-color:var(--warn);color:#111}
+  .btn.stop{background:#fff3f3;border-color:#fecaca;color:#b91c1c}
+  .datebox{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--border);padding:8px 12px;border-radius:12px}
+  .datebox input{border:0;background:transparent;font-weight:800;font-size:16px;color:var(--text)}
+  .slider{display:flex;align-items:center;gap:10px;margin:8px 0 4px}
+  .slider input{width:180px}
+  .meta-tip{font-size:12px;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px}
+  @media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px;display:flex;gap:12px;align-items:flex-start;position:relative}
+  .idx{min-width:36px;height:36px;border-radius:10px;background:var(--chip);color:var(--chip-text);display:flex;align-items:center;justify-content:center;font-weight:800}
+  .word{flex:1}
+  .en{font-size:18px;font-weight:800}
+  .ko{margin-top:6px;color:var(--muted);font-weight:600}
+  .ex{margin-top:8px;font-size:13px;color:#374151;background:#f8fafc;border:1px dashed var(--border);padding:8px;border-radius:10px}
+  .actions{display:flex;gap:6px}
+  .star{position:absolute;right:12px;top:12px;background:#fff8eb;border:1px solid #fde68a;color:#92400e;border-radius:999px;padding:6px 10px;font-weight:800;cursor:pointer}
+  .star.active{background:#fff7db;border-color:#fbbf24;color:#92400e;box-shadow:0 0 0 2px #fef3c7 inset}
+  .pill{display:inline-flex;align-items:center;gap:8px}
+  .done-ok{background:var(--primary);color:#fff;border:none}
+  /* modal */
+  .modal-back{position:fixed;inset:0;background:rgba(2,6,23,.52);display:none;align-items:center;justify-content:center;padding:16px;z-index:40}
+  .modal{max-width:520px;width:100%;background:#fff;border-radius:16px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(2,6,23,.25);overflow:hidden}
+  .modal header{padding:16px;border-bottom:1px solid var(--border)}
+  .modal .body{padding:16px;display:grid;gap:12px}
+  .field{display:grid;gap:6px}
+  .field input{padding:12px;border:1px solid var(--border);border-radius:10px}
+  .list{display:grid;gap:8px;max-height:60vh;overflow:auto}
+  .chip{display:inline-flex;gap:8px;align-items:center;background:#f1f5f9;color:#0f172a;border-radius:999px;padding:6px 10px;border:1px solid #e2e8f0;font-weight:700}
+  .navline{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+  .hard-link{margin-left:auto}
+  .muted{color:var(--muted)}
+</style>
 </head>
 <body>
   <div class="wrap">
     <header>
       <h1>오늘의 회화 영단어</h1>
-      <span id="completeBadge" class="status-badge" hidden>✔ 오늘분 학습 완료</span>
+      <div id="doneBadge" class="badge" style="display:none">✔ 오늘분 학습 완료</div>
     </header>
 
-    <div class="topbar">
-      <div class="date-nav">
-        <button id="prevDay" class="btn">◀</button>
-        <div id="dateBox" class="date-box">--------</div>
-        <button id="nextDay" class="btn">▶</button>
+    <div class="toolbar">
+      <div class="datebox">
+        <button class="btn" id="prevDay">◀</button>
+        <input type="date" id="datePick" />
+        <button class="btn" id="nextDay">▶</button>
       </div>
-
-      <div class="toolbar" style="margin-left:auto">
-        <button id="btnPlayAll" class="btn btn-primary">전체 재생</button>
-        <button id="btnStopAll" class="btn btn-outline">정지</button>
-        <button id="btnMarkDone" class="btn">오늘분 완료</button>
-        <button id="btnLogin" class="btn">로그인</button>
-        <button id="btnLogout" class="btn btn-ghost" hidden>로그아웃</button>
-      </div>
+      <button class="btn primary" id="btnPlayAll">전체 재생</button>
+      <button class="btn stop" id="btnStopAll">정지</button>
+      <button class="btn" id="btnDoneToday">오늘분 완료</button>
+      <button class="btn" id="btnLogin">로그인</button>
+      <button class="btn ghost hard-link" id="btnHard">★ 어려운 단어</button>
     </div>
 
-    <div class="controls">
-      <label class="muted">속도</label>
-      <input id="rate" type="range" min="0.6" max="1.4" step="0.1" value="1" />
+    <div class="slider">
+      <span class="muted">속도</span>
+      <input type="range" id="rate" min="0.6" max="1.4" step="0.1" value="1.0">
       <span id="rateVal" class="muted">1.0x</span>
+    </div>
+    <div class="meta-tip">발음이 어색하면 기기 설정에서 English(US/UK), 한국어 음성을 설치해 주세요.</div>
+
+    <div class="navline">
+      <span class="chip">표시: <strong id="countInfo">0</strong>개</span>
+      <span class="chip">학습 날짜: <strong id="labelDate">-</strong></span>
+      <span class="chip" id="loginChip" style="display:none">안내: <strong id="who"></strong></span>
     </div>
 
     <section id="list" class="grid" aria-live="polite"></section>
 
-    <section class="history">
-      <div class="row" style="justify-content:space-between;align-items:center">
-        <strong>학습 기록</strong>
-        <div class="row">
-          <input id="filterDate" type="date" class="input" />
-          <button id="btnClearFilter" class="btn">필터 해제</button>
+    <!-- 로그인/회원가입 모달 -->
+    <div id="authBack" class="modal-back" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+        <header>
+          <h3 id="authTitle" style="margin:0">로그인 / 회원가입</h3>
+          <button class="btn ghost" id="closeAuth">닫기</button>
+        </header>
+        <div class="body">
+          <p class="muted">이메일·비밀번호 로그인 또는 Google 계정으로 간편 로그인</p>
+          <div class="field">
+            <label>이메일</label>
+            <input id="email" type="email" placeholder="you@example.com" />
+          </div>
+          <div class="field">
+            <label>비밀번호</label>
+            <input id="pw" type="password" placeholder="8자리 이상" />
+          </div>
+          <div style="display:flex; gap:8px">
+            <button class="btn" id="doLogin" style="flex:1">로그인</button>
+            <button class="btn primary" id="doSignup" style="flex:1">회원가입</button>
+          </div>
+          <div class="muted" style="text-align:center">또는</div>
+          <button class="btn" id="doGoogle">Google로 로그인</button>
         </div>
       </div>
-      <table class="table" id="historyTable">
-        <thead><tr><th>날짜</th><th>완료</th><th>단어 수</th><th>어려운 단어</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </section>
+    </div>
 
-    <p class="footer-tips">💡 발음이 어색하면 브라우저의 TTS 음성 설정에서 <b>English(US/UK)</b>와 <b>한국어</b> 음성을 선택하세요.</p>
-  </div>
-
-  <!-- 로그인 모달 -->
-  <div id="modalBack" class="modal-back">
-    <div class="modal">
-      <div class="row" style="justify-content:space-between;align-items:center">
-        <h3>로그인 / 회원가입</h3>
-        <button id="modalClose" class="btn">닫기</button>
+    <!-- 어려운 단어 모달 -->
+    <div id="hardBack" class="modal-back" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="hardTitle">
+        <header>
+          <h3 id="hardTitle" style="margin:0">★ 어려운 단어</h3>
+          <button class="btn ghost" id="closeHard">닫기</button>
+        </header>
+        <div class="body">
+          <div id="hardList" class="list"></div>
+        </div>
       </div>
-      <p class="muted">이메일·비밀번호 로그인 또는 Google 계정으로 간편 로그인</p>
-      <input id="email" class="input" type="email" placeholder="이메일" />
-      <div style="height:8px"></div>
-      <input id="password" class="input" type="password" placeholder="비밀번호 (6자 이상)" />
-      <div style="height:8px"></div>
-      <div class="row">
-        <button id="doLogin" class="btn btn-outline" style="flex:1">로그인</button>
-        <button id="doSignup" class="btn btn-primary" style="flex:1">회원가입</button>
-      </div>
-      <div style="text-align:center;margin:8px 0" class="muted">또는</div>
-      <button id="doGoogle" class="btn" style="width:100%">Google로 로그인</button>
     </div>
   </div>
 
-  <script type="module">
-    /******** Firebase (모듈 CDN) ********/
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-    import { getAuth, onAuthStateChanged,
-             signInWithEmailAndPassword, createUserWithEmailAndPassword,
-             GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+<!-- Firebase SDK (모듈러 CDN) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBtN9HptAjl3wzemzKIr8nHvRHyOsvjsNI",
-      authDomain: "voca-khw.firebaseapp.com",
-      projectId: "voca-khw",
-      storageBucket: "voca-khw.firebasestorage.app",
-      messagingSenderId: "697341566223",
-      appId: "1:697341566223:web:2a40f413b1edeb543c727a",
-      measurementId: "G-Y5XZEX3W9X"
-    };
+  // ====== Firebase 설정 (네 프로젝트 값) ======
+  const firebaseConfig = {
+    apiKey: "AIzaSyBtN9HptAjl3wzemzKIr8nHvRHyOsvjsNI",
+    authDomain: "voca-khw.firebaseapp.com",
+    projectId: "voca-khw",
+    storageBucket: "voca-khw.firebasestorage.app",
+    messagingSenderId: "697341566223",
+    appId: "1:697341566223:web:2a40f413b1edeb543c727a",
+    measurementId: "G-Y5XZEX3W9X"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  // 리다이렉트 결과 처리(모바일 폴백)
+  getRedirectResult(auth).catch(()=>{});
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    let db = null;
-    try { db = getFirestore(app); } catch(e){ db = null; }
+  // ====== DOM ======
+  const $ = s => document.querySelector(s);
+  const listEl = $("#list"), countInfo=$("#countInfo"), labelDate=$("#labelDate");
+  const doneBadge=$("#doneBadge"), rate=$("#rate"), rateVal=$("#rateVal");
+  const datePick=$("#datePick");
+  const loginChip=$("#loginChip"), who=$("#who");
 
-    /******** 앱 상태 ********/
-    const $ = (s,root=document)=>root.querySelector(s);
-    const $$ = (s,root=document)=>root.querySelectorAll(s);
-    const state = {
-      user:null,
-      words:[],
-      hardSet:new Set(),
-      todayKey:"",
-      rate:1,
-      playing:false
-    };
+  // ====== 상태 ======
+  const fmt = (d)=> d.toISOString().slice(0,10);
+  const todayStr = fmt(new Date());
+  let currentDate = todayStr;
+  let wordsToday = [];       // words.json(오늘)
+  let showingWords = [];     // 화면에 표시 중(선택 날짜)
+  let speaking = false;
+  let currentUser = null;
+  const uidKey = ()=> currentUser ? `uid:${currentUser.uid}` : "uid:guest";
+  const store = {
+    get(path, def){ try{ return JSON.parse(localStorage.getItem(path)) ?? def; }catch{return def}},
+    set(path, val){ localStorage.setItem(path, JSON.stringify(val)); }
+  };
 
-    /******** 날짜/키 ********/
-    const fmt = d=>d.toISOString().slice(0,10);
-    let currentDate = new Date();
-    function setDate(d){
-      currentDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-      $("#dateBox").textContent = fmt(currentDate);
-      state.todayKey = fmt(currentDate);
-      renderCompleteBadge();
-      loadHistoryTable();
-      loadWords();
-    }
-
-    $("#prevDay").onclick = ()=>setDate(new Date(currentDate.getTime()-86400000));
-    $("#nextDay").onclick = ()=>setDate(new Date(currentDate.getTime()+86400000));
-    $("#filterDate").onchange = loadHistoryTable;
-    $("#btnClearFilter").onclick = ()=>{$("#filterDate").value=""; loadHistoryTable();};
-
-    /******** words.json 불러오기 ********/
-    async function loadWords(){
-      try{
-        const res = await fetch("./words.json?v="+Date.now());
-        const data = await res.json(); // [{phrase, meaning, example?}, ...] 10개 예상
-        state.words = Array.isArray(data) ? data : (data.words || []);
-        // 기록의 '어려운 단어' 표시 반영
-        const hard = getStore().hard?.[state.todayKey] || [];
-        state.hardSet = new Set(hard);
-        renderList();
-      }catch(e){
-        $("#list").innerHTML = `<div class="muted">단어를 불러오지 못했습니다: ${e}</div>`;
-      }
-    }
-
-    /******** 렌더링 ********/
-    function renderList(){
-      const list = $("#list");
-      list.innerHTML = "";
-      state.words.forEach((w,i)=>{
-        const card = document.createElement("div");
-        card.className="card";
-        if(state.hardSet.has(w.phrase)) card.style.outline="2px solid #ffd166";
-        card.innerHTML = `
-          <div class="idx">${i+1}</div>
-          <div style="flex:1">
-            <div class="word">${w.phrase}</div>
-            <div class="meaning">${w.meaning ?? ""}</div>
-            ${w.example ? `<div class="ex"><span class="chip tag">예문</span> ${w.example}</div>` : ""}
-            <div class="chips">
-              <span class="chip ${state.hardSet.has(w.phrase)?"hard":""}">어려운 단어</span>
-            </div>
-          </div>
-          <div class="actions">
-            <button class="btn speak-en">EN</button>
-            <button class="btn speak-ko">KO</button>
-            <button class="btn mark-hard">${state.hardSet.has(w.phrase)?"★":"☆"}</button>
-          </div>
-        `;
-        // 이벤트
-        $(".speak-en",card).onclick = ()=>speak(w.phrase,"en");
-        $(".speak-ko",card).onclick = ()=>speak(w.meaning||"", "ko");
-        $(".mark-hard",card).onclick = ()=>{
-          if(state.hardSet.has(w.phrase)) state.hardSet.delete(w.phrase);
-          else state.hardSet.add(w.phrase);
-          saveHardToday();
-          renderList();
-        };
-        list.appendChild(card);
-      });
-    }
-
-    /******** 재생 ********/
-    $("#rate").oninput = (e)=>{ state.rate=+e.target.value; $("#rateVal").textContent=state.rate.toFixed(1)+"x";}
-    $("#btnPlayAll").onclick = async ()=>{
-      state.playing=true;
-      for(const w of state.words){
-        if(!state.playing) break;
-        await speak(w.phrase,"en");
-        if(!state.playing) break;
-        await speak(w.meaning||"","ko");
-      }
-    };
-    $("#btnStopAll").onclick = ()=>{ state.playing=false; speechSynthesis.cancel(); };
-
-    function speak(text, lang){
-      return new Promise(resolve=>{
-        if(!text){ resolve(); return; }
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = lang==="en" ? "en-US" : "ko-KR";
-        u.rate = state.rate;
-        u.onend = ()=>setTimeout(resolve,120);
-        u.onerror = ()=>resolve();
-        speechSynthesis.cancel(); // 버튼 연속 클릭 시 겹침 방지
-        speechSynthesis.speak(u);
-      });
-    }
-
-    /******** 완료/히스토리 ********/
-    $("#btnMarkDone").onclick = async ()=>{
-      const store = getStore();
-      store.done = store.done || {};
-      store.done[state.todayKey] = true;
-      store.count = store.count || {};
-      store.count[state.todayKey] = state.words.length;
-      store.hard = store.hard || {};
-      store.hard[state.todayKey] = Array.from(state.hardSet);
-      setStore(store);
-      renderCompleteBadge();
-      await saveRemoteProgress(store);
-      loadHistoryTable();
-      alert("오늘분 완료로 기록했습니다. 내일 다시 열면 다음 단어로 이어집니다!");
-    };
-
-    function renderCompleteBadge(){
-      const done = !!getStore().done?.[state.todayKey];
-      $("#completeBadge").hidden = !done;
-    }
-
-    function loadHistoryTable(){
-      const tbody = $("#historyTable tbody");
-      tbody.innerHTML = "";
-      const store = getStore();
-      const filter = $("#filterDate").value;
-      const rows = Object.keys(store.done||{})
-        .sort()
-        .filter(d=>!filter || d===filter)
-        .map(d=>({
-          date:d,
-          done: store.done[d],
-          cnt: store.count?.[d] ?? 0,
-          hard: (store.hard?.[d] ?? []).length
-        }));
-      for(const r of rows){
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${r.date}</td>
-                        <td>${r.done?'<span class="pill">완료</span>':'-'}</td>
-                        <td>${r.cnt}</td>
-                        <td>${r.hard}</td>`;
-        tbody.appendChild(tr);
-      }
-    }
-
-    function saveHardToday(){
-      const store=getStore();
-      store.hard = store.hard || {};
-      store.hard[state.todayKey] = Array.from(state.hardSet);
-      setStore(store);
-      saveRemoteProgress(store);
-    }
-
-    /******** 저장소 (Firestore ↔ localStorage) ********/
-    const LS_KEY = "voca-progress";
-    const userDocRef = ()=> db && state.user ? doc(db,"users",state.user.uid) : null;
-
-    function getStore(){
-      try{
-        const raw = localStorage.getItem(LS_KEY);
-        return raw? JSON.parse(raw): {};
-      }catch{return {}}
-    }
-    function setStore(obj){
-      localStorage.setItem(LS_KEY, JSON.stringify(obj));
-    }
-
-    async function saveRemoteProgress(store){
-      const ref = userDocRef();
-      if(!ref) return;
-      try{
-        await setDoc(ref,{progress:store, updatedAt:serverTimestamp()},{merge:true});
-      }catch(e){ /* Firestore 비활성시 무시 */ }
-    }
-    async function loadRemoteProgress(){
-      const ref = userDocRef();
-      if(!ref) return;
-      try{
-        const snap = await getDoc(ref);
-        if(snap.exists()){
-          const remote = snap.data().progress || {};
-          // 로컬과 병합(원격 우선)
-          setStore({...getStore(), ...remote});
-        }
-      }catch(e){ /* 무시 */ }
-    }
-
-    /******** 로그인 UI ********/
-    const modal = $("#modalBack");
-    const openModal = ()=> modal.style.display="grid";
-    const closeModal = ()=> modal.style.display="none";
-    $("#btnLogin").onclick = openModal;
-    $("#modalClose").onclick = closeModal;
-
-    $("#doSignup").onclick = async ()=>{
-      const email=$("#email").value.trim();
-      const pw=$("#password").value.trim();
-      try{
-        await createUserWithEmailAndPassword(auth,email,pw);
-        alert("회원가입 성공!");
-        closeModal();
-      }catch(e){ alert("회원가입 실패: "+e); }
-    };
-    $("#doLogin").onclick = async ()=>{
-      const email=$("#email").value.trim();
-      const pw=$("#password").value.trim();
-      try{
-        await signInWithEmailAndPassword(auth,email,pw);
-        alert("로그인 성공!");
-        closeModal();
-      }catch(e){ alert("로그인 실패: "+e); }
-    };
-    $("#doGoogle").onclick = async ()=>{
-      try{
-        const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
-        alert("Google 로그인 성공!");
-        closeModal();
-      }catch(e){ alert("Google 로그인 실패: "+e); }
-    };
-    $("#btnLogout").onclick = ()=>signOut(auth);
-
-    onAuthStateChanged(auth, async (user)=>{
-      state.user = user || null;
-      $("#btnLogin").hidden = !!user;
-      $("#btnLogout").hidden = !user;
-      if(user){
-        await loadRemoteProgress();
-        renderCompleteBadge();
-        loadHistoryTable();
-      }
+  // ====== 음성 ======
+  let voices = [];
+  const refreshVoices = ()=>{
+    voices = window.speechSynthesis.getVoices();
+  }
+  window.speechSynthesis.onvoiceschanged = refreshVoices; refreshVoices();
+  const pickVoice = (langStartsWith)=> voices.find(v => v.lang?.toLowerCase().startsWith(langStartsWith));
+  const speakOnce = (text, langLike="en", rateVal=1.0)=>{
+    return new Promise(res=>{
+      const u = new SpeechSynthesisUtterance(text);
+      const v = pickVoice(langLike);
+      if(v) u.voice = v;
+      u.rate = rateVal;
+      u.onend = ()=>res();
+      window.speechSynthesis.speak(u);
     });
+  };
 
-    /******** 초기화 ********/
-    $("#rateVal").textContent = (+$("#rate").value).toFixed(1)+"x";
-    setDate(new Date()); // 오늘 날짜로 로드
-  </script>
+  // ====== 데이터 로드 ======
+  async function loadTodayJson(){
+    const bust = `v=${Date.now()}`;
+    const r = await fetch(`./words.json?${bust}`);
+    if(!r.ok){ wordsToday=[]; return; }
+    wordsToday = await r.json();
+  }
+
+  // 선택 날짜에 맞는 단어셋
+  function resolveWordsForDate(dateStr){
+    const baseKey = uidKey();
+    const history = store.get(`${baseKey}:history`,{});
+    if(dateStr === todayStr){
+      // 오늘: words.json 우선, 없으면 히스토리
+      return wordsToday?.length ? wordsToday : (history[dateStr]?.words ?? []);
+    }
+    // 과거/미래: 히스토리
+    return history[dateStr]?.words ?? [];
+  }
+
+  // 완료 체크
+  function isDone(dateStr){
+    const history = store.get(`${uidKey()}:history`,{});
+    return Boolean(history[dateStr]?.done);
+  }
+
+  // 완료 처리 + 히스토리 저장
+  function markDone(dateStr, words){
+    const baseKey = uidKey();
+    const history = store.get(`${baseKey}:history`,{});
+    history[dateStr] = { words, done:true, ts: Date.now() };
+    store.set(`${baseKey}:history`, history);
+    renderDoneBadge();
+  }
+
+  // 어려운 단어
+  function toggleHard(item){
+    const key = `${uidKey()}:hard`;
+    const list = store.get(key,[]);
+    const idx = list.findIndex(x=>x.phrase===item.phrase && x.meaning===item.meaning);
+    if(idx>=0) list.splice(idx,1); else list.unshift(item);
+    store.set(key,list);
+    renderList(showingWords); // 버튼 active 반영
+  }
+  function getHard(){ return store.get(`${uidKey()}:hard`,[]); }
+
+  // ====== 화면 렌더 ======
+  function renderDoneBadge(){
+    doneBadge.style.display = isDone(currentDate) ? "inline-flex" : "none";
+  }
+  function card(item, i){
+    const hardNow = getHard().some(x=>x.phrase===item.phrase && x.meaning===item.meaning);
+    const ex = item.example ? `<div class="ex">예문: ${item.example}</div>` : "";
+    return `
+      <div class="card">
+        <div class="idx">${i+1}</div>
+        <div class="word">
+          <div class="en">${item.phrase}</div>
+          <div class="ko">${item.meaning}</div>
+          ${ex}
+          <div class="actions" style="margin-top:10px">
+            <button class="btn" data-act="say-en" data-i="${i}">EN발음</button>
+            <button class="btn" data-act="say-ko" data-i="${i}">KO발음</button>
+          </div>
+        </div>
+        <button class="star ${hardNow?'active':''}" title="어려운 단어에 추가/해제" data-act="hard" data-i="${i}">★</button>
+      </div>
+    `;
+  }
+  function renderList(words){
+    showingWords = words;
+    listEl.innerHTML = words.map((w,i)=>card(w,i)).join("") || `<div class="muted">이 날짜의 단어가 없습니다.</div>`;
+    countInfo.textContent = words.length;
+    // 이벤트 위임
+    listEl.onclick = async (e)=>{
+      const btn = e.target.closest("button[data-act]");
+      if(!btn) return;
+      const i = +btn.dataset.i;
+      const it = showingWords[i];
+      if(btn.dataset.act==="say-en"){
+        await speakOnce(it.phrase,"en", +rate.value);
+      }else if(btn.dataset.act==="say-ko"){
+        await speakOnce(it.meaning,"ko", +rate.value);
+      }else if(btn.dataset.act==="hard"){
+        toggleHard(it);
+      }
+    };
+  }
+
+  // 날짜 전환
+  function setDate(dStr){
+    currentDate = dStr;
+    datePick.value = dStr;
+    labelDate.textContent = dStr;
+    const ws = resolveWordsForDate(dStr);
+    renderList(ws);
+    renderDoneBadge();
+  }
+
+  // ====== 전체 재생/정지 ======
+  async function playAll(){
+    if(speaking) return;
+    speaking = true;
+    for(const it of showingWords){
+      if(!speaking) break;
+      await speakOnce(it.phrase,"en", +rate.value);
+      if(!speaking) break;
+      await speakOnce(it.meaning,"ko", +rate.value);
+    }
+    speaking = false;
+  }
+  function stopAll(){
+    speaking = false;
+    window.speechSynthesis.cancel();
+  }
+
+  // ====== Auth UI ======
+  const authBack=$("#authBack"), closeAuth=$("#closeAuth");
+  const hardBack=$("#hardBack"), closeHard=$("#closeHard");
+  $("#btnLogin").onclick = ()=> authBack.style.display="flex";
+  closeAuth.onclick = ()=> authBack.style.display="none";
+  $("#btnHard").onclick = ()=>{
+    const arr = getHard();
+    $("#hardList").innerHTML = arr.length
+      ? arr.map(x=>`<div class="card"><div class="word"><div class="en">${x.phrase}</div><div class="ko">${x.meaning}</div></div></div>`).join("")
+      : `<div class="muted">아직 추가된 어려운 단어가 없어요.</div>`;
+    hardBack.style.display="flex";
+  };
+  closeHard.onclick = ()=> hardBack.style.display="none";
+
+  $("#doLogin").onclick = async ()=>{
+    try{
+      const email = $("#email").value.trim(), pw=$("#pw").value.trim();
+      await signInWithEmailAndPassword(auth,email,pw);
+      alert("로그인 성공!");
+      authBack.style.display="none";
+    }catch(e){
+      alert("로그인 실패: "+e);
+    }
+  };
+  $("#doSignup").onclick = async ()=>{
+    try{
+      const email = $("#email").value.trim(), pw=$("#pw").value.trim();
+      await createUserWithEmailAndPassword(auth,email,pw);
+      alert("회원가입 성공!");
+      authBack.style.display="none";
+    }catch(e){
+      // 설정 미비 안내
+      if(String(e).includes("operation-not-allowed") || String(e).includes("configuration-not-found")){
+        alert("Firebase 콘솔 > Authentication > Sign-in method 에서 Email/Password 제공자를 ‘사용’으로 켜주세요. Authorized domains에 rlagusdn6763-eng.github.io도 추가!");
+      }else{
+        alert("회원가입 실패: "+e);
+      }
+    }
+  };
+  $("#doGoogle").onclick = async ()=>{
+    const provider = new GoogleAuthProvider();
+    try{
+      if(/Mobi|Android/i.test(navigator.userAgent)){
+        await signInWithRedirect(auth, provider); return;
+      }
+      await signInWithPopup(auth, provider);
+      alert("Google 로그인 성공!"); authBack.style.display="none";
+    }catch(e){
+      if(String(e).includes("configuration-not-found")||String(e).includes("operation-not-allowed")){
+        alert("Google 제공자를 Firebase 콘솔에서 ‘사용’으로 켜고, Authorized domains에 rlagusdn6763-eng.github.io 를 추가하세요.");
+      }else{
+        alert("Google 로그인 실패: "+e);
+      }
+    }
+  };
+
+  onAuthStateChanged(auth,(u)=>{
+    currentUser = u || null;
+    if(u){ loginChip.style.display="inline-flex"; who.textContent = u.email || u.uid; }
+    else { loginChip.style.display="none"; who.textContent=""; }
+    // 사용자 바뀌면 현재 날짜 다시 로드(개인 히스토리 분리)
+    setDate(currentDate);
+  });
+
+  // ====== 날짜 & 완료 UI ======
+  datePick.addEventListener("change", (e)=> setDate(e.target.value));
+  $("#prevDay").onclick = ()=> {
+    const d = new Date(currentDate); d.setDate(d.getDate()-1); setDate(fmt(d));
+  };
+  $("#nextDay").onclick = ()=> {
+    const d = new Date(currentDate); d.setDate(d.getDate()+1); setDate(fmt(d));
+  };
+  $("#btnDoneToday").onclick = ()=>{
+    if(!showingWords.length){ alert("표시된 단어가 없습니다."); return; }
+    markDone(currentDate, showingWords);
+    alert("기록 저장 완료! 날짜 기록 탭에서 언제든 볼 수 있어요.");
+  };
+
+  // ====== 전체 재생/정지 + 속도 ======
+  $("#btnPlayAll").onclick = playAll;
+  $("#btnStopAll").onclick = stopAll;
+  rate.oninput = ()=> rateVal.textContent = rate.value+"x";
+
+  // ====== 초기화 ======
+  (async function init(){
+    // 날짜 입력 기본값=오늘
+    datePick.value = todayStr;
+    labelDate.textContent = todayStr;
+    // 오늘 words.json 불러오기
+    await loadTodayJson();
+    // 오늘 날짜 세팅
+    setDate(todayStr);
+  })();
+</script>
 </body>
 </html>
