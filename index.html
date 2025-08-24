@@ -64,6 +64,10 @@
     .full{width:100%}
     .logout{margin-top:8px}
     .title-wrap{display:flex;align-items:center;gap:10px}
+
+    /* 기록 삭제 모드 툴바 */
+    .toolbar{display:flex;gap:8px;align-items:center;margin:8px 0}
+    .muted{color:#64748b}
   </style>
 </head>
 <body>
@@ -90,6 +94,7 @@
 
       <button id="viewFav" class="btn ghost">★ 어려운 단어</button>
       <button id="viewLog" class="btn ghost">기록</button>
+      <button id="deleteModeBtn" class="btn warn">기록 삭제</button>
     </div>
 
     <div class="bar">
@@ -97,7 +102,7 @@
       <select id="voiceSelect" class="sel" title="영어 음성 선택"></select>
     </div>
 
-    <!-- 단어 리스트 -->
+    <!-- 단어/기록 리스트 -->
     <section id="list"></section>
   </main>
 
@@ -136,10 +141,9 @@
     const $$ = (sel, el=document)=>[...el.querySelectorAll(sel)];
     const fmt = (d)=>d.toISOString().slice(0,10);
     const todayStr = fmt(new Date());
-    const START_DATE = '2025-08-01';   // 기준일
-    const COUNT_PER_DAY = 10;          // 하루 개수
+    const START_DATE = '2025-08-01';
+    const COUNT_PER_DAY = 10;
 
-    // UTC 날짜차 (타임존 이슈 방지)
     function daysBetweenUTC(aStr, bStr){
       const [ay,am,ad] = aStr.split('-').map(Number);
       const [by,bm,bd] = bStr.split('-').map(Number);
@@ -260,10 +264,10 @@
       alert('오늘분 완료! 다음 날짜로 이동했습니다.');
     });
 
-    // pool.json 로딩 (루트에 두세요)
+    // pool.json 로딩
     async function fetchPool(){
       const res = await fetch('./pool.json', {cache:'no-cache'});
-      return res.json(); // [{phrase, meaning, example}, ...]
+      return res.json();
     }
 
     // 고정 시드 셔플 + 날짜 페이지네이션
@@ -285,7 +289,7 @@
     }
     function pickForDate(shuffled, dateStr, count=COUNT_PER_DAY){
       if (!shuffled.length) return [];
-      const dayIndex = Math.max(0, daysBetweenUTC(START_DATE, dateStr)); // START_DATE 기준
+      const dayIndex = Math.max(0, daysBetweenUTC(START_DATE, dateStr));
       const start = (dayIndex * count) % shuffled.length;
       const take = Math.min(count, shuffled.length);
       const out = [];
@@ -339,7 +343,7 @@
     async function renderWords(){
       if (pool.length === 0) {
         pool = await fetchPool();
-        shuffledPool = shuffleWithSeed(pool, 20240801); // 한 번만 섞음(고정)
+        shuffledPool = shuffleWithSeed(pool, 20240801);
       }
       const items = pickForDate(shuffledPool, currentDate, COUNT_PER_DAY);
       listEl.innerHTML = '';
@@ -361,14 +365,12 @@
             </div>
           </div>
         `;
-        // 개별 재생
         $('.en', card).addEventListener('click', async ()=>{
           await speakOnce(w.phrase, 'en-US', voiceSelect.value);
         });
         $('.ko', card).addEventListener('click', async ()=>{
           await speakOnce(w.meaning, 'ko-KR');
         });
-        // 즐겨찾기
         $('.fav', card).addEventListener('click', ()=>{
           const favs = JSON.parse(localStorage.getItem('favs')||'[]');
           favs.push({...w, savedAt: Date.now()});
@@ -411,39 +413,100 @@
       });
     });
 
-    // 보기: 기록(날짜) + 🗑 삭제 기능 추가
-    $('#viewLog').addEventListener('click', ()=>{
-      const renderLog = ()=>{
-        const logs = JSON.parse(localStorage.getItem('studyLogs')||'[]');
-        if (logs.length===0){ alert('학습 기록이 없습니다.'); return; }
-        stopAllPlayback();
-        listEl.innerHTML = '';
-        logs.sort().forEach((d)=>{
-          const card = document.createElement('article');
-          card.className='card';
+    /***********************
+     * 기록 보기 / 삭제 모드
+     ************************/
+    let deleteMode = false;
+    let selectedToDelete = new Set();
+
+    function getLogs(){ return JSON.parse(localStorage.getItem('studyLogs')||'[]'); }
+    function setLogs(arr){ localStorage.setItem('studyLogs', JSON.stringify(arr)); }
+
+    function renderLogList(){
+      const logs = getLogs();
+      if (logs.length===0){ alert('학습 기록이 없습니다.'); return; }
+      stopAllPlayback();
+      listEl.innerHTML = '';
+
+      // 삭제 모드일 때 상단 툴바 표시
+      if (deleteMode){
+        const tb = document.createElement('div');
+        tb.className = 'toolbar';
+        tb.innerHTML = `
+          <strong>삭제 모드</strong>
+          <span class="muted">삭제할 날짜를 체크하세요</span>
+          <div style="flex:1"></div>
+          <button id="cancelDelete" class="btn ghost">취소</button>
+          <button id="confirmDelete" class="btn warn">삭제하기</button>
+        `;
+        listEl.appendChild(tb);
+
+        $('#cancelDelete', tb).addEventListener('click', ()=>{
+          deleteMode = false;
+          selectedToDelete.clear();
+          renderLogList(); // 일반 모드로 재렌더
+        });
+
+        $('#confirmDelete', tb).addEventListener('click', ()=>{
+          if (selectedToDelete.size === 0){
+            alert('삭제할 날짜를 선택하세요.');
+            return;
+          }
+          const remain = getLogs().filter(d => !selectedToDelete.has(d));
+          setLogs(remain);
+          deleteMode = false;
+          selectedToDelete.clear();
+          renderLogList(); // 결과 반영
+        });
+      }
+
+      // 목록
+      logs.sort().forEach((d)=>{
+        const card = document.createElement('article');
+        card.className='card';
+        if (deleteMode){
+          // 삭제 모드: 체크박스 + 날짜만
+          card.innerHTML = `
+            <div class="row" style="gap:8px">
+              <input type="checkbox" class="chk" style="width:20px;height:20px">
+              <div class="num">✔</div>
+              <div style="flex:1;font-weight:900">${d}</div>
+            </div>`;
+          const chk = $('.chk', card);
+          chk.addEventListener('change', (e)=>{
+            if (e.target.checked) selectedToDelete.add(d);
+            else selectedToDelete.delete(d);
+          });
+        }else{
+          // 일반 모드: 보기 버튼만
           card.innerHTML = `
             <div class="row" style="gap:8px">
               <div class="num">✔</div>
               <div style="flex:1;font-weight:900">${d}</div>
-              <div class="row" style="gap:6px">
-                <button class="btn ghost view">이날 단어 보기</button>
-                <button class="btn warn del" title="이 기록 삭제">🗑 삭제</button>
-              </div>
+              <button class="btn ghost view">이날 단어 보기</button>
             </div>`;
           $('.view',card).addEventListener('click', ()=>{
             setDateAndRender(d);
             window.scrollTo({top:0,behavior:'smooth'});
           });
-          $('.del',card).addEventListener('click', ()=>{
-            if(!confirm(`정말로 ${d} 기록을 삭제할까요?`)) return;
-            const arr = JSON.parse(localStorage.getItem('studyLogs')||'[]').filter(x=>x!==d);
-            localStorage.setItem('studyLogs', JSON.stringify(arr));
-            renderLog(); // 화면 즉시 갱신
-          });
-          listEl.appendChild(card);
-        });
-      };
-      renderLog();
+        }
+        listEl.appendChild(card);
+      });
+    }
+
+    // 상단 버튼들
+    $('#viewLog').addEventListener('click', ()=>{
+      deleteMode = false;
+      selectedToDelete.clear();
+      renderLogList();
+    });
+
+    $('#deleteModeBtn').addEventListener('click', ()=>{
+      const logs = getLogs();
+      if (logs.length===0){ alert('학습 기록이 없습니다.'); return; }
+      deleteMode = true;
+      selectedToDelete.clear();
+      renderLogList(); // 체크박스/취소/삭제하기가 보이는 모드
     });
 
     // 전체 재생: EN → KO, 정지 지원
@@ -455,6 +518,7 @@
         if (!isPlaying) break;
         const phrase = $('.word', card)?.textContent?.trim() || '';
         const meaning = $('.mean', card)?.textContent?.trim() || '';
+        if (!phrase && !meaning) continue; // 기록 화면 등에서 카드에 단어가 없을 수 있음
         await speakOnce(phrase, 'en-US', voiceSelect.value);
         if (!isPlaying) break;
         await speakOnce(meaning, 'ko-KR');
@@ -465,9 +529,13 @@
     });
 
     // 정지
-    $('#stopAll').addEventListener('click', stopAllPlayback);
+    $('#stopAll').addEventListener('click', ()=>{
+      isPlaying = false;
+      try { speechSynthesis.cancel(); } catch(e){}
+    });
 
-    // 초기 렌더
+    // 초기 렌더(단어)
+    let isPlaying = false;
     renderWords();
   </script>
 </body>
