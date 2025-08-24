@@ -6,588 +6,498 @@
   <title>오늘의 회화 영단어</title>
   <style>
     :root{
-      --bg:#f6f8fb; --card:#ffffff; --ink:#0b1220; --muted:#e7ecf5;
-      --brand:#2a62ff; --brand-ink:#fff; --ok:#18a957; --danger:#f04438;
-      --shadow:0 10px 30px rgba(14,18,26,.08);
+      --brand:#1358ff;
+      --brand-grad:#0f49d6;
+      --bg:#f6f8ff;
+      --card:#ffffff;
+      --text:#101828;
+      --muted:#667085;
+      --border:#e5e7eb;
+      --ok:#16a34a;
+      --danger:#ef4444;
+      --amber:#f59e0b;
+      --chip:#eef2ff;
     }
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Malgun Gothic,Arial,sans-serif}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,Apple Color Emoji,Segoe UI Emoji;
+      background:var(--bg);
+      color:var(--text);
+    }
 
     /* 헤더 */
-    .appbar{
-      position:sticky;top:0;z-index:5;
-      display:flex;align-items:center;justify-content:space-between;
-      padding:16px 20px;background:linear-gradient(90deg,#2a62ff,#2250d8);color:#fff;
-      box-shadow:var(--shadow)
+    .header{
+      position:sticky;top:0;z-index:20;
+      background:linear-gradient(90deg,var(--brand),var(--brand-grad));
+      color:#fff;
+      padding:18px 16px 14px;
+      border-bottom:1px solid rgba(255,255,255,.15);
     }
-    .title{font-size:20px;font-weight:800;letter-spacing:.2px}
-    .dot-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.18);
-      display:grid;place-items:center;border:none;cursor:pointer}
-    .dot-btn span{width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 -8px 0 #fff,0 8px 0 #fff}
-    .container{padding:18px;max-width:980px;margin:0 auto}
+    .header-row{
+      max-width:980px;margin:0 auto;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+    }
+    .title{
+      font-size:22px;font-weight:800;letter-spacing:-.2px;
+      display:flex;align-items:center;gap:10px;
+    }
+    .menu-dot{
+      width:42px;height:42px;border-radius:50%;
+      background:rgba(255,255,255,.18);
+      display:grid;place-items:center;cursor:pointer;
+      border:1px solid rgba(255,255,255,.25);
+    }
+    .menu-dot span{
+      display:block;width:4px;height:4px;border-radius:50%;
+      background:#fff;box-shadow:0 8px 0 #fff,0 -8px 0 #fff;
+    }
 
-    /* 컨트롤 바 */
-    .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0 16px}
-    .chip{padding:10px 14px;border-radius:12px;border:1px solid var(--muted);background:#fff;font-weight:700}
-    .btn{padding:10px 14px;border-radius:12px;border:1px solid transparent;font-weight:800;cursor:pointer}
-    .btn.primary{background:var(--brand);color:var(--brand-ink)}
-    .btn.ghost{background:#fff;border-color:var(--muted)}
-    .btn.ok{background:var(--ok);color:#fff}
-    .btn.warn{background:var(--danger);color:#fff}
-    .sel{padding:10px;border-radius:12px;border:1px solid var(--muted);background:#fff}
-    .num{width:36px;height:36px;border-radius:12px;background:#e9efff;color:#2144c7;display:grid;place-items:center;font-weight:900}
+    /* 컨테이너 */
+    .container{max-width:980px;margin:18px auto;padding:0 16px}
+
+    /* 상단 컨트롤 */
+    .controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:10px}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .date-wrap{display:flex;align-items:center;gap:10px}
+    .date-btn{width:52px;height:52px;border-radius:12px;border:1px solid var(--border);background:#fff;display:grid;place-items:center;cursor:pointer}
+    .date-view{
+      min-width:180px;height:52px;border-radius:12px;border:1px solid var(--border);
+      display:grid;place-items:center;background:#fff;font-weight:700;letter-spacing:.5px
+    }
+    .play-btn{width:52px;height:52px;border-radius:12px;border:1px solid var(--border);background:#fff;display:grid;place-items:center;cursor:pointer}
+
+    .btn{
+      height:52px;border-radius:12px;border:1px solid var(--border);
+      background:#fff;padding:0 18px;font-weight:700;cursor:pointer;white-space:nowrap
+    }
+    .btn-green{background:#ecfdf3;border-color:#bbf7d0;color:#065f46}
+    .btn-red{background:#fff1f2;border-color:#fecdd3;color:#991b1b}
+    .btn-ghost{background:#fff}
+
+    /* 속도 & 보이스 */
+    .panel{display:flex;align-items:center;gap:12px;margin:6px 0 18px}
+    .speed-box{display:flex;align-items:center;gap:12px}
+    .select{
+      height:44px;border-radius:12px;border:1px solid var(--border);padding:0 12px;background:#fff
+    }
 
     /* 카드 */
-    .card{background:var(--card);border-radius:18px;padding:16px;margin:12px 0;box-shadow:var(--shadow)}
-    .row{display:flex;justify-content:space-between;gap:10px;align-items:center}
-    .word{font-size:20px;font-weight:900}
-    .mean{margin:.4rem 0 0;color:#334155}
-    .ex{margin:.6rem 0 0;color:#475569}
-    .tag{padding:8px 10px;border-radius:12px;border:1px solid var(--muted);background:#fff;font-weight:800}
-    .fav{width:40px;height:40px;border-radius:12px;border:1px solid var(--muted);background:#fff;display:grid;place-items:center;font-size:20px;cursor:pointer}
-
-    /* 음성/속도 */
-    .range{accent-color:#2a62ff;width:220px}
-
-    /* 오버레이 + 슬라이드 패널 */
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:39}
-    .overlay.show{display:block}
-    .sheet{
-      position:fixed;top:0;right:-360px;z-index:40;width:320px;max-width:90vw;height:100%;
-      background:#fff;box-shadow:-12px 0 30px rgba(0,0,0,.18);transition:right .28s ease;
-      padding:20px;overflow-y:auto
+    .card{
+      background:var(--card);border:1px solid var(--border);border-radius:16px;
+      padding:16px 14px;margin-bottom:12px;box-shadow:0 1px 0 rgba(16,24,40,.03)
     }
-    .sheet.open{right:0}
-    .sheet h3{margin:6px 0 16px;font-size:22px}
-    .field{margin:10px 0}
-    .input{width:100%;padding:12px;border:1px solid var(--muted);border-radius:12px}
-    .full{width:100%}
-    .logout{margin-top:8px}
-    .title-wrap{display:flex;align-items:center;gap:10px}
+    .card-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+    .badge{
+      width:34px;height:34px;border-radius:10px;background:var(--chip);
+      color:#3b82f6;display:grid;place-items:center;font-weight:800
+    }
+    .word{font-size:20px;font-weight:800;letter-spacing:.1px}
+    .mean{color:var(--muted);margin:4px 0 10px}
+    .actions{display:flex;gap:8px}
+    .chip{
+      height:36px;border-radius:10px;border:1px solid var(--border);background:#fff;padding:0 12px;cursor:pointer
+    }
+    .star{margin-left:auto;width:40px;height:40px;border-radius:12px;border:1px solid #fde68a;background:#fffbeb;display:grid;place-items:center;color:#ca8a04;cursor:pointer}
 
-    /* 기록 삭제 모드 툴바 */
-    .toolbar{display:flex;gap:8px;align-items:center;margin:8px 0}
-    .muted{color:#64748b}
-    .chk{width:20px;height:20px}
-    .log-label{display:flex;align-items:center;gap:10px;flex:1;cursor:pointer}
+    /* 기록 */
+    .log-wrap{margin-top:10px}
+    .log-head{display:flex;align-items:center;gap:10px;margin:8px 0 12px}
+    .log-note{font-size:14px;color:var(--muted)}
+    .log-item{
+      background:#fff;border:1px solid var(--border);border-radius:12px;
+      padding:14px 12px;display:flex;align-items:center;gap:12px;margin-bottom:10px
+    }
+    .log-date{font-weight:800;letter-spacing:.3px}
+
+    /* “기록 삭제” 모드 표시줄 */
+    .delbar{
+      display:none;align-items:center;gap:10px;background:#fff;border:1px dashed #fecaca;
+      padding:12px;border-radius:12px;margin:10px 0
+    }
+    .delbar.show{display:flex}
+    .delbar .danger{background:#fee2e2;color:#991b1b;border:1px solid #fecaca;border-radius:10px;height:40px;padding:0 12px;cursor:pointer}
+    .delbar .ghost{background:#fff;border:1px solid var(--border);border-radius:10px;height:40px;padding:0 12px;cursor:pointer}
+
+    /* 사이드 로그인 패널(현 UI 유지) */
+    .side{position:fixed;inset:0;pointer-events:none}
+    .dim{position:absolute;inset:0;background:rgba(0,0,0,.35);opacity:0;transition:.25s}
+    .sheet{
+      position:absolute;top:0;right:-360px;width:360px;max-width:90%;height:100%;
+      background:#fff;border-left:1px solid var(--border);transition:.3s;padding:18px
+    }
+    .side.show{pointer-events:auto}
+    .side.show .dim{opacity:1}
+    .side.show .sheet{right:0}
+    .sheet h2{margin:4px 0 14px}
+    .field{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+    .input{height:44px;border:1px solid var(--border);border-radius:10px;padding:0 12px}
+    .row-right{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+
+    /* 빈 상태 */
+    .empty{padding:40px 12px;text-align:center;color:var(--muted)}
   </style>
 </head>
 <body>
   <!-- 헤더 -->
-  <header class="appbar">
-    <div class="title">오늘의 회화 영단어</div>
-    <div class="title-wrap">
-      <button id="accountBtn" class="dot-btn" aria-label="계정 열기"><span></span></button>
+  <header class="header">
+    <div class="header-row">
+      <div class="title">오늘의 회화 영단어</div>
+      <div id="openSide" class="menu-dot" aria-label="계정 패널 열기"><span></span></div>
     </div>
   </header>
 
   <main class="container">
-    <!-- 날짜 & 재생 컨트롤 -->
-    <div class="bar">
-      <button id="prevDay" class="chip" aria-label="이전">◀</button>
-      <div id="dateText" class="chip">YYYY-MM-DD</div>
-      <button id="nextDay" class="chip" aria-label="다음">▶</button>
-
-      <button id="goToday" class="btn ghost">오늘의 단어</button>
-
-      <button id="playAll" class="btn primary">전체 재생</button>
-      <button id="stopAll" class="btn ghost">정지</button>
-      <button id="doneBtn" class="btn ok">오늘분 완료</button>
-
-      <button id="viewFav" class="btn ghost">★ 어려운 단어</button>
-      <button id="viewLog" class="btn ghost">기록</button>
-      <button id="deleteModeBtn" class="btn warn">기록 삭제</button>
+    <!-- 상단 컨트롤 -->
+    <div class="row" style="justify-content:space-between;margin-bottom:10px">
+      <div class="date-wrap">
+        <button id="prevDate" class="date-btn" aria-label="이전 날짜">◀</button>
+        <div id="dateView" class="date-view">YYYY-MM-DD</div>
+        <button id="nextDate" class="date-btn" aria-label="다음 날짜">▶</button>
+        <button id="btnToday" class="btn">오늘의 단어</button>
+        <button id="btnPlayAll" class="play-btn" aria-label="전체 재생">▶</button>
+      </div>
+      <div class="row">
+        <button id="btnDone" class="btn btn-green">오늘분 완료</button>
+      </div>
     </div>
 
-    <div class="bar">
-      <label>속도 <input id="rate" type="range" min="0.6" max="1.4" step="0.1" value="1" class="range"></label>
-      <select id="voiceSelect" class="sel" title="영어 음성 선택"></select>
+    <div class="row" style="margin-bottom:6px">
+      <button id="btnFav" class="btn btn-ghost">★ 어려운 단어</button>
+      <button id="btnLog" class="btn btn-ghost">기록</button>
+      <button id="btnDelToggle" class="btn btn-red">기록 삭제</button>
     </div>
 
-    <!-- 단어/기록 리스트 -->
+    <!-- 삭제 모드 바 -->
+    <div id="delBar" class="delbar" role="region" aria-live="polite">
+      <div class="log-note">삭제할 날짜를 체크하세요</div>
+      <div class="row-right" style="margin-left:auto">
+        <button id="btnDelCancel" class="ghost">취소</button>
+        <button id="btnDelDo" class="danger">삭제하기</button>
+      </div>
+    </div>
+
+    <!-- 속도 & 보이스 -->
+    <div class="panel">
+      <div class="speed-box">
+        <div style="font-weight:700">속도</div>
+        <input id="rate" type="range" min="0.6" max="1.6" step="0.05" value="1.0" />
+      </div>
+      <select id="voiceSelect" class="select" title="영어 음성">
+        <option value="">영어 미국 (en_US)</option>
+      </select>
+    </div>
+
+    <!-- 리스트 영역 -->
     <section id="list"></section>
   </main>
 
-  <!-- 오버레이 & 사이드 시트(계정) -->
-  <div id="overlay" class="overlay"></div>
-  <aside id="sheet" class="sheet" aria-label="계정">
-    <h3>계정</h3>
-    <div id="signedOut">
-      <div class="field"><input id="email" class="input" type="email" placeholder="you@example.com" autocomplete="username"></div>
-      <div class="field"><input id="pw" class="input" type="password" placeholder="비밀번호 (8자 이상)" autocomplete="current-password"></div>
-      <div class="field"><button id="loginBtn" class="btn primary full">로그인</button></div>
-      <div class="field"><button id="signupBtn" class="btn ghost full">회원가입</button></div>
-      <div class="field"><button id="googleBtn" class="btn ghost full">Google로 로그인</button></div>
-    </div>
-
-    <div id="signedIn" style="display:none">
-      <div class="card">
-        <div class="row">
-          <div class="num" id="meBadge">유</div>
-          <div style="flex:1">
-            <div style="font-weight:800" id="meName">로그인됨</div>
-            <div id="meMail" style="color:#64748b">-</div>
+  <!-- 로그인 사이드 패널 -->
+  <aside id="side" class="side" aria-hidden="true">
+    <div id="dim" class="dim"></div>
+    <div class="sheet" role="dialog" aria-modal="true">
+      <h2>계정</h2>
+      <div id="authArea">
+        <!-- 로그인 전 -->
+        <div id="guestBox">
+          <div class="field">
+            <label>이메일</label>
+            <input id="inEmail" type="email" class="input" placeholder="you@example.com" />
+          </div>
+          <div class="field">
+            <label>비밀번호</label>
+            <input id="inPw" type="password" class="input" placeholder="8자리 이상" />
+          </div>
+          <div class="row-right">
+            <button id="btnLogin" class="btn">로그인</button>
+            <button id="btnSignup" class="btn btn-ghost">회원가입</button>
+          </div>
+        </div>
+        <!-- 로그인 후 -->
+        <div id="userBox" style="display:none">
+          <div class="card" style="display:flex;align-items:center;gap:10px">
+            <div class="badge">계</div>
+            <div style="font-weight:700" id="userName">로그인됨</div>
+            <div id="userEmail" style="color:var(--muted);margin-left:auto"></div>
+          </div>
+          <div class="row-right">
+            <button id="btnLogout" class="btn btn-red">로그아웃</button>
           </div>
         </div>
       </div>
-      <button id="logoutBtn" class="btn warn full logout">로그아웃</button>
     </div>
   </aside>
 
-  <!-- 데이터 & 로직 -->
-  <script type="module">
-    /***********************
-     * 전역
-     ************************/
-    let isPlaying = false;
-    let pool = [];
-    let shuffledPool = [];
-    let deleteMode = false;
-
-    /***********************
-     * 유틸
-     ************************/
-    const $ = (sel, el=document)=>el.querySelector(sel);
-    const $$ = (sel, el=document)=>Array.from(el.querySelectorAll(sel));
-    const fmt = (d)=>d.toISOString().slice(0,10);
-    const todayStr = fmt(new Date());
-    const START_DATE = '2025-08-01';
-    const COUNT_PER_DAY = 10;
-
-    function daysBetweenUTC(aStr, bStr){
-      const [ay,am,ad] = aStr.split('-').map(Number);
-      const [by,bm,bd] = bStr.split('-').map(Number);
-      const aUTC = Date.UTC(ay, am-1, ad);
-      const bUTC = Date.UTC(by, bm-1, bd);
-      return Math.floor((bUTC - aUTC) / 86400000);
-    }
-
-    /***********************
-     * 슬라이드 패널
-     ************************/
-    const sheet = $('#sheet');
-    const overlay = $('#overlay');
-    const openSheet = () => { sheet.classList.add('open'); overlay.classList.add('show'); };
-    const closeSheet = () => { sheet.classList.remove('open'); overlay.classList.remove('show'); };
-    $('#accountBtn').addEventListener('click', openSheet);
-    overlay.addEventListener('click', closeSheet);
-
-    /***********************
-     * Firebase Auth (프로젝트 값 교체됨)
-     ************************/
-    const firebaseConfig = {
-      apiKey: "AIzaSyBtN9HptAjl3wzemzKIr8nHvRHyOsvjsNI",
-      authDomain: "voca-khw.firebaseapp.com",
-      projectId: "voca-khw",
-      storageBucket: "voca-khw.firebasestorage.app",
-      messagingSenderId: "697341566223",
-      appId: "1:697341566223:web:2a40f413b1edeb543c727a",
-      measurementId: "G-Y5XZEX3W9X"
-    };
-
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getAuth, onAuthStateChanged,
-      signInWithEmailAndPassword, createUserWithEmailAndPassword,
-      GoogleAuthProvider, signInWithPopup, signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
-
-    const signedOut = $('#signedOut');
-    const signedIn  = $('#signedIn');
-    const meBadge   = $('#meBadge');
-    const meName    = $('#meName');
-    const meMail    = $('#meMail');
-
-    onAuthStateChanged(auth, (user)=>{
-      if (user) {
-        const name = user.displayName || (user.email ? user.email.split('@')[0] : '사용자');
-        const mail = user.email || '';
-        signedOut.style.display = 'none';
-        signedIn.style.display  = 'block';
-        meBadge.textContent = name[0]?.toUpperCase() || '유';
-        meName.textContent  = name;
-        meMail.textContent  = mail;
-      } else {
-        signedOut.style.display = 'block';
-        signedIn.style.display  = 'none';
-      }
-    });
-
-    $('#loginBtn').addEventListener('click', async ()=>{
-      const email = $('#email').value.trim();
-      const pw    = $('#pw').value.trim();
-      try { await signInWithEmailAndPassword(auth, email, pw); closeSheet(); alert('로그인되었습니다.'); }
-      catch(e){ alert('로그인 실패: ' + e.message); }
-    });
-    $('#signupBtn').addEventListener('click', async ()=>{
-      const email = $('#email').value.trim();
-      const pw    = $('#pw').value.trim();
-      try { await createUserWithEmailAndPassword(auth, email, pw); closeSheet(); alert('회원가입 완료!'); }
-      catch(e){ alert('회원가입 실패: ' + e.message); }
-    });
-    $('#googleBtn').addEventListener('click', async ()=>{
-      try { await signInWithPopup(auth, provider); closeSheet(); alert('Google 로그인 완료!'); }
-      catch(e){ alert('Google 로그인 실패: ' + e.message); }
-    });
-    $('#logoutBtn').addEventListener('click', async ()=>{ await signOut(auth); closeSheet(); alert('로그아웃 되었습니다.'); });
-
-    /***********************
-     * 날짜/단어 로직 (pool.json 직사용)
-     ************************/
-    const dateText = $('#dateText');
-    const goTodayBtn = $('#goToday');
-    let currentDate = todayStr;
-    dateText.textContent = currentDate;
-
-    function stopAllPlayback(){
-      isPlaying = false;
-      try { speechSynthesis.cancel(); } catch(e){}
-    }
-    function setDateAndRender(dateStr){
-      currentDate = dateStr;
-      dateText.textContent = currentDate;
-      stopAllPlayback();
-      renderWords();
-    }
-
-    $('#prevDay').addEventListener('click', ()=>{
-      const d = new Date(currentDate); d.setDate(d.getDate()-1);
-      setDateAndRender(fmt(d));
-    });
-    $('#nextDay').addEventListener('click', ()=>{
-      const d = new Date(currentDate); d.setDate(d.getDate()+1);
-      setDateAndRender(fmt(d));
-    });
-    goTodayBtn.addEventListener('click', ()=> setDateAndRender(todayStr));
-
-    $('#doneBtn').addEventListener('click', ()=>{
-      const logs = JSON.parse(localStorage.getItem('studyLogs')||'[]');
-      if (!logs.includes(currentDate)) logs.push(currentDate);
-      localStorage.setItem('studyLogs', JSON.stringify(logs));
-      const d = new Date(currentDate); d.setDate(d.getDate()+1);
-      setDateAndRender(fmt(d));
-      alert('오늘분 완료! 다음 날짜로 이동했습니다.');
-    });
-
-    // pool.json 로딩
-    async function fetchPool(){
-      const res = await fetch('./pool.json', {cache:'no-cache'});
-      return res.json();
-    }
-
-    // 고정 시드 셔플 + 날짜 페이지네이션
-    function mulberry32(a){
-      return function(){
-        var t = a += 0x6D2B79F5;
-        t = Math.imul(t ^ t >>> 15, t | 1);
-        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-        return ((t ^ t >>> 14) >>> 0) / 4294967296;
-      }
-    }
-    function shuffleWithSeed(arr, seed=20240801){
-      const rng = mulberry32(seed);
-      const a = arr.slice();
-      for(let i=a.length-1;i>0;i--){
-        const j = Math.floor(rng()*(i+1)); [a[i],a[j]]=[a[j],a[i]];
-      }
-      return a;
-    }
-    function pickForDate(shuffled, dateStr, count=COUNT_PER_DAY){
-      if (!shuffled.length) return [];
-      const dayIndex = Math.max(0, daysBetweenUTC(START_DATE, dateStr));
-      const start = (dayIndex * count) % shuffled.length;
-      const take = Math.min(count, shuffled.length);
-      const out = [];
-      for (let i=0;i<take;i++){
-        out.push(shuffled[(start+i) % shuffled.length]);
-      }
-      return out;
-    }
-
-    /***********************
-     * 음성 합성
-     ************************/
+  <script>
+    /* ======= 상태 ======= */
+    const $ = s=>document.querySelector(s);
+    const listEl = $('#list');
+    const dateView = $('#dateView');
+    const rateEl = $('#rate');
     const voiceSelect = $('#voiceSelect');
-    const rateInput   = $('#rate');
-    let voices = [];
-    function loadVoices(){
-      voices = window.speechSynthesis.getVoices();
-      const englishVoices = voices.filter(v => /^en(-|_)/i.test(v.lang));
-      voiceSelect.innerHTML = englishVoices
-        .map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
-      const prefer = englishVoices.find(v=>/en[-_]US/i.test(v.lang)) || englishVoices[0];
-      if (prefer) voiceSelect.value = prefer.name;
-    }
-    loadVoices();
-    if (typeof speechSynthesis !== 'undefined') speechSynthesis.onvoiceschanged = loadVoices;
+    const delBar = $('#delBar');
 
-    function speakOnce(text, lang, preferName=null){
-      return new Promise(res=>{
-        if (!text){ res(); return; }
+    let words = [];              // 화면에 표시할 단어들
+    let currentDate = new Date(); // 선택된 날짜
+    let isFavMode = false;        // 어려운 단어 탭 여부
+    let isLogMode = false;        // 기록 탭 여부
+    let deleteMode = false;       // 기록 삭제 모드 여부
+    let playQueue = [];           // 전체 재생 큐
+    let playing = false;
+    let voices = [];
+    let enVoice = null;
+
+    /* ======= 유틸 ======= */
+    const fmt = d => d.toISOString().slice(0,10);
+    const loadJSON = async (url) => {
+      const res = await fetch(url,{cache:'no-store'});
+      if(!res.ok) throw new Error('불러오기 실패: '+url);
+      return res.json();
+    };
+    const saveLS = (k,v)=>localStorage.setItem(k,JSON.stringify(v));
+    const getLS = (k,def)=>JSON.parse(localStorage.getItem(k) || JSON.stringify(def));
+
+    /* ======= TTS ======= */
+    function pickEnglishVoice() {
+      voices = speechSynthesis.getVoices();
+      // 영어 전용 보이스만 필터
+      const en = voices.filter(v => /^en(-|_)/i.test(v.lang));
+      // 선호: 미국 en-US → 그 외 영어
+      enVoice = en.find(v=>/en[-_]US/i.test(v.lang)) || en[0] || null;
+
+      // 드롭다운 채우기
+      voiceSelect.innerHTML = '';
+      en.forEach(v=>{
+        const opt = document.createElement('option');
+        opt.value = v.name;
+        opt.textContent = `${v.lang} · ${v.name}`;
+        voiceSelect.appendChild(opt);
+      });
+      if(enVoice){
+        voiceSelect.value = enVoice.name;
+      }
+    }
+
+    function speak(text, lang='en-US'){
+      return new Promise(resolve=>{
         const u = new SpeechSynthesisUtterance(text);
-        u.rate = parseFloat(rateInput.value || '1');
-        if (preferName){
-          const v = voices.find(v=>v.name===preferName);
-          if (v){ u.voice=v; u.lang=v.lang; } else { u.lang = lang; }
-        } else {
-          u.lang = lang;
+        u.rate = parseFloat(rateEl.value || '1.0');
+        if(/^en/i.test(lang)){
+          // 영어는 강제 영어 보이스
+          const name = voiceSelect.value;
+          const v = voices.find(v=>v.name===name) || enVoice;
+          if(v) u.voice = v;
+          u.lang = (v && v.lang) ? v.lang : 'en-US';
+        }else{
+          // 한국어는 브라우저 기본 ko
+          u.lang = 'ko-KR';
         }
-        u.onend = res;
+        u.onend = resolve;
+        u.onerror = resolve;
+        speechSynthesis.cancel(); // 겹침 방지
         speechSynthesis.speak(u);
       });
     }
 
-    /***********************
-     * 렌더링 & 재생
-     ************************/
-    const listEl = $('#list');
+    async function playAll(){
+      if(playing) return;
+      playing = true;
+      // 영어만 전체 재생 (요청 사항: 한국어 음성은 전체 재생 제외)
+      playQueue = words.map(w=>({type:'en',text:w.phrase}));
 
-    async function renderWords(){
-      if (pool.length === 0) {
-        pool = await fetchPool();
-        shuffledPool = shuffleWithSeed(pool, 20240801);
+      for(const job of playQueue){
+        if(!playing) break;
+        if(job.type==='en') await speak(job.text,'en-US');
       }
-      const items = pickForDate(shuffledPool, currentDate, COUNT_PER_DAY);
+      playing = false;
+    }
+    function stopAll(){
+      playing = false;
+      speechSynthesis.cancel();
+    }
+
+    /* ======= 데이터 ======= */
+    async function loadWords(){
+      // words.json에서 10개 가져오는 현재 구조 유지
+      const data = await loadJSON('words.json');
+      words = data;
+    }
+
+    /* ======= 렌더 (단어) ======= */
+    async function renderWords(){
+      isFavMode = false;
+      isLogMode = false;
+      deleteMode = false;
+      delBar.classList.remove('show');
+
       listEl.innerHTML = '';
-      items.forEach((w, idx)=>{
-        const card = document.createElement('article');
+      await loadWords();
+
+      if(!words || !words.length){
+        listEl.innerHTML = `<div class="empty">표시할 단어가 없습니다.</div>`;
+        return;
+      }
+
+      words.forEach((w, idx)=>{
+        const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-          <div class="row">
-            <div class="num">${idx+1}</div>
-            <div style="flex:1;min-width:0">
-              <div class="word">${w.phrase}</div>
-              <div class="mean">${w.meaning}</div>
-              <div class="ex">예문: ${w.example || ''}</div>
-            </div>
-            <div class="row" style="gap:6px">
-              <button class="tag en">EN</button>
-              <button class="tag ko">KO</button>
-              <button class="fav" title="어려운 단어 보관">★</button>
-            </div>
+          <div class="card-head">
+            <div class="badge">${idx+1}</div>
+            <div class="word">${w.phrase}</div>
+            <button class="star" aria-label="어려운 단어로 표시">★</button>
+          </div>
+          <div class="mean">${w.meaning||''}</div>
+          ${w.example? `<div class="mean">예문: ${w.example}</div>`:''}
+          <div class="actions">
+            <button class="chip en">EN</button>
+            <button class="chip ko">KO</button>
           </div>
         `;
-        $('.en', card).addEventListener('click', async ()=>{
-          await speakOnce(w.phrase, 'en-US', voiceSelect.value);
-        });
-        $('.ko', card).addEventListener('click', async ()=>{
-          await speakOnce(w.meaning, 'ko-KR');
-        });
-        $('.fav', card).addEventListener('click', ()=>{
-          const favs = JSON.parse(localStorage.getItem('favs')||'[]');
-          favs.push({...w, savedAt: Date.now()});
-          localStorage.setItem('favs', JSON.stringify(favs));
-          alert('어려운 단어에 추가했습니다.');
-        });
+        card.querySelector('.en').onclick = ()=>speak(w.phrase,'en-US');
+        card.querySelector('.ko').onclick = ()=>speak(w.meaning||w.phrase,'ko-KR');
+        card.querySelector('.star').onclick = ()=>{
+          const fav = getLS('fav',{});
+          fav[w.phrase]=true; saveLS('fav',fav);
+          card.querySelector('.star').style.background = '#fef3c7';
+        };
         listEl.appendChild(card);
       });
     }
 
-    // 보기: 어려운 단어
-    $('#viewFav').addEventListener('click', ()=>{
-      const favs = JSON.parse(localStorage.getItem('favs')||'[]');
-      if (favs.length===0) { alert('저장된 어려운 단어가 없습니다.'); return; }
-      stopAllPlayback();
-      listEl.innerHTML = '';
-      favs.forEach((w)=>{
-        const card = document.createElement('article');
-        card.className = 'card';
-        card.innerHTML = `
-          <div class="row">
-            <div class="num">★</div>
-            <div style="flex:1">
-              <div class="word">${w.phrase}</div>
-              <div class="mean">${w.meaning}</div>
-              <div class="ex">예문: ${w.example || ''}</div>
-            </div>
-            <div class="row" style="gap:6px">
-              <button class="tag en">EN</button>
-              <button class="tag ko">KO</button>
-            </div>
-          </div>`;
-        $('.en', card).addEventListener('click', async ()=>{
-          await speakOnce(w.phrase,'en-US', voiceSelect.value);
-        });
-        $('.ko', card).addEventListener('click', async ()=>{
-          await speakOnce(w.meaning,'ko-KR');
-        });
-        listEl.appendChild(card);
-      });
-    });
-
-    /***********************
-     * 기록 보기 / 삭제 모드  (여기가 수정 포인트!)
-     ************************/
-    function getLogs(){ return JSON.parse(localStorage.getItem('studyLogs')||'[]'); }
-    function setLogs(arr){ localStorage.setItem('studyLogs', JSON.stringify(arr)); }
-
+    /* ======= 렌더 (기록) ======= */
     function renderLogList(){
-      const logs = getLogs();
-      if (logs.length===0){ alert('학습 기록이 없습니다.'); return; }
-      stopAllPlayback();
+      isLogMode = true;
+      isFavMode = false;
       listEl.innerHTML = '';
 
-      // 삭제 모드일 때 상단 툴바 표시
-      if (deleteMode){
-        const tb = document.createElement('div');
-        tb.className = 'toolbar';
-        tb.innerHTML = `
-          <strong>삭제 모드</strong>
-          <span class="muted">삭제할 날짜를 체크하세요</span>
-          <div style="flex:1"></div>
-          <button id="cancelDelete" class="btn ghost">취소</button>
-          <button id="confirmDelete" class="btn warn">삭제하기</button>
+      const logs = getLS('studyLogs',{});
+      const dates = Object.keys(logs).sort();
+
+      if(!dates.length){
+        listEl.innerHTML = `<div class="empty">기록이 없습니다.</div>`;
+        return;
+      }
+
+      dates.forEach(d=>{
+        const row = document.createElement('div');
+        row.className = 'log-item';
+        row.innerHTML = `
+          <input type="checkbox" class="log-check" data-date="${d}" style="width:24px;height:24px;display:${deleteMode?'block':'none'}"/>
+          <div class="badge">✓</div>
+          <div class="log-date">${d}</div>
+          <div style="margin-left:auto;color:var(--muted)">${logs[d]?.count||10}개</div>
         `;
-        listEl.appendChild(tb);
-
-        $('#cancelDelete', tb).addEventListener('click', ()=>{
-          deleteMode = false;
-          renderLogList(); // 일반 모드로 재렌더
-        });
-
-        // ✅ DOM에서 실제 체크된 항목 읽어와 삭제
-        $('#confirmDelete', tb).addEventListener('click', ()=>{
-          const checkedDates = $$('.chk:checked', listEl).map(ch => ch.dataset.date);
-          if (checkedDates.length === 0){
-            alert('삭제할 날짜를 선택하세요.');
-            return;
-          }
-          const remain = getLogs().filter(d => !checkedDates.includes(d));
-          setLogs(remain);
-          deleteMode = false;
-          renderLogList(); // 결과 반영
-        });
-      }
-
-      // 목록
-      logs.sort().forEach((d, i)=>{
-        const card = document.createElement('article');
-        card.className='card';
-
-        if (deleteMode){
-          // ✅ 체크박스와 라벨을 연결해서 카드 어디를 눌러도 체크되도록
-          const id = `chk-${i}-${d}`;
-          card.innerHTML = `
-            <div class="row" style="gap:8px">
-              <input type="checkbox" class="chk" id="${id}" data-date="${d}">
-              <label class="log-label" for="${id}">
-                <div class="num">✔</div>
-                <div style="font-weight:900">${d}</div>
-              </label>
-            </div>`;
-        }else{
-          // 일반 모드: 보기 버튼
-          card.innerHTML = `
-            <div class="row" style="gap:8px">
-              <div class="num">✔</div>
-              <div style="flex:1;font-weight:900">${d}</div>
-              <button class="btn ghost view">이날 단어 보기</button>
-            </div>`;
-          $('.view',card).addEventListener('click', ()=>{
-            setDateAndRender(d);
-            window.scrollTo({top:0,behavior:'smooth'});
-          });
-        }
-        listEl.appendChild(card);
+        listEl.appendChild(row);
       });
     }
 
-    // 상단 버튼들
-    $('#viewLog').addEventListener('click', ()=>{
-      deleteMode = false;
-      renderLogList();
-    });
+    /* ======= 이벤트 바인딩 ======= */
+    function bindControls(){
+      // 날짜 표시
+      const syncDate = ()=>{ dateView.textContent = fmt(currentDate); };
+      syncDate();
 
-    $('#deleteModeBtn').addEventListener('click', ()=>{
-      const logs = getLogs();
-      if (logs.length===0){ alert('학습 기록이 없습니다.'); return; }
-      deleteMode = true;
-      renderLogList(); // 체크박스/취소/삭제하기가 보이는 모드
-    });
+      $('#prevDate').onclick = ()=>{ currentDate.setDate(currentDate.getDate()-1); syncDate(); renderWords(); };
+      $('#nextDate').onclick = ()=>{ currentDate.setDate(currentDate.getDate()+1); syncDate(); renderWords(); };
+      $('#btnToday').onclick = ()=>{ currentDate = new Date(); syncDate(); renderWords(); };
 
-    // 전체 재생: EN → KO, 정지 지원
-    $('#playAll').addEventListener('click', async ()=>{
-      if (isPlaying) return;
-      isPlaying = true;
-      const cards = $$('.card', listEl);
-      for (const card of cards){
-        if (!isPlaying) break;
-        const phrase = $('.word', card)?.textContent?.trim() || '';
-        const meaning = $('.mean', card)?.textContent?.trim() || '';
-        if (!phrase && !meaning) continue; // 기록 화면 등에서 단어가 없을 수 있음
-        await speakOnce(phrase, 'en-US', voiceSelect.value);
-        if (!isPlaying) break;
-        await speakOnce(meaning, 'ko-KR');
-        if (!isPlaying) break;
-        await new Promise(r=>setTimeout(r, Math.max(250, phrase.length*20)));
-      }
-      isPlaying = false;
-    });
-
-    // 정지
-    $('#stopAll').addEventListener('click', ()=>{
-      isPlaying = false;
-      try { speechSynthesis.cancel(); } catch(e){}
-    });
-
-    /***********************
-     * 초기 렌더
-     ************************/
-    async function renderWords(){
-      if (pool.length === 0) {
-        pool = await (await fetch('./pool.json', {cache:'no-cache'})).json();
-        shuffledPool = (function shuffleWithSeed(arr, seed=20240801){
-          const rng = (function mulberry32(a){return function(){var t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;}})(seed);
-          const a = arr.slice();
-          for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
-          return a;
-        })(pool, 20240801);
-      }
-      const items = (function pickForDate(shuffled, dateStr, count=COUNT_PER_DAY){
-        if (!shuffled.length) return [];
-        const dayIndex = Math.max(0, (function daysBetweenUTC(aStr, bStr){const [ay,am,ad]=aStr.split('-').map(Number);const [by,bm,bd]=bStr.split('-').map(Number);const aUTC=Date.UTC(ay,am-1,ad);const bUTC=Date.UTC(by,bm-1,bd);return Math.floor((bUTC-aUTC)/86400000);} )(START_DATE, dateStr));
-        const start = (dayIndex * count) % shuffled.length;
-        const take = Math.min(count, shuffled.length);
-        const out = [];
-        for (let i=0;i<take;i++) out.push(shuffled[(start+i)%shuffled.length]);
-        return out;
-      })(shuffledPool, currentDate, COUNT_PER_DAY);
-
-      listEl.innerHTML = '';
-      items.forEach((w, idx)=>{
-        const card = document.createElement('article');
-        card.className = 'card';
-        card.innerHTML = `
-          <div class="row">
-            <div class="num">${idx+1}</div>
-            <div style="flex:1;min-width:0">
+      $('#btnPlayAll').onclick = playAll;
+      $('#btnDone').onclick = ()=>{
+        const logs = getLS('studyLogs',{});
+        const key = fmt(currentDate);
+        logs[key] = {count: (words?.length||0), done:true, ts: Date.now()};
+        saveLS('studyLogs',logs);
+        alert('오늘분 완료로 기록했어요!');
+      };
+      $('#btnFav').onclick = ()=>{
+        isFavMode = true; isLogMode=false; deleteMode=false; delBar.classList.remove('show');
+        const fav = getLS('fav',{});
+        const list = words.filter(w=>fav[w.phrase]);
+        listEl.innerHTML = '';
+        if(!list.length){ listEl.innerHTML = `<div class="empty">표시할 ★어려운 단어가 없습니다.</div>`; return; }
+        list.forEach((w,idx)=>{
+          const card = document.createElement('div');
+          card.className='card';
+          card.innerHTML=`
+            <div class="card-head">
+              <div class="badge">${idx+1}</div>
               <div class="word">${w.phrase}</div>
-              <div class="mean">${w.meaning}</div>
-              <div class="ex">예문: ${w.example || ''}</div>
+              <button class="star" aria-label="어려운 단어">★</button>
             </div>
-            <div class="row" style="gap:6px">
-              <button class="tag en">EN</button>
-              <button class="tag ko">KO</button>
-              <button class="fav" title="어려운 단어 보관">★</button>
+            <div class="mean">${w.meaning||''}</div>
+            ${w.example? `<div class="mean">예문: ${w.example}</div>`:''}
+            <div class="actions">
+              <button class="chip en">EN</button>
+              <button class="chip ko">KO</button>
             </div>
-          </div>`;
-        $('.en', card).addEventListener('click', async ()=>{ await speakOnce(w.phrase, 'en-US', voiceSelect.value); });
-        $('.ko', card).addEventListener('click', async ()=>{ await speakOnce(w.meaning, 'ko-KR'); });
-        $('.fav', card).addEventListener('click', ()=>{
-          const favs = JSON.parse(localStorage.getItem('favs')||'[]');
-          favs.push({...w, savedAt: Date.now()});
-          localStorage.setItem('favs', JSON.stringify(favs));
-          alert('어려운 단어에 추가했습니다.');
+          `;
+          card.querySelector('.en').onclick = ()=>speak(w.phrase,'en-US');
+          card.querySelector('.ko').onclick = ()=>speak(w.meaning||w.phrase,'ko-KR');
+          listEl.appendChild(card);
         });
-        listEl.appendChild(card);
-      });
+      };
+
+      $('#btnLog').onclick = ()=>{ deleteMode=false; delBar.classList.remove('show'); renderLogList(); };
+
+      // 삭제 토글
+      $('#btnDelToggle').onclick = ()=>{
+        if(!isLogMode){ renderLogList(); }
+        deleteMode = true;
+        delBar.classList.add('show');
+        // 체크박스 보이기
+        listEl.querySelectorAll('.log-check').forEach(c=>c.style.display='block');
+      };
+      $('#btnDelCancel').onclick = ()=>{
+        deleteMode = false;
+        delBar.classList.remove('show');
+        // 체크박스 숨김
+        listEl.querySelectorAll('.log-check').forEach(c=>c.style.display='none');
+      };
+      $('#btnDelDo').onclick = ()=>{
+        if(!isLogMode){ alert('기록 화면에서만 삭제할 수 있어요.'); return; }
+        const checks = Array.from(listEl.querySelectorAll('.log-check')).filter(c=>c.checked);
+        if(!checks.length){ alert('삭제할 날짜를 선택하세요.'); return; }
+        const logs = getLS('studyLogs',{});
+        checks.forEach(c=>{ delete logs[c.dataset.date]; });
+        saveLS('studyLogs',logs);
+        alert('선택한 기록을 삭제했어요.');
+        renderLogList();
+        // 삭제 모드 유지
+        deleteMode = true; delBar.classList.add('show');
+        listEl.querySelectorAll('.log-check').forEach(c=>c.style.display='block');
+      };
+
+      // 재생 컨트롤
+      rateEl.oninput = ()=>{};
+      $('#openSide').onclick = ()=>{ $('#side').classList.add('show'); $('#side').setAttribute('aria-hidden','false'); };
+      $('#dim').onclick = ()=>{ $('#side').classList.remove('show'); $('#side').setAttribute('aria-hidden','true'); };
+
+      // 정지 버튼(기존 유지)
+      const stopBtn = document.createElement('button');
+      stopBtn.className='btn'; stopBtn.textContent='정지';
+      stopBtn.onclick=stopAll;
+      // 기존 “전체 재생” 옆 자리에 삽입
+      document.querySelector('.date-wrap').appendChild(stopBtn);
     }
 
-    renderWords();
+    /* ======= 초기화 ======= */
+    async function init(){
+      // 날짜 표시
+      dateView.textContent = fmt(currentDate);
+
+      // 보이스 준비
+      if('speechSynthesis' in window){
+        pickEnglishVoice();
+        window.speechSynthesis.onvoiceschanged = pickEnglishVoice;
+      }
+
+      bindControls();
+      await renderWords();
+    }
+
+    init();
   </script>
 </body>
 </html>
