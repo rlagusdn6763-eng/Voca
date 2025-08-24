@@ -1,126 +1,488 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>오늘의 회화 영단어</title>
 <style>
-  body{margin:0;font-family:'Noto Sans KR',sans-serif;background:#f9fafb;color:#111827;}
-  header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:#fff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:50}
-  h1{margin:0;font-size:20px;font-weight:700}
-  .btn{background:#2563eb;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer;white-space:nowrap;font-size:14px}
-  .container{padding:20px;max-width:860px;margin:auto}
-  .controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
-  button{background:#fff;border:1px solid #d1d5db;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#111827;text-align:center;white-space:nowrap;font-size:clamp(11px,2.5vw,14px)}
-  button:hover{background:#f3f4f6}
-  .btn-main{background:#2563eb;color:#fff;border:none}
-  .btn-green{background:#16a34a;color:#fff;border:none}
-  .word-card{background:#fff;padding:16px;margin-bottom:12px;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,.05)}
-  .word-head{display:flex;justify-content:space-between;align-items:center}
-  .word-head h2{margin:0;font-size:21px;font-weight:700}
-  .meaning{font-size:16px;color:#374151;margin:6px 0}
-  .example{font-size:13px;color:#6b7280}
-  .star{font-size:20px;cursor:pointer;color:#f59e0b}
-  .actions{display:flex;gap:8px;margin-top:10px}
-  .actions button{flex:1}
-  /* 사이드 패널 */
-  .side-panel{position:fixed;top:0;right:-300px;width:280px;height:100%;background:#fff;box-shadow:-2px 0 6px rgba(0,0,0,0.15);transition:right 0.3s ease;z-index:100;display:flex;flex-direction:column}
-  .side-panel.open{right:0;}
-  .side-header{display:flex;justify-content:space-between;align-items:center;padding:16px;border-bottom:1px solid #e5e7eb}
-  .side-body{padding:16px;flex:1;display:flex;flex-direction:column;gap:12px}
-  .avatar{width:48px;height:48px;border-radius:50%;background:#2563eb;color:#fff;display:flex;justify-content:center;align-items:center;font-weight:700;font-size:18px;margin-bottom:8px}
-  .user-name{font-weight:700;font-size:16px}
-  .user-email{font-size:13px;color:#6b7280}
-  .btn-logout{background:#ef4444;color:#fff;border:none;padding:10px;border-radius:8px;cursor:pointer;font-weight:600}
+  :root{
+    --brand:#2563eb;
+    --brand-2:#1e40af;
+    --ok:#10b981;
+    --warn:#f59e0b;
+    --danger:#ef4444;
+    --bg:#f7f8fb;
+    --card:#ffffff;
+    --text:#111827;
+    --muted:#6b7280;
+    --ring:rgba(37,99,235,.15);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
+  header{
+    position:sticky;top:0;z-index:20;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:14px 18px;background:var(--brand);color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.08)
+  }
+  header .title{font-weight:800;font-size:20px;letter-spacing:.2px;white-space:nowrap}
+  header .right{display:flex;align-items:center;gap:8px}
+  .chip{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 12px;border-radius:999px;background:#fff;color:var(--text);
+    box-shadow:0 4px 14px rgba(0,0,0,.08);max-width:78vw
+  }
+  .chip .avatar{
+    width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
+    font-weight:800;color:#fff;background:var(--brand)
+  }
+  .chip .label{font-size:13px;color:var(--muted);max-width:50vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ghost-btn{
+    background:#fff;border:none;color:var(--brand);font-weight:700;border-radius:10px;padding:8px 12px;cursor:pointer;
+  }
+  main{max-width:960px;margin:18px auto;padding:0 16px 64px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0 16px}
+  .pill{
+    display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid #e5e7eb;border-radius:12px;
+    padding:8px 10px;box-shadow:0 4px 10px rgba(0,0,0,.04)
+  }
+  .navbtn{width:44px;height:44px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-weight:900;cursor:pointer}
+  .datebox{min-width:170px;text-align:center;font-weight:800}
+  .btn{
+    background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px 14px;
+    font-weight:800;cursor:pointer;white-space:nowrap;max-width:42vw;overflow:hidden;text-overflow:ellipsis
+  }
+  .btn.brand{background:var(--brand);color:#fff;border-color:transparent}
+  .btn.warn{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
+  .btn.ok{background:#ecfdf5;border-color:#bbf7d0;color:#065f46}
+  .btn:active{transform:translateY(1px)}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .slider{flex:1;padding:12px 14px;background:#fff;border:1px solid #e5e7eb;border-radius:12px}
+  .slider input{width:100%}
+  .select{min-width:190px}
+  .section-title{font-weight:900;margin:6px 4px 10px;color:#111827}
+  /* 단어 카드 */
+  .card{
+    background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:14px 12px;margin:10px 0;
+    box-shadow:0 6px 16px rgba(0,0,0,.05);position:relative
+  }
+  .badge{
+    position:absolute;left:12px;top:12px;width:28px;height:28px;border-radius:10px;background:#eef2ff;
+    color:#3730a3;font-weight:800;display:grid;place-items:center
+  }
+  .word-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .phrase{font-weight:900;font-size:18px}
+  .meaning{color:var(--muted);margin:6px 0 2px}
+  .example{color:#374151;margin:6px 0 0;font-size:14px}
+  .controls{display:flex;gap:8px}
+  .tiny{border:1px solid #e5e7eb;background:#fff;padding:6px 10px;border-radius:10px;font-weight:800}
+  .star{border:1px solid #fde68a;background:#fffbeb;color:#b45309}
+  /* 사이드 로그인 패널 */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:90}
+  .overlay.active{display:block}
+  .panel{
+    position:fixed;top:0;right:-340px;width:320px;height:100%;background:#fff;z-index:100;
+    box-shadow:-6px 0 20px rgba(0,0,0,.18);transition:right .28s ease;display:flex;flex-direction:column
+  }
+  .panel.open{right:0}
+  .panel header{background:#fff;color:var(--text);box-shadow:none;border-bottom:1px solid #eef2ff;position:static}
+  .panel .content{padding:14px 16px;overflow:auto}
+  .panel h3{margin:6px 0 12px;font-size:18px;color:var(--brand);font-weight:900}
+  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+  .field input{padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px}
+  .full{width:100%;padding:10px 12px;border:none;border-radius:10px;font-weight:800;cursor:pointer}
+  .login{background:var(--brand);color:#fff}
+  .signup{background:var(--ok);color:#fff;margin-top:8px}
+  .gbtn{background:#fff;border:1px solid #e5e7eb;margin-top:10px}
+  .logout{background:var(--danger);color:#fff;margin-top:14px}
+  .closeX{background:none;border:none;font-size:20px;cursor:pointer}
+  /* 배지 */
+  .done-badge{
+    display:inline-flex;align-items:center;gap:6px;background:#ecfdf5;color:#065f46;border:1px solid #bbf7d0;
+    padding:6px 10px;border-radius:999px;font-weight:800
+  }
+  /* 작은 화면 폰트/버튼 1줄 유지 */
+  .btn,.tiny{font-size:14px}
+  @media (max-width:420px){
+    .btn,.tiny{font-size:13px}
+    .title{font-size:18px}
+  }
 </style>
 </head>
 <body>
+  <!-- 상단 -->
   <header>
-    <h1>오늘의 회화 영단어</h1>
-    <button id="btn-auth-toggle" class="btn">로그인</button>
+    <div class="title">오늘의 회화 영단어</div>
+    <div class="right">
+      <div id="userChip" class="chip" style="display:none">
+        <div class="avatar" id="userAvatar">U</div>
+        <div>
+          <div id="userName" style="font-weight:800;">사용자</div>
+          <div id="userEmail" class="label">user@example.com</div>
+        </div>
+      </div>
+      <button class="ghost-btn" id="openLogin">로그인</button>
+    </div>
   </header>
 
-  <div class="container">
-    <div class="controls">
-      <button id="btn-playall" class="btn-main">전체 재생</button>
-      <button id="btn-stop">정지</button>
-      <button id="btn-done" class="btn-green">오늘분 완료</button>
-      <button id="btn-hard" class="btn">★ 어려운 단어</button>
-      <button id="btn-history" class="btn">기록</button>
+  <main>
+    <!-- 날짜 + 컨트롤 -->
+    <div class="toolbar">
+      <div class="row pill">
+        <button class="navbtn" id="prevDay" aria-label="이전 날짜">◀</button>
+        <div class="datebox" id="dateLabel">2025-01-01</div>
+        <button class="navbtn" id="nextDay" aria-label="다음 날짜">▶</button>
+      </div>
+
+      <div class="row">
+        <button class="btn brand" id="playAll">전체 재생</button>
+        <button class="btn" id="stopAll">정지</button>
+        <button class="btn ok" id="markDone">오늘분 완료</button>
+        <button class="btn warn" id="toggleHard">★ 어려운 단어</button>
+        <button class="btn" id="openLog">기록</button>
+      </div>
+
+      <div class="row" style="flex:1">
+        <div class="slider">
+          <div class="section-title" style="margin:0 0 6px">속도</div>
+          <input id="rate" type="range" min="0.6" max="1.6" step="0.1" value="1.0" />
+        </div>
+        <select id="voiceSelect" class="btn select" title="영어 음성 선택"></select>
+      </div>
+
+      <div id="doneBadge" class="done-badge" style="display:none;margin-left:6px">✔ 오늘분 학습 완료</div>
     </div>
+
+    <!-- 단어 리스트 -->
     <div id="list"></div>
-  </div>
+  </main>
 
-  <!-- 사이드 패널 -->
-  <div id="side-panel" class="side-panel">
-    <div class="side-header">
-      <strong>내 계정</strong>
-      <button id="btn-close-panel">✕</button>
+  <!-- 로그인 패널 -->
+  <div class="overlay" id="overlay"></div>
+  <aside class="panel" id="panel">
+    <header style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px">
+      <strong>로그인 / 회원가입</strong>
+      <button class="closeX" id="closePanel">✖</button>
+    </header>
+    <div class="content">
+      <h3>이메일로 로그인</h3>
+      <div class="field">
+        <label for="email">이메일</label>
+        <input id="email" type="email" placeholder="you@example.com" />
+      </div>
+      <div class="field">
+        <label for="password">비밀번호</label>
+        <input id="password" type="password" placeholder="8자리 이상" />
+      </div>
+      <button class="full login" id="loginBtn">로그인</button>
+      <button class="full signup" id="signupBtn">회원가입</button>
+
+      <div style="margin:12px 0;color:var(--muted);text-align:center">또는</div>
+      <button class="full gbtn" id="googleBtn">Google로 로그인</button>
+
+      <button class="full logout" id="logoutBtn" style="display:none">로그아웃</button>
     </div>
-    <div class="side-body">
-      <div class="avatar" id="user-avatar">?</div>
-      <div class="user-name" id="user-name">로그인 필요</div>
-      <div class="user-email" id="user-email"></div>
-      <button id="btn-logout" class="btn-logout">로그아웃</button>
-    </div>
-  </div>
+  </aside>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  <!-- 앱 스크립트 -->
+  <script type="module">
+    /************ Firebase (본인 프로젝트 값으로 교체하세요) ************/
+    // Firebase Web v10 modular CDN
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getAuth, onAuthStateChanged,
+      signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut,
+      GoogleAuthProvider, signInWithPopup
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBtN9HptAjl3wzemzKIr8nHvRHyOsvjsNI",
-    authDomain: "voca-khw.firebaseapp.com",
-    projectId: "voca-khw",
-    storageBucket: "voca-khw.firebasestorage.app",
-    messagingSenderId: "697341566223",
-    appId: "1:697341566223:web:2a40f413b1edeb543c727a",
-    measurementId: "G-Y5XZEX3W9X"
-  };
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+    // ↓↓↓ 이 부분을 본인 콘솔의 설정으로 바꾸세요 ↓↓↓
+    const firebaseConfig = {
+      apiKey: "AIzaSyBtN9HptAjl3wzemzKIr8nHvRHyOsvjsNI",
+      authDomain: "voca-khw.firebaseapp.com",
+      projectId: "voca-khw",
+      storageBucket: "voca-khw.firebasestorage.app",
+      messagingSenderId: "697341566223",
+      appId: "1:697341566223:web:2a40f413b1edeb543c727a",
+      measurementId: "G-Y5XZEX3W9X"
+    };
+    // ↑↑↑ 교체 끝
 
-  // DOM
-  const sidePanel = document.getElementById('side-panel');
-  document.getElementById('btn-auth-toggle').onclick=()=>sidePanel.classList.add('open');
-  document.getElementById('btn-close-panel').onclick=()=>sidePanel.classList.remove('open');
-  document.getElementById('btn-logout').onclick=async()=>{await signOut(auth);sidePanel.classList.remove('open');};
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
 
-  // 로그인 상태 반영
-  onAuthStateChanged(auth,(u)=>{
-    if(u){
-      document.getElementById('user-name').textContent=u.displayName||u.email.split('@')[0];
-      document.getElementById('user-email').textContent=u.email;
-      document.getElementById('user-avatar').textContent=(u.displayName?.[0]||u.email[0]||'?').toUpperCase();
-    }else{
-      document.getElementById('user-name').textContent='로그인 필요';
-      document.getElementById('user-email').textContent='';
-      document.getElementById('user-avatar').textContent='?';
+    /************ UI 요소 ************/
+    const overlay = document.getElementById('overlay');
+    const panel = document.getElementById('panel');
+    const openLogin = document.getElementById('openLogin');
+    const closePanel = document.getElementById('closePanel');
+    const loginBtn = document.getElementById('loginBtn');
+    const signupBtn = document.getElementById('signupBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const googleBtn = document.getElementById('googleBtn');
+
+    const emailEl = document.getElementById('email');
+    const passEl  = document.getElementById('password');
+    const userChip = document.getElementById('userChip');
+    const userName = document.getElementById('userName');
+    const userEmail = document.getElementById('userEmail');
+    const userAvatar = document.getElementById('userAvatar');
+
+    function togglePanel(open){
+      const willOpen = open ?? !panel.classList.contains('open');
+      panel.classList.toggle('open', willOpen);
+      overlay.classList.toggle('active', willOpen);
     }
-  });
+    openLogin.addEventListener('click', ()=>togglePanel(true));
+    closePanel.addEventListener('click', ()=>togglePanel(false));
+    overlay.addEventListener('click', ()=>togglePanel(false));
 
-  // 단어 목록 예시 렌더링
-  async function fetchWords(){try{const r=await fetch('./words.json',{cache:'no-store'});return await r.json();}catch{return[]}}
-  async function renderList(){
-    const ws=await fetchWords();
-    document.getElementById('list').innerHTML=ws.map(w=>`
-      <div class="word-card">
-        <div class="word-head">
-          <h2>${w.phrase}</h2>
-          <div class="star">☆</div>
-        </div>
-        <div class="meaning">${w.meaning}</div>
-        <div class="example">${w.example||''}</div>
-        <div class="actions">
-          <button class="btn-main" onclick="speak('${encodeURIComponent(w.phrase)}','en')">EN</button>
-          <button class="btn" onclick="speak('${encodeURIComponent(w.meaning)}','ko')">KO</button>
-        </div>
-      </div>`).join('');
-  }
-  renderList();
+    loginBtn.addEventListener('click', async ()=>{
+      try{
+        await signInWithEmailAndPassword(auth, emailEl.value, passEl.value);
+      }catch(err){ alert('로그인 실패: '+err.message); }
+    });
+    signupBtn.addEventListener('click', async ()=>{
+      try{
+        await createUserWithEmailAndPassword(auth, emailEl.value, passEl.value);
+        alert('회원가입 성공! 자동 로그인되었습니다.');
+      }catch(err){ alert('회원가입 실패: '+err.message); }
+    });
+    googleBtn.addEventListener('click', async ()=>{
+      try{
+        await signInWithPopup(auth, provider);
+      }catch(err){ alert('Google 로그인 실패: '+err.message); }
+    });
+    logoutBtn.addEventListener('click', async ()=>{
+      try{ await signOut(auth); }catch(err){ alert('로그아웃 실패: '+err.message); }
+    });
 
-  window.speak=(t,lang)=>{const u=new SpeechSynthesisUtterance(decodeURIComponent(t));u.lang=lang==='ko'?'ko-KR':'en-US';speechSynthesis.cancel();speechSynthesis.speak(u);};
-</script>
+    onAuthStateChanged(auth, (user)=>{
+      const loggedIn = !!user;
+      userChip.style.display = loggedIn ? 'flex' : 'none';
+      logoutBtn.style.display = loggedIn ? 'inline-block' : 'none';
+      openLogin.textContent = loggedIn ? '계정' : '로그인';
+      if(user){
+        userName.textContent = user.displayName || (user.email?.split('@')[0] ?? '사용자');
+        userEmail.textContent = user.email ?? '';
+        userAvatar.textContent = (user.displayName?.[0] || user.email?.[0] || 'U').toUpperCase();
+        togglePanel(false);
+      }
+    });
+
+    /************ 학습 로직 ************/
+    const START_DATE = '2025-08-01'; // 기준일(변경 가능)
+    const CHUNK = 10;               // 하루 단어 개수
+
+    // UI 참조
+    const dateLabel = document.getElementById('dateLabel');
+    const prevDay = document.getElementById('prevDay');
+    const nextDay = document.getElementById('nextDay');
+    const listEl = document.getElementById('list');
+    const playAllBtn = document.getElementById('playAll');
+    const stopAllBtn = document.getElementById('stopAll');
+    const rateEl = document.getElementById('rate');
+    const voiceSelect = document.getElementById('voiceSelect');
+    const markDoneBtn = document.getElementById('markDone');
+    const doneBadge = document.getElementById('doneBadge');
+    const toggleHardBtn = document.getElementById('toggleHard');
+    const openLogBtn = document.getElementById('openLog');
+
+    // 상태
+    let pool = [];        // 전체 단어 풀
+    let currentDate = new Date(); // 표시 날짜
+    let voices = [];
+    let currentUtter = null;
+    let isHardView = false;
+
+    // 저장소 키
+    const LS_HARD = 'voca_hard';
+    const LS_DONE = 'voca_done_dates';
+
+    // 유틸
+    const fmt = (d)=>d.toISOString().slice(0,10);
+    const toDate = (s)=>new Date(s+'T00:00:00');
+    const diffDays = (from,to)=>Math.floor((toDate(to)-toDate(from))/(1000*60*60*24));
+
+    // 음성
+    function loadVoices(){
+      voices = window.speechSynthesis.getVoices().filter(v=>/en-|en_|English/i.test(v.lang));
+      voiceSelect.innerHTML = '';
+      voices.forEach((v,i)=>{
+        const opt = document.createElement('option');
+        opt.value = i; opt.textContent = `${v.name} (${v.lang})`;
+        voiceSelect.appendChild(opt);
+      });
+    }
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices();
+
+    function speak(text){
+      stopSpeak();
+      const u = new SpeechSynthesisUtterance(text);
+      const v = voices[voiceSelect.value|0];
+      if(v) u.voice = v;
+      u.rate = parseFloat(rateEl.value)||1.0;
+      currentUtter = u;
+      speechSynthesis.speak(u);
+    }
+    function stopSpeak(){
+      speechSynthesis.cancel();
+      currentUtter = null;
+    }
+
+    // 데이터 로드
+    async function loadPool(){
+      // pool.json 또는 words.json 어느 쪽이든 우선 시도
+      const urls = ['pool.json','words.json','Voca/words.json'];
+      for(const url of urls){
+        try{
+          const res = await fetch(url+`?v=${Date.now()}`);
+          if(res.ok){
+            pool = await res.json();
+            if(Array.isArray(pool) && pool.length) return;
+          }
+        }catch(e){}
+      }
+      alert('단어 풀을 불러오지 못했습니다.');
+    }
+
+    // 오늘 분 계산
+    function getTodayChunk(dateStr){
+      if(!pool.length) return [];
+      const offset = Math.max(0, diffDays(START_DATE, dateStr));
+      const start = (offset*CHUNK) % pool.length;
+      const out = [];
+      for(let i=0;i<CHUNK;i++){
+        out.push(pool[(start+i)%pool.length]);
+      }
+      return out;
+    }
+
+    // 어려운 단어 저장/조회
+    function getHard(){
+      try{ return JSON.parse(localStorage.getItem(LS_HARD)||'[]'); }catch{ return [] }
+    }
+    function setHard(arr){
+      localStorage.setItem(LS_HARD, JSON.stringify(arr));
+    }
+    function toggleHardWord(phrase){
+      const arr = getHard();
+      const idx = arr.findIndex(x=>x===phrase);
+      if(idx>=0) arr.splice(idx,1); else arr.push(phrase);
+      setHard(arr);
+      render(); // 상태 반영
+    }
+    function isHard(phrase){ return getHard().includes(phrase); }
+
+    // 완료 기록
+    function getDone(){
+      try{ return JSON.parse(localStorage.getItem(LS_DONE)||'{}'); }catch{ return {} }
+    }
+    function setDone(map){
+      localStorage.setItem(LS_DONE, JSON.stringify(map));
+    }
+
+    function render(){
+      const dateStr = fmt(currentDate);
+      dateLabel.textContent = dateStr;
+
+      const doneMap = getDone();
+      doneBadge.style.display = doneMap[dateStr] ? 'inline-flex' : 'none';
+
+      const data = isHardView ? pool.filter(w=>isHard(w.phrase)) : getTodayChunk(dateStr);
+      listEl.innerHTML = '';
+
+      if(isHardView){
+        const cap = document.createElement('div');
+        cap.className = 'section-title';
+        cap.textContent = `★ 어려운 단어 (${data.length})`;
+        listEl.appendChild(cap);
+      }
+
+      data.forEach((w,idx)=>{
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const badge = document.createElement('div');
+        badge.className = 'badge';
+        badge.textContent = idx+1;
+        card.appendChild(badge);
+
+        const top = document.createElement('div');
+        top.className='word-row';
+
+        const left = document.createElement('div');
+        const phr = document.createElement('div'); phr.className='phrase'; phr.textContent = w.phrase;
+        const mean = document.createElement('div'); mean.className='meaning'; mean.textContent = w.meaning;
+        const ex = document.createElement('div'); ex.className='example'; ex.textContent = w.example ? `예문: ${w.example}` : '';
+        left.appendChild(phr); left.appendChild(mean); if(w.example) left.appendChild(ex);
+
+        const ctrls = document.createElement('div'); ctrls.className='controls';
+        const enBtn = document.createElement('button'); enBtn.className='tiny'; enBtn.textContent='EN'; enBtn.onclick=()=>speak(w.phrase);
+        const koBtn = document.createElement('button'); koBtn.className='tiny'; koBtn.textContent='KO'; koBtn.onclick=()=>speak(w.meaning);
+        const star = document.createElement('button'); star.className='tiny star'; star.textContent = isHard(w.phrase)?'★': '☆';
+        star.title='어려운 단어로 저장/해제'; star.onclick=()=>toggleHardWord(w.phrase);
+        ctrls.appendChild(enBtn); ctrls.appendChild(koBtn); ctrls.appendChild(star);
+
+        top.appendChild(left); top.appendChild(ctrls);
+        card.appendChild(top);
+        listEl.appendChild(card);
+      });
+    }
+
+    // 이벤트
+    prevDay.addEventListener('click', ()=>{ currentDate = new Date(currentDate.getTime()-86400000); render(); });
+    nextDay.addEventListener('click', ()=>{ currentDate = new Date(currentDate.getTime()+86400000); render(); });
+    playAllBtn.addEventListener('click', async ()=>{
+      stopSpeak();
+      const items = listEl.querySelectorAll('.card .phrase');
+      for(const el of items){
+        await new Promise(res=>{
+          const u = new SpeechSynthesisUtterance(el.textContent);
+          const v = voices[voiceSelect.value|0]; if(v) u.voice=v;
+          u.rate = parseFloat(rateEl.value)||1.0;
+          u.onend = res; speechSynthesis.speak(u);
+        });
+      }
+    });
+    stopAllBtn.addEventListener('click', stopSpeak);
+
+    markDoneBtn.addEventListener('click', ()=>{
+      const map = getDone();
+      const key = fmt(currentDate);
+      if(!map[key]){
+        map[key] = { at: new Date().toISOString() };
+        setDone(map);
+        alert('오늘분 완료로 기록했습니다 ✅');
+        render();
+      }else{
+        alert('이미 완료로 기록된 날짜입니다.');
+      }
+    });
+
+    toggleHardBtn.addEventListener('click', ()=>{
+      isHardView = !isHardView;
+      toggleHardBtn.classList.toggle('ok', isHardView);
+      toggleHardBtn.textContent = isHardView ? '★ 어려운 단어(보기중)' : '★ 어려운 단어';
+      render();
+    });
+
+    openLogBtn.addEventListener('click', ()=>{
+      const map = getDone();
+      const days = Object.keys(map).sort();
+      if(!days.length){ alert('완료 기록이 없습니다.'); return; }
+      alert('완료한 날짜\n\n' + days.join('\n'));
+    });
+
+    rateEl.addEventListener('change', ()=>{ /* 즉시 반영 */ });
+    voiceSelect.addEventListener('change', ()=>{ /* 즉시 반영 */ });
+
+    // 시작
+    (async function init(){
+      await loadPool();
+      currentDate = new Date(); // 오늘
+      render();
+    })();
+  </script>
 </body>
 </html>
