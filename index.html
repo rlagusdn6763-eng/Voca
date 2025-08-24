@@ -379,7 +379,7 @@
       });
     }
 
-    // 보기 토글
+    // 보기: 어려운 단어
     $('#viewFav').addEventListener('click', ()=>{
       const favs = JSON.parse(localStorage.getItem('favs')||'[]');
       if (favs.length===0) { alert('저장된 어려운 단어가 없습니다.'); return; }
@@ -411,25 +411,39 @@
       });
     });
 
+    // 보기: 기록(날짜) + 🗑 삭제 기능 추가
     $('#viewLog').addEventListener('click', ()=>{
-      const logs = JSON.parse(localStorage.getItem('studyLogs')||'[]');
-      if (logs.length===0){ alert('학습 기록이 없습니다.'); return; }
-      stopAllPlayback();
-      listEl.innerHTML = '';
-      logs.sort().forEach((d,i)=>{
-        const card = document.createElement('article');
-        card.className='card';
-        card.innerHTML = `<div class="row">
-          <div class="num">✔</div>
-          <div style="flex:1;font-weight:900">${d}</div>
-          <button class="btn ghost">이날 단어 보기</button>
-        </div>`;
-        $('button',card).addEventListener('click', ()=>{
-          setDateAndRender(d);
-          window.scrollTo({top:0,behavior:'smooth'});
+      const renderLog = ()=>{
+        const logs = JSON.parse(localStorage.getItem('studyLogs')||'[]');
+        if (logs.length===0){ alert('학습 기록이 없습니다.'); return; }
+        stopAllPlayback();
+        listEl.innerHTML = '';
+        logs.sort().forEach((d)=>{
+          const card = document.createElement('article');
+          card.className='card';
+          card.innerHTML = `
+            <div class="row" style="gap:8px">
+              <div class="num">✔</div>
+              <div style="flex:1;font-weight:900">${d}</div>
+              <div class="row" style="gap:6px">
+                <button class="btn ghost view">이날 단어 보기</button>
+                <button class="btn warn del" title="이 기록 삭제">🗑 삭제</button>
+              </div>
+            </div>`;
+          $('.view',card).addEventListener('click', ()=>{
+            setDateAndRender(d);
+            window.scrollTo({top:0,behavior:'smooth'});
+          });
+          $('.del',card).addEventListener('click', ()=>{
+            if(!confirm(`정말로 ${d} 기록을 삭제할까요?`)) return;
+            const arr = JSON.parse(localStorage.getItem('studyLogs')||'[]').filter(x=>x!==d);
+            localStorage.setItem('studyLogs', JSON.stringify(arr));
+            renderLog(); // 화면 즉시 갱신
+          });
+          listEl.appendChild(card);
         });
-        listEl.appendChild(card);
-      });
+      };
+      renderLog();
     });
 
     // 전체 재생: EN → KO, 정지 지원
