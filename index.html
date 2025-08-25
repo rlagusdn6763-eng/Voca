@@ -1,360 +1,211 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>오늘의 회화 영단어</title>
-<style>
-  :root{
-    --blue:#1663ff; --blue2:#0f53db;
-    --bg:#f5f7ff; --panel:#fff; --text:#111827; --muted:#6b7280;
-    --line:#e5e7eb; --ok:#16a34a; --warn:#ef4444; --amber:#f59e0b;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);
-    font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;}
-  /* ===== 헤더 (이전 UI) ===== */
-  .topbar{position:sticky;top:0;z-index:30;
-    background:linear-gradient(90deg,var(--blue),var(--blue2));color:#fff;}
-  .topbar-inner{max-width:960px;margin:0 auto;padding:16px;
-    display:flex;align-items:center;justify-content:space-between}
-  .title{font-size:24px;font-weight:900;letter-spacing:-.2px}
-  .dotbtn{width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.25);
-    background:rgba(255,255,255,.18);display:grid;place-items:center;cursor:pointer}
-  .dotbtn span{width:4px;height:4px;border-radius:50%;background:#fff;
-    box-shadow:0 -8px 0 #fff,0 8px 0 #fff}
-
-  .wrap{max-width:960px;margin:18px auto;padding:0 16px}
-
-  /* ===== 버튼 (이전 크기/모양) ===== */
-  .btn{height:48px;padding:0 16px;border-radius:12px;border:1px solid var(--line);
-    background:#fff;font-weight:800;white-space:nowrap;cursor:pointer}
-  .btn-green{background:#ecfdf3;border-color:#bbf7d0;color:#065f46}
-  .btn-red{background:#fff1f2;border-color:#fecdd3;color:#991b1b}
-  .btn-ghost{background:#fff}
-  .iconbtn{width:52px;height:52px;border-radius:12px;border:1px solid var(--line);
-    background:#fff;display:grid;place-items:center;cursor:pointer}
-
-  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-
-  /* 날짜 영역 */
-  .date-area{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-  .date-view{min-width:180px;height:52px;border-radius:12px;border:1px solid var(--line);
-    background:#fff;display:grid;place-items:center;font-weight:800;letter-spacing:.5px}
-
-  /* 속도/보이스 */
-  .panel{display:flex;align-items:center;gap:12px;margin:8px 0 16px}
-  .select{height:44px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:0 12px}
-
-  /* 단어 카드 (예전 스타일) */
-  .card{background:#fff;border:1px solid var(--line);border-radius:16px;
-    padding:16px 14px;margin-bottom:12px;box-shadow:0 1px 0 rgba(16,24,40,.03)}
-  .card-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-  .badge{width:34px;height:34px;border-radius:10px;background:#eef2ff;color:#2563eb;
-    display:grid;place-items:center;font-weight:900}
-  .word{font-size:20px;font-weight:900}
-  .mean{color:var(--muted);margin:4px 0 10px}
-  .chip{height:36px;border-radius:10px;border:1px solid var(--line);background:#fff;padding:0 12px;cursor:pointer}
-  .star{margin-left:auto;width:40px;height:40px;border-radius:12px;border:1px solid #fde68a;
-    background:#fffbeb;display:grid;place-items:center;color:#ca8a04;cursor:pointer}
-
-  /* 기록 목록 & 삭제 바(이전 톤) */
-  .logbar{display:none;align-items:center;gap:10px;background:#fff;border:1px dashed #fecaca;
-    padding:10px;border-radius:12px;margin:8px 0}
-  .logbar.show{display:flex}
-  .logNote{font-size:14px;color:var(--muted)}
-  .logbtn{height:40px;border-radius:10px;padding:0 12px;cursor:pointer}
-  .logbtn.ghost{background:#fff;border:1px solid var(--line)}
-  .logbtn.danger{background:#fee2e2;border:1px solid #fecaca;color:#991b1b}
-  .log-item{background:#fff;border:1px solid var(--line);border-radius:12px;
-    padding:14px 12px;display:flex;align-items:center;gap:12px;margin-bottom:10px}
-  .log-date{font-weight:900}
-
-  /* 사이드(로그인 슬라이드) — 기존 레이아웃 */
-  .side{position:fixed;inset:0;pointer-events:none}
-  .dim{position:absolute;inset:0;background:rgba(0,0,0,.35);opacity:0;transition:.25s}
-  .sheet{position:absolute;top:0;right:-360px;width:360px;max-width:90%;height:100%;
-    background:#fff;border-left:1px solid var(--line);transition:.3s;padding:18px;overflow:auto}
-  .side.show{pointer-events:auto}
-  .side.show .dim{opacity:1}
-  .side.show .sheet{right:0}
-  .field{display:flex;flex-direction:column;gap:6px;margin:10px 0}
-  .input{height:44px;border:1px solid var(--line);border-radius:10px;padding:0 12px}
-  .right{display:flex;justify-content:flex-end;gap:8px}
-
-  .empty{padding:40px 12px;text-align:center;color:var(--muted)}
-</style>
+  <meta charset="UTF-8">
+  <title>오늘의 회화 영단어</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
+    header { background: #1565c0; color: #fff; padding: 15px; font-size: 20px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+    header .menu-btn { font-size: 22px; background: none; border: none; color: white; cursor: pointer; }
+    .container { padding: 15px; }
+    .date-area { display: flex; align-items: center; justify-content: center; margin: 15px 0; gap: 10px; }
+    .date-view { font-weight: bold; font-size: 18px; }
+    button { border: none; border-radius: 6px; padding: 8px 14px; cursor: pointer; font-size: 14px; }
+    .btn { background: #e0e0e0; }
+    .btn-green { background: #4caf50; color: white; }
+    .btn-red { background: #e53935; color: white; }
+    .btn-blue { background: #1e88e5; color: white; }
+    .btn-outline { background: none; border: 1px solid #ccc; }
+    .iconbtn { background: #eee; font-size: 14px; }
+    .words { margin-top: 10px; }
+    .word { background: white; border-radius: 8px; padding: 12px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .word h3 { margin: 0; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .example { font-size: 13px; color: #555; margin-top: 5px; }
+    .controls { display: flex; gap: 8px; margin: 10px 0; flex-wrap: wrap; }
+    .record-list { margin-top: 10px; }
+    .record-item { background: white; border: 1px solid #ddd; padding: 10px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+    .record-item input[type=checkbox] { margin-right: 10px; }
+    /* 슬라이드 패널 */
+    .sidepanel { height: 100%; width: 0; position: fixed; top: 0; right: 0; background: #fff; overflow-x: hidden; transition: 0.3s; padding: 20px; box-shadow: -2px 0 6px rgba(0,0,0,0.2); }
+    .sidepanel.open { width: 250px; }
+    .logout-btn { background: #e53935; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-top: 10px; }
+  </style>
 </head>
 <body>
-  <!-- 상단바 (예전) -->
-  <div class="topbar">
-    <div class="topbar-inner">
-      <div class="title">오늘의 회화 영단어</div>
-      <div id="openSide" class="dotbtn" aria-label="계정 열기"><span></span></div>
+  <header>
+    <span>오늘의 회화 영단어</span>
+    <button class="menu-btn" onclick="togglePanel()">●</button>
+  </header>
+
+  <div id="sidePanel" class="sidepanel">
+    <h3>계정</h3>
+    <div id="authArea">
+      <input type="email" id="email" placeholder="이메일"><br><br>
+      <input type="password" id="password" placeholder="비밀번호 (8자 이상)"><br><br>
+      <button onclick="login()">로그인</button>
+      <button onclick="signup()">회원가입</button>
+    </div>
+    <div id="userArea" style="display:none;">
+      <p id="userInfo"></p>
+      <button class="logout-btn" onclick="logout()">로그아웃</button>
     </div>
   </div>
 
-  <div class="wrap">
-    <!-- 날짜 줄 (예전 배치) -->
+  <div class="container">
     <div class="date-area">
-      <button id="prevDate" class="iconbtn" aria-label="이전">◀</button>
+      <button id="prevDate" class="iconbtn">◀</button>
       <div id="dateView" class="date-view">YYYY-MM-DD</div>
-      <button id="nextDate" class="iconbtn" aria-label="다음">▶</button>
+      <button id="nextDate" class="iconbtn">▶</button>
       <button id="btnToday" class="btn">오늘의 단어</button>
-      <button id="btnPlayAll" class="iconbtn" aria-label="전체 재생">▶</button>
     </div>
 
-    <!-- 상단 버튼 (예전 배치/크기) -->
-    <div class="row" style="margin-bottom:8px">
-      <button id="btnAll" class="btn">전체 재생</button>
+    <div class="controls">
+      <button id="btnAll" class="btn-blue">전체 재생</button>
       <button id="btnStop" class="btn">정지</button>
-      <button id="btnDone" class="btn btn-green">오늘분 완료</button>
-    </div>
-    <div class="row" style="margin-bottom:8px">
-      <button id="btnFav" class="btn btn-ghost">★ 어려운 단어</button>
-      <button id="btnLog" class="btn btn-ghost">기록</button>
-      <button id="btnDelToggle" class="btn btn-red">기록 삭제</button>
+      <button id="btnDone" class="btn-green">오늘분 완료</button>
+      <button id="btnHard" class="btn-outline">★ 어려운 단어</button>
+      <button id="btnRecord" class="btn-outline">기록</button>
+      <button id="btnDelete" class="btn-red">기록 삭제</button>
     </div>
 
-    <!-- 삭제 바 -->
-    <div id="delBar" class="logbar" role="region" aria-live="polite">
-      <div class="logNote">삭제할 날짜를 체크하세요</div>
-      <div class="right" style="margin-left:auto">
-        <button id="btnDelCancel" class="logbtn ghost">취소</button>
-        <button id="btnDelDo" class="logbtn danger">삭제하기</button>
-      </div>
+    <div class="controls">
+      <label>속도 <input type="range" id="speed" min="0.5" max="1.5" step="0.1" value="1"></label>
+      <select id="voiceSelect"></select>
     </div>
 
-    <!-- 속도/보이스 (예전 위치) -->
-    <div class="panel">
-      <div style="font-weight:800">속도</div>
-      <input id="rate" type="range" min="0.6" max="1.6" step="0.05" value="1.0"/>
-      <select id="voiceSelect" class="select" title="영어 음성"></select>
-    </div>
-
-    <!-- 리스트 -->
-    <section id="list"></section>
+    <div class="words" id="words"></div>
+    <div class="record-list" id="recordList"></div>
   </div>
 
-  <!-- 사이드 로그인 패널 (기존 UI) -->
-  <aside id="side" class="side" aria-hidden="true">
-    <div id="dim" class="dim"></div>
-    <div class="sheet" role="dialog" aria-modal="true">
-      <h2 style="margin:6px 0 10px">계정</h2>
-      <div id="guestBox">
-        <div class="field">
-          <label>이메일</label>
-          <input id="inEmail" type="email" class="input" placeholder="you@example.com"/>
-        </div>
-        <div class="field">
-          <label>비밀번호</label>
-          <input id="inPw" type="password" class="input" placeholder="8자리 이상"/>
-        </div>
-        <div class="right">
-          <button id="btnLogin" class="btn">로그인</button>
-          <button id="btnSignup" class="btn btn-ghost">회원가입</button>
-        </div>
-      </div>
+  <script>
+    const $ = id => document.getElementById(id);
 
-      <div id="userBox" style="display:none">
-        <div class="card" style="display:flex;align-items:center;gap:10px">
-          <div class="badge">계</div>
-          <div id="userName" style="font-weight:900">로그인됨</div>
-          <div id="userEmail" style="color:var(--muted);margin-left:auto"></div>
-        </div>
-        <div class="right">
-          <button id="btnLogout" class="btn btn-red">로그아웃</button>
-        </div>
-      </div>
-    </div>
-  </aside>
+    // 사이드 패널 열고 닫기
+    function togglePanel() {
+      $('sidePanel').classList.toggle('open');
+    }
 
-<script>
-/* ===== 전역 ===== */
-const $=s=>document.querySelector(s);
-const listEl=$('#list'), dateView=$('#dateView');
-const rateEl=$('#rate'), voiceSelect=$('#voiceSelect');
-const delBar=$('#delBar');
+    // 더미 로그인/회원가입/로그아웃
+    function login() {
+      const email = $('email').value;
+      $('authArea').style.display = 'none';
+      $('userArea').style.display = 'block';
+      $('userInfo').innerText = email + ' 로그인됨';
+    }
+    function signup() { alert("회원가입은 실제 인증 연동 후 사용하세요."); }
+    function logout() {
+      $('authArea').style.display = 'block';
+      $('userArea').style.display = 'none';
+    }
 
-let words=[];                  // 현재 화면 단어
-let currentDate=new Date();    // 선택 날짜
-let isLogMode=false;           // 기록 탭 여부
-let deleteMode=false;          // 기록 삭제 모드
-let playing=false;             // 전체 재생 진행
-let voices=[], enVoice=null;   // 음성
+    // 단어 데이터
+    let pool = [
+      { phrase:"deal with", meaning:"다루다, 처리하다", example:"She had to deal with many problems." },
+      { phrase:"depend on", meaning:"의지하다", example:"You can depend on me." },
+      { phrase:"along with", meaning:"잘 지내다", example:"Do you get along with your neighbors?" }
+    ];
 
-/* ===== 유틸 ===== */
-const fmt=d=>d.toISOString().slice(0,10);
-const loadJSON=async(u)=>{const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw new Error('load fail '+u);return r.json();};
-const saveLS=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
-const getLS=(k,def)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(def));
+    let currentDate = new Date().toISOString().split('T')[0];
+    let records = JSON.parse(localStorage.getItem('records') || '{}');
+    let isDeleteMode = false;
 
-/* ===== TTS ===== */
-function pickEnglishVoice(){
-  voices = speechSynthesis.getVoices();
-  const en = voices.filter(v=>/^en(-|_)/i.test(v.lang));
-  enVoice = en.find(v=>/en[-_]US/i.test(v.lang)) || en[0] || null;
-  voiceSelect.innerHTML='';
-  en.forEach(v=>{
-    const op=document.createElement('option');
-    op.value=v.name; op.textContent=`${v.lang} · ${v.name}`;
-    voiceSelect.appendChild(op);
-  });
-  if(enVoice) voiceSelect.value=enVoice.name;
-}
-function speak(text, lang='en-US'){
-  return new Promise(res=>{
-    const u=new SpeechSynthesisUtterance(text);
-    u.rate=parseFloat(rateEl.value||'1.0');
-    if(/^en/i.test(lang)){
-      const v=voices.find(v=>v.name===voiceSelect.value) || enVoice;
-      if(v) u.voice=v; u.lang=(v&&v.lang)||'en-US';
-    }else{ u.lang='ko-KR'; }
-    u.onend=res; u.onerror=res;
-    speechSynthesis.cancel(); speechSynthesis.speak(u);
-  });
-}
-async function playAll(){ if(playing) return; playing=true;
-  for(const w of words){ if(!playing) break; await speak(w.phrase,'en-US'); }
-  playing=false;
-}
-function stopAll(){ playing=false; speechSynthesis.cancel(); }
+    function renderDate() { $('dateView').innerText = currentDate; }
 
-/* ===== 데이터 로드 ===== */
-async function loadWords(){ const data=await loadJSON('words.json'); words=data||[]; }
+    function renderWords() {
+      const words = $('words');
+      words.innerHTML = '';
+      (records[currentDate] || pool).forEach((w,i)=>{
+        let div = document.createElement('div');
+        div.className = 'word';
+        div.innerHTML = `<h3>${i+1}. ${w.phrase}</h3>
+          <p>${w.meaning}</p>
+          <p class="example">예문: ${w.example}</p>`;
+        words.appendChild(div);
+      });
+    }
 
-/* ===== 렌더: 단어 (한 번만 정의) ===== */
-async function renderWords(){
-  isLogMode=false; deleteMode=false; delBar.classList.remove('show');
-  listEl.innerHTML='';
-  await loadWords();
+    function renderRecords() {
+      const list = $('recordList');
+      list.innerHTML = '';
+      Object.keys(records).forEach(date=>{
+        let div = document.createElement('div');
+        div.className = 'record-item';
+        if(isDeleteMode){
+          div.innerHTML = `<label><input type="checkbox" value="${date}"> ${date}</label>`;
+        } else {
+          div.innerHTML = `<span>${date}</span>`;
+        }
+        list.appendChild(div);
+      });
+    }
 
-  if(!words.length){ listEl.innerHTML='<div class="empty">표시할 단어가 없습니다.</div>'; return; }
+    // 전체 재생
+    let synth = window.speechSynthesis;
+    let voices = [];
+    function loadVoices(){
+      voices = synth.getVoices();
+      const sel = $('voiceSelect');
+      sel.innerHTML = '';
+      voices.forEach((v,i)=>{
+        let opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = v.name + ' (' + v.lang + ')';
+        sel.appendChild(opt);
+      });
+    }
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
 
-  words.forEach((w,i)=>{
-    const card=document.createElement('div');
-    card.className='card';
-    card.innerHTML=`
-      <div class="card-head">
-        <div class="badge">${i+1}</div>
-        <div class="word">${w.phrase}</div>
-        <button class="star" title="어려운 단어">★</button>
-      </div>
-      <div class="mean">${w.meaning||''}</div>
-      ${w.example? `<div class="mean">예문: ${w.example}</div>`:''}
-      <div class="row">
-        <button class="chip en">EN</button>
-        <button class="chip ko">KO</button>
-      </div>`;
-    card.querySelector('.en').onclick=()=>speak(w.phrase,'en-US');
-    card.querySelector('.ko').onclick=()=>speak(w.meaning||w.phrase,'ko-KR');
-    card.querySelector('.star').onclick=()=>{
-      const fav=getLS('fav',{}); fav[w.phrase]=true; saveLS('fav',fav);
-      card.querySelector('.star').style.background='#fef3c7';
+    function playAll(){
+      synth.cancel();
+      let selected = voices[$('voiceSelect').value] || voices[0];
+      let speed = parseFloat($('speed').value);
+      (records[currentDate] || pool).forEach(w=>{
+        let u1 = new SpeechSynthesisUtterance(w.phrase);
+        u1.voice = selected; u1.rate = speed;
+        let u2 = new SpeechSynthesisUtterance(w.meaning);
+        u2.voice = selected; u2.rate = speed;
+        synth.speak(u1); synth.speak(u2);
+      });
+    }
+    function stopAll(){ synth.cancel(); }
+
+    // 이벤트 바인딩
+    $('btnAll').onclick = playAll;
+    $('btnStop').onclick = stopAll;
+    $('btnDone').onclick = ()=>{
+      records[currentDate] = pool;
+      localStorage.setItem('records', JSON.stringify(records));
+      renderRecords();
+      alert("오늘 단어 완료 기록됨");
     };
-    listEl.appendChild(card);
-  });
-}
+    $('btnRecord').onclick = ()=>{
+      isDeleteMode=false; renderRecords();
+    };
+    $('btnDelete').onclick = ()=>{
+      if(!isDeleteMode){
+        isDeleteMode=true; renderRecords();
+        let controls = document.createElement('div');
+        controls.id='deleteControls';
+        controls.innerHTML = `<button onclick="cancelDelete()">취소</button>
+          <button onclick="confirmDelete()" class="btn-red">삭제하기</button>`;
+        $('recordList').prepend(controls);
+      }
+    };
+    function cancelDelete(){ isDeleteMode=false; renderRecords(); $('deleteControls')?.remove(); }
+    function confirmDelete(){
+      let checked=[...document.querySelectorAll('#recordList input[type=checkbox]:checked')].map(c=>c.value);
+      if(checked.length===0){alert("삭제할 날짜를 선택하세요.");return;}
+      checked.forEach(d=>delete records[d]);
+      localStorage.setItem('records', JSON.stringify(records));
+      cancelDelete();
+    }
 
-/* ===== 렌더: 기록 ===== */
-function renderLogList(){
-  isLogMode=true;
-  listEl.innerHTML='';
-  const logs=getLS('studyLogs',{});
-  const dates=Object.keys(logs).sort();
-  if(!dates.length){ listEl.innerHTML='<div class="empty">기록이 없습니다.</div>'; return; }
-  dates.forEach(d=>{
-    const row=document.createElement('div'); row.className='log-item';
-    row.innerHTML=`
-      <input type="checkbox" class="log-check" data-date="${d}" style="width:22px;height:22px;display:${deleteMode?'block':'none'}"/>
-      <div class="badge">✓</div>
-      <div class="log-date">${d}</div>
-      <div style="margin-left:auto;color:var(--muted)">${logs[d]?.count||10}개</div>`;
-    listEl.appendChild(row);
-  });
-}
+    $('prevDate').onclick = ()=>{ currentDate = new Date(new Date(currentDate).getTime()-86400000).toISOString().split('T')[0]; renderDate(); renderWords(); };
+    $('nextDate').onclick = ()=>{ currentDate = new Date(new Date(currentDate).getTime()+86400000).toISOString().split('T')[0]; renderDate(); renderWords(); };
+    $('btnToday').onclick = ()=>{ currentDate = new Date().toISOString().split('T')[0]; renderDate(); renderWords(); };
 
-/* ===== 이벤트 ===== */
-function bind(){
-  const syncDate=()=>dateView.textContent=fmt(currentDate); syncDate();
-  $('#prevDate').onclick=()=>{currentDate.setDate(currentDate.getDate()-1);syncDate();renderWords();}
-  $('#nextDate').onclick=()=>{currentDate.setDate(currentDate.getDate()+1);syncDate();renderWords();}
-  $('#btnToday').onclick=()=>{currentDate=new Date();syncDate();renderWords();}
-  $('#btnPlayAll').onclick=playAll;
-  $('#btnAll').onclick=playAll;
-  $('#btnStop').onclick=stopAll;
-
-  $('#btnDone').onclick=()=>{
-    const logs=getLS('studyLogs',{}), key=fmt(currentDate);
-    logs[key]={count:(words?.length||0),done:true,ts:Date.now()};
-    saveLS('studyLogs',logs);
-    alert('오늘분 완료로 기록했어요!');
-  };
-
-  $('#btnFav').onclick=async()=>{
-    await loadWords();
-    const fav=getLS('fav',{}); const list=words.filter(w=>fav[w.phrase]);
-    listEl.innerHTML='';
-    if(!list.length){ listEl.innerHTML='<div class="empty">★ 표시된 단어가 없습니다.</div>'; return; }
-    list.forEach((w,i)=>{
-      const card=document.createElement('div'); card.className='card';
-      card.innerHTML=`
-        <div class="card-head">
-          <div class="badge">${i+1}</div>
-          <div class="word">${w.phrase}</div>
-          <button class="star">★</button>
-        </div>
-        <div class="mean">${w.meaning||''}</div>
-        ${w.example? `<div class="mean">예문: ${w.example}</div>`:''}
-        <div class="row"><button class="chip en">EN</button><button class="chip ko">KO</button></div>`;
-      card.querySelector('.en').onclick=()=>speak(w.phrase,'en-US');
-      card.querySelector('.ko').onclick=()=>speak(w.meaning||w.phrase,'ko-KR');
-      listEl.appendChild(card);
-    });
-  };
-
-  $('#btnLog').onclick=()=>{ deleteMode=false; delBar.classList.remove('show'); renderLogList(); };
-  $('#btnDelToggle').onclick=()=>{ if(!isLogMode) renderLogList(); deleteMode=true; delBar.classList.add('show');
-    listEl.querySelectorAll('.log-check').forEach(c=>c.style.display='block'); };
-  $('#btnDelCancel').onclick=()=>{ deleteMode=false; delBar.classList.remove('show');
-    listEl.querySelectorAll('.log-check').forEach(c=>c.style.display='none'); };
-  $('#btnDelDo').onclick=()=>{
-    if(!isLogMode){ alert('기록 화면에서만 삭제할 수 있어요.'); return; }
-    const checked=[...listEl.querySelectorAll('.log-check')].filter(c=>c.checked);
-    if(!checked.length){ alert('삭제할 날짜를 선택하세요.'); return; }
-    const logs=getLS('studyLogs',{});
-    checked.forEach(c=>{ delete logs[c.dataset.date]; });
-    saveLS('studyLogs',logs);
-    alert('선택한 기록을 삭제했어요.');
-    renderLogList();
-    deleteMode=true; delBar.classList.add('show');
-    listEl.querySelectorAll('.log-check').forEach(c=>c.style.display='block');
-  };
-
-  // 사이드 열고/닫기
-  $('#openSide').onclick=()=>{ $('#side').classList.add('show'); $('#side').setAttribute('aria-hidden','false'); };
-  $('#dim').onclick = ()=>{ $('#side').classList.remove('show'); $('#side').setAttribute('aria-hidden','true'); };
-
-  // (샘플) 로그인 UI 토글만 — 실제 인증 로직은 기존과 동일하게 붙이면 됨
-  $('#btnLogin').onclick=()=>{ $('#guestBox').style.display='none'; $('#userBox').style.display='block';
-    $('#userEmail').textContent=$('#inEmail').value||''; $('#userName').textContent='로그인됨'; };
-  $('#btnSignup').onclick=()=>alert('회원가입은 이미 구성하신 Firebase 설정에 맞춰 사용해 주세요.');
-  $('#btnLogout').onclick=()=>{ $('#guestBox').style.display='block'; $('#userBox').style.display='none'; };
-
-  // 음성 로딩
-  if('speechSynthesis' in window){
-    pickEnglishVoice();
-    window.speechSynthesis.onvoiceschanged=pickEnglishVoice;
-  }
-}
-
-/* ===== 초기화 ===== */
-async function init(){
-  dateView.textContent=fmt(currentDate);
-  bind();
-  await renderWords();
-}
-init();
-</script>
+    renderDate(); renderWords(); renderRecords();
+  </script>
 </body>
 </html>
