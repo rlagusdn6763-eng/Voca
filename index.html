@@ -12,35 +12,22 @@
     --bg:#f5f7ff; --panel:#fff; --text:#111827; --muted:#6b7280;
     --line:#e5e7eb; --ok:#16a34a; --warn:#ef4444; --amber:#f59e0b;
     --shadow:0 1px 3px rgba(0,0,0,.06);
-    --header-h:56px; /* JS에서 실제 높이로 갱신 */
+    --header-h:56px;
     --radius:14px;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
-  body{
-    margin:0; color:var(--text); background:var(--bg);
-    font-family:Pretendard, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
-  }
+  body{margin:0;color:var(--text);background:var(--bg);
+    font-family:Pretendard,system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR",sans-serif}
 
   /* Topbar */
-  .topbar{
-    position:sticky; top:0; z-index:30;
-    background:linear-gradient(90deg, var(--blue), var(--blue2));
-    color:#fff; box-shadow:var(--shadow);
-  }
-  .topbar-inner{
-    display:flex; align-items:center; gap:12px;
-    padding:14px 16px; min-height:var(--header-h);
-  }
-  .title{font-weight:800; font-size:22px; letter-spacing:-.2px; white-space:nowrap}
+  .topbar{position:sticky;top:0;z-index:30;background:linear-gradient(90deg,var(--blue),var(--blue2));color:#fff;box-shadow:var(--shadow)}
+  .topbar-inner{display:flex;align-items:center;gap:12px;padding:14px 16px;min-height:var(--header-h)}
+  .title{font-weight:800;font-size:22px;letter-spacing:-.2px;white-space:nowrap}
   .spacer{flex:1}
-  .kebab{
-    width:44px;height:44px;border-radius:50%;
-    display:grid;place-items:center;background:rgba(255,255,255,.16);
-    border:1px solid rgba(255,255,255,.2); cursor:pointer; -webkit-tap-highlight-color:transparent;
-  }
+  .kebab{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.2);cursor:pointer;-webkit-tap-highlight-color:transparent}
   .kebab:active{transform:scale(.98)}
-  .kebab .dots{width:4px;height:4px;background:#fff;border-radius:50%;box-shadow:0 -8px 0 #fff, 0 8px 0 #fff}
+  .kebab .dots{width:4px;height:4px;background:#fff;border-radius:50%;box-shadow:0 -8px 0 #fff,0 8px 0 #fff}
 
   /* Container */
   .wrap{max-width:960px;margin:0 auto;padding:16px}
@@ -50,16 +37,23 @@
   /* Date row */
   .date-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center}
   .date-btn{width:54px;height:54px;border-radius:14px;border:1px solid var(--line);background:#fff;display:grid;place-items:center;font-size:18px;cursor:pointer}
-  .date-display{height:54px;border-radius:14px;border:1px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:18px;background:#fff}
+  .date-display{
+    height:54px;border-radius:14px;border:1px solid var(--line);
+    background:#fff;display:flex;align-items:center;justify-content:center;
+    font-weight:800;
+    /* 한 줄 고정 & 작은 화면 자동 축소 */
+    white-space:nowrap; line-height:1;
+    padding:0 14px;
+    font-size:clamp(14px, 4.2vw, 18px);
+    min-width:150px;   /* 너무 좁아지지 않게 */
+    overflow:hidden; text-overflow:ellipsis;
+  }
   .play-btn{width:54px;height:54px;border-radius:14px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;cursor:pointer}
-  .today-btn{height:54px;padding:0 18px;border-radius:14px;background:#fff;border:1px solid var(--line);font-weight:700;cursor:pointer}
+  .today-btn{height:54px;padding:0 18px;border-radius:14px;background:#fff;border:1px solid var(--line);font-weight:700;cursor:pointer;white-space:nowrap}
 
   /* Action buttons */
   .actions{display:flex;flex-wrap:wrap;gap:10px}
-  .btn{
-    height:46px;padding:0 16px;border-radius:12px;border:1px solid var(--line);
-    background:#fff;font-weight:700;cursor:pointer
-  }
+  .btn{height:46px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:#fff;font-weight:700;cursor:pointer}
   .btn.primary{background:#e8f2ff;border-color:#cfe4ff;color:#0b59d9}
   .btn.success{background:#eaf8ef;border-color:#cceedd;color:#147a3c}
   .btn.danger{background:#ffecec;border-color:#ffd1d1;color:#c62828}
@@ -73,9 +67,7 @@
 
   /* Word cards */
   .list{display:flex;flex-direction:column;gap:12px;margin:10px 0 60px}
-  .card{
-    background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 16px;box-shadow:var(--shadow)
-  }
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 16px;box-shadow:var(--shadow)}
   .row{display:flex;align-items:center;gap:10px}
   .index{width:32px;height:32px;border-radius:9px;background:#eef2ff;color:#2149c5;display:grid;place-items:center;font-weight:800}
   .phrase{font-size:20px;font-weight:800;letter-spacing:-.2px}
@@ -85,48 +77,31 @@
   .star{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:#fff;display:grid;place-items:center}
   .star.active{background:#fff7e6;border-color:#ffe0a6;color:#b46900}
 
-  /* Records sheet trigger row (delete mode controls appear inside sheet) */
-
   /* SIDE SHEET */
-  .overlay{
-    position:fixed;inset:0;background:rgba(0,0,0,.32);
-    opacity:0;pointer-events:none;transition:.25s;z-index:40;
-  }
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.32);opacity:0;pointer-events:none;transition:.25s;z-index:40}
   .overlay.show{opacity:1;pointer-events:auto}
   .sheet{
     position:fixed; top:0; right:-420px; width:360px; max-width:90vw; height:100%;
     background:#fff; border-left:1px solid var(--line); box-shadow:-5px 0 20px rgba(0,0,0,.06);
     transition:right .28s; z-index:41; overflow:auto;
     padding:18px;
-    padding-top: calc(env(safe-area-inset-top, 0px) + var(--header-h, 56px) + 12px); /* 헤더+안전영역만큼 여유 */
+    padding-top: calc(env(safe-area-inset-top, 0px) + var(--header-h, 56px) + 12px);
   }
   .sheet.show{right:0}
   .sheet h3{margin:8px 0 16px;font-size:22px}
   .account-badge{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#f9fafb}
-  .avatar{
-    width:36px;height:36px;border-radius:12px;background:#eef2ff;color:#2149c5;
-    font-weight:800;display:grid;place-items:center
-  }
-  .logout{
-    position:sticky; top: calc(env(safe-area-inset-top, 0px) + 8px);
-    float:right; margin-top:-6px; margin-right:-6px;
-    background:#ef4444;color:#fff;border:none;border-radius:12px;padding:10px 14px;font-weight:700
-  }
+  .avatar{width:36px;height:36px;border-radius:12px;background:#eef2ff;color:#2149c5;font-weight:800;display:grid;place-items:center}
+  .logout{position:sticky; top: calc(env(safe-area-inset-top, 0px) + 8px); float:right; margin-top:-6px; margin-right:-6px;
+    background:#ef4444;color:#fff;border:none;border-radius:12px;padding:10px 14px;font-weight:700}
 
-  /* Records in sheet */
   .records{margin:16px 0;display:flex;flex-direction:column;gap:10px}
   .rec-item{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;align-items:center;gap:12px}
   .rec-date{font-weight:800}
   .hidden{display:none!important}
 
-  /* Floating toast */
-  .toast{
-    position:fixed;left:50%;bottom:24px;transform:translateX(-50%);
-    background:#111827;color:#fff;padding:10px 14px;border-radius:10px;opacity:0;transition:.25s;z-index:50
-  }
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 14px;border-radius:10px;opacity:0;transition:.25s;z-index:50}
   .toast.show{opacity:1}
 
-  /* Responsive */
   @media (min-width:720px){
     .toolbar .block.span-6{grid-column:span 6}
     .toolbar .block.span-4{grid-column:span 4}
@@ -200,7 +175,7 @@
       </div>
     </div>
 
-    <form id="authForm" class="">
+    <form id="authForm">
       <div style="display:flex;flex-direction:column;gap:10px">
         <label>이메일<input id="email" type="email" class="select" placeholder="you@example.com" required></label>
         <label>비밀번호<input id="passwd" type="password" minlength="8" class="select" placeholder="8자리 이상" required></label>
@@ -226,317 +201,161 @@
 
   <div id="toast" class="toast">저장되었습니다</div>
 
-  <!-- Firebase (optional). config.js에서 window.FB_CONFIG 로 제공한다고 가정 -->
+  <!-- Firebase (optional). config.js에서 window.FB_CONFIG 로 제공 -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
   <script>
-  /*************** Utilities ***************/
   const $ = s => document.querySelector(s);
   const $$ = s => Array.from(document.querySelectorAll(s));
-  const toast = (msg) => { const el = $('#toast'); el.textContent = msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'), 1500); };
-  const fmt = d => d.toISOString().slice(0,10);
-  const todayStr = () => fmt(new Date());
+  const toast = (m)=>{const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500);}
+  const fmt = d=>d.toISOString().slice(0,10);
+  const todayStr = ()=>fmt(new Date());
 
-  // keep current date state
-  let curDate = todayStr();
-  let words = [];
-  let playing = false;
-  let deleting = false;
-  let selectedForDelete = new Set();
-
-  // voices
-  let voices = [];
-  let enVoice = null, koVoice = null;
+  let curDate=todayStr(), words=[], playing=false, deleting=false, selectedForDelete=new Set();
+  let voices=[], enVoice=null, koVoice=null;
 
   function pickVoices(){
-    voices = speechSynthesis.getVoices();
-    // 영어 우선순위: en-US, en-GB, en
+    voices=speechSynthesis.getVoices();
     enVoice = voices.find(v=>/en-US/i.test(v.lang)) || voices.find(v=>/en-GB/i.test(v.lang)) || voices.find(v=>/^en/i.test(v.lang)) || null;
-    // 한국어: ko-KR
     koVoice = voices.find(v=>/ko-KR/i.test(v.lang)) || voices.find(v=>/^ko/i.test(v.lang)) || null;
-
-    // dropdown 재구성 (영어 목록만)
-    const sel = $('#voiceSel'); sel.innerHTML = '';
-    const enList = voices.filter(v=>/^en/i.test(v.lang));
-    enList.forEach(v=>{
-      const o = document.createElement('option');
-      o.value = v.name; o.textContent = `${v.name} (${v.lang})`;
-      sel.appendChild(o);
-    });
-    if (enVoice){
-      sel.value = enVoice.name;
-    }
+    const sel=$('#voiceSel'); sel.innerHTML='';
+    voices.filter(v=>/^en/i.test(v.lang)).forEach(v=>{const o=document.createElement('option');o.value=v.name;o.textContent=`${v.name} (${v.lang})`;sel.appendChild(o);});
+    if(enVoice) sel.value=enVoice.name;
   }
-  speechSynthesis.onvoiceschanged = pickVoices;
+  speechSynthesis.onvoiceschanged=pickVoices;
 
   function speak(text, lang='en'){
-    return new Promise((resolve) => {
-      const u = new SpeechSynthesisUtterance(text);
-      u.rate = parseFloat($('#rate').value || '1');
-      if (lang === 'en'){
-        const selName = $('#voiceSel').value;
-        const v = voices.find(v=>v.name===selName) || enVoice;
-        if (v) u.voice = v;
-        u.lang = v?.lang || 'en-US';
-      }else{
-        if (koVoice) u.voice = koVoice;
-        u.lang = koVoice?.lang || 'ko-KR';
-      }
-      u.onend = resolve;
-      u.onerror = resolve;
-      speechSynthesis.speak(u);
+    return new Promise(res=>{
+      const u=new SpeechSynthesisUtterance(text); u.rate=parseFloat($('#rate').value||'1');
+      if(lang==='en'){const selName=$('#voiceSel').value;const v=voices.find(v=>v.name===selName)||enVoice; if(v) u.voice=v; u.lang=v?.lang||'en-US';}
+      else{ if(koVoice) u.voice=koVoice; u.lang=koVoice?.lang||'ko-KR';}
+      u.onend=res; u.onerror=res; speechSynthesis.speak(u);
     });
   }
+  function stopAll(){playing=false; speechSynthesis.cancel();}
 
-  function stopAll(){
-    playing = false;
-    speechSynthesis.cancel();
-  }
-
-  /*************** Data loading ***************/
   async function loadWords(dateStr){
-    // words.json은 깃헙 액션으로 생성되거나, 수동으로 올려둔 리스트를 사용
-    // dateStr은 UI 전환만 담당 (이 예시에서는 같은 words.json을 사용)
-    const res = await fetch('words.json?ts=' + Date.now());
-    const data = await res.json();
-    // 10개만 표시 (이미 10개라면 동일)
-    words = data.slice(0, 10);
+    const res=await fetch('words.json?ts='+Date.now());
+    const data=await res.json();
+    words=data.slice(0,10);
     renderList();
   }
-
   function renderList(){
-    const list = $('#list'); list.innerHTML = '';
-    words.forEach((w, idx)=>{
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
+    const list=$('#list'); list.innerHTML='';
+    words.forEach((w,i)=>{
+      const card=document.createElement('div'); card.className='card';
+      card.innerHTML=`
         <div class="row" style="justify-content:space-between">
           <div class="row" style="gap:10px">
-            <div class="index">${idx+1}</div>
+            <div class="index">${i+1}</div>
             <div class="phrase">${w.phrase}</div>
           </div>
           <div class="row" style="gap:8px">
-            <button class="pill" data-en="${idx}">EN</button>
-            <button class="pill" data-ko="${idx}">KO</button>
-            <button class="star" data-star="${idx}" title="어려운 단어">★</button>
+            <button class="pill" data-en="${i}">EN</button>
+            <button class="pill" data-ko="${i}">KO</button>
+            <button class="star" data-star="${i}" title="어려운 단어">★</button>
           </div>
         </div>
-        <div class="meaning">${w.meaning || ''}</div>
-        ${w.example ? `<div class="ex">예문: ${w.example}</div>`:''}
+        <div class="meaning">${w.meaning||''}</div>
+        ${w.example?`<div class="ex">예문: ${w.example}</div>`:''}
       `;
       list.appendChild(card);
     });
-
-    // attach events
-    $$('#list [data-en]').forEach(b=> b.onclick = async e=>{
-      const i = +e.currentTarget.dataset.en;
-      await speak(words[i].phrase || '');
-    });
-    $$('#list [data-ko]').forEach(b=> b.onclick = async e=>{
-      const i = +e.currentTarget.dataset.ko;
-      await speak(words[i].meaning || '', 'ko');
-    });
-    $$('#list [data-star]').forEach(b=> b.onclick = e=>{
-      const i = +e.currentTarget.dataset.star;
-      toggleFav(words[i]);
-      e.currentTarget.classList.toggle('active');
-    });
+    $$('#list [data-en]').forEach(b=>b.onclick=async e=>{const i=+e.currentTarget.dataset.en; await speak(words[i].phrase||'');});
+    $$('#list [data-ko]').forEach(b=>b.onclick=async e=>{const i=+e.currentTarget.dataset.ko; await speak(words[i].meaning||'','ko');});
+    $$('#list [data-star]').forEach(b=>b.onclick=e=>{const i=+e.currentTarget.dataset.star; toggleFav(words[i]); e.currentTarget.classList.toggle('active');});
   }
 
-  /*************** Favorites ***************/
   const FKEY='voca:favs';
-  function getFavs(){ try{return JSON.parse(localStorage.getItem(FKEY)||'[]')}catch{return[]} }
-  function setFavs(v){ localStorage.setItem(FKEY, JSON.stringify(v)) }
+  const getFavs=()=>{try{return JSON.parse(localStorage.getItem(FKEY)||'[]')}catch{return[]}}
+  const setFavs=v=>localStorage.setItem(FKEY,JSON.stringify(v))
   function toggleFav(w){
-    const list = getFavs();
-    const key = (w.phrase||'')+'|'+(w.meaning||'');
-    const i = list.findIndex(x=> (x.phrase||'')+'|'+(x.meaning||'') === key);
-    if (i>=0) list.splice(i,1); else list.push(w);
-    setFavs(list);
+    const list=getFavs(); const key=(w.phrase||'')+'|'+(w.meaning||'');
+    const i=list.findIndex(x=>(x.phrase||'')+'|'+(x.meaning||'')===key);
+    if(i>=0) list.splice(i,1); else list.push(w); setFavs(list);
     toast(i>=0?'어려운 단어 해제':'어려운 단어 저장');
   }
 
-  /*************** Records ***************/
-  const RKEY='voca:records'; // { date: "YYYY-MM-DD", done: true }
-  function getRecs(){ try{return JSON.parse(localStorage.getItem(RKEY)||'[]')}catch{return[]} }
-  function setRecs(v){ localStorage.setItem(RKEY, JSON.stringify(v)) }
-  function addRecord(date){ const r = getRecs(); if (!r.find(x=>x.date===date)){ r.push({date, done:true}); setRecs(r);} }
-
+  const RKEY='voca:records';
+  const getRecs=()=>{try{return JSON.parse(localStorage.getItem(RKEY)||'[]')}catch{return[]}}
+  const setRecs=v=>localStorage.setItem(RKEY,JSON.stringify(v))
+  function addRecord(date){const r=getRecs(); if(!r.find(x=>x.date===date)){r.push({date,done:true}); setRecs(r);}}
   function renderRecords(){
-    const box = $('#records'); box.innerHTML='';
-    const recs = getRecs().sort((a,b)=>b.date.localeCompare(a.date));
-    if (!recs.length){ box.innerHTML='<div style="color:var(--muted)">기록이 없습니다.</div>'; return;}
+    const box=$('#records'); box.innerHTML='';
+    const recs=getRecs().sort((a,b)=>b.date.localeCompare(a.date));
+    if(!recs.length){box.innerHTML='<div style="color:var(--muted)">기록이 없습니다.</div>'; return;}
     recs.forEach(rec=>{
-      const row = document.createElement('label');
-      row.className='rec-item';
-      row.innerHTML = `
-        <input type="checkbox" class="rec-chk hidden" value="${rec.date}">
-        <div class="rec-date">${rec.date}</div>
-      `;
+      const row=document.createElement('label'); row.className='rec-item';
+      row.innerHTML=`<input type="checkbox" class="rec-chk hidden" value="${rec.date}"><div class="rec-date">${rec.date}</div>`;
       box.appendChild(row);
     });
   }
-
   function enterDeleteMode(on){
-    deleting = on;
-    selectedForDelete.clear();
-    $('#delControls').classList.toggle('hidden', !on);
-    $$('#records .rec-chk').forEach(chk=> {
-      chk.classList.toggle('hidden', !on);
-      chk.checked = on ? false : chk.checked;
-      chk.onchange = () => {
-        if (chk.checked) selectedForDelete.add(chk.value);
-        else selectedForDelete.delete(chk.value);
-      }
+    deleting=on; selectedForDelete.clear();
+    $('#delControls').classList.toggle('hidden',!on);
+    $$('#records .rec-chk').forEach(chk=>{
+      chk.classList.toggle('hidden',!on); chk.checked=false;
+      chk.onchange=()=>{ if(chk.checked) selectedForDelete.add(chk.value); else selectedForDelete.delete(chk.value); }
     });
   }
-
   function deleteSelected(){
-    if (!selectedForDelete.size){ alert('삭제할 날짜를 선택하세요.'); return; }
-    const keep = getRecs().filter(r=> !selectedForDelete.has(r.date));
-    setRecs(keep);
-    renderRecords();
-    enterDeleteMode(false);
-    toast('삭제되었습니다');
+    if(!selectedForDelete.size){alert('삭제할 날짜를 선택하세요.');return;}
+    const keep=getRecs().filter(r=>!selectedForDelete.has(r.date)); setRecs(keep);
+    renderRecords(); enterDeleteMode(false); toast('삭제되었습니다');
   }
 
-  /*************** Auth (optional) ***************/
   let auth=null, firebase=null;
-  function hasFb(){ return !!(window.firebase && window.FB_CONFIG); }
-
+  const hasFb=()=>!!(window.firebase&&window.FB_CONFIG);
   function initFirebaseIfAny(){
-    if (!hasFb()) return;
-    firebase = window.firebase;
-    firebase.initializeApp(window.FB_CONFIG);
-    auth = firebase.auth();
-
+    if(!hasFb()) return;
+    firebase=window.firebase; firebase.initializeApp(window.FB_CONFIG); auth=firebase.auth();
     auth.onAuthStateChanged(user=>{
-      if (user){
-        // show authed
-        $('#authedBox').classList.remove('hidden');
-        $('#authForm').classList.add('hidden');
-        $('#accName').textContent = user.displayName || user.email.split('@')[0];
-        $('#accEmail').textContent = user.email;
-        $('#accInitial').textContent = (user.displayName||user.email||'?').slice(0,1).toUpperCase();
-      }else{
-        $('#authedBox').classList.add('hidden');
-        $('#authForm').classList.remove('hidden');
-      }
+      if(user){
+        $('#authedBox').classList.remove('hidden'); $('#authForm').classList.add('hidden');
+        $('#accName').textContent=user.displayName||user.email.split('@')[0]; $('#accEmail').textContent=user.email; $('#accInitial').textContent=(user.displayName||user.email||'?').slice(0,1).toUpperCase();
+      }else{$('#authedBox').classList.add('hidden'); $('#authForm').classList.remove('hidden');}
     });
-
-    $('#authForm').addEventListener('submit', async e=>{
-      e.preventDefault();
-      const email = $('#email').value.trim();
-      const pw = $('#passwd').value;
-      try{
-        await auth.signInWithEmailAndPassword(email, pw);
-        toast('로그인 완료');
-      }catch(err){
-        alert(err.message || '로그인 실패');
-      }
-    });
-
-    $('#signupBtn').onclick = async ()=>{
-      const email = $('#email').value.trim();
-      const pw = $('#passwd').value;
-      try{
-        await auth.createUserWithEmailAndPassword(email, pw);
-        toast('회원가입 완료');
-      }catch(err){
-        alert(err.message || '회원가입 실패');
-      }
-    };
-
-    $('#logoutBtn').onclick = async ()=>{
-      try{ await auth.signOut(); toast('로그아웃 완료'); }catch(e){}
-    };
+    $('#authForm').addEventListener('submit',async e=>{e.preventDefault(); const email=$('#email').value.trim(); const pw=$('#passwd').value;
+      try{await auth.signInWithEmailAndPassword(email,pw); toast('로그인 완료');}catch(err){alert(err.message||'로그인 실패');}});
+    $('#signupBtn').onclick=async ()=>{const email=$('#email').value.trim(); const pw=$('#passwd').value;
+      try{await auth.createUserWithEmailAndPassword(email,pw); toast('회원가입 완료');}catch(err){alert(err.message||'회원가입 실패');}};
+    $('#logoutBtn').onclick=async ()=>{try{await auth.signOut(); toast('로그아웃 완료');}catch(e){}};
   }
 
-  /*************** Sheet open/close & header fit ***************/
   function adjustSheetPadding(){
-    const bar = document.querySelector('.topbar');
-    const h = bar ? Math.round(bar.getBoundingClientRect().height) : 56;
-    document.documentElement.style.setProperty('--header-h', h + 'px');
+    const bar=document.querySelector('.topbar'); const h=bar?Math.round(bar.getBoundingClientRect().height):56;
+    document.documentElement.style.setProperty('--header-h',h+'px');
   }
-  function openSheet(){
-    adjustSheetPadding();
-    $('#backdrop').classList.add('show');
-    $('#sheet').classList.add('show');
-    renderRecords();
-  }
-  function closeSheet(){
-    $('#backdrop').classList.remove('show');
-    $('#sheet').classList.remove('show');
-    enterDeleteMode(false);
-  }
+  function openSheet(){adjustSheetPadding(); $('#backdrop').classList.add('show'); $('#sheet').classList.add('show'); renderRecords();}
+  function closeSheet(){ $('#backdrop').classList.remove('show'); $('#sheet').classList.remove('show'); enterDeleteMode(false); }
 
-  /*************** Events ***************/
   function bindEvents(){
-    window.addEventListener('load', adjustSheetPadding);
-    window.addEventListener('resize', adjustSheetPadding);
+    window.addEventListener('load',adjustSheetPadding);
+    window.addEventListener('resize',adjustSheetPadding);
+    $('#openSide').onclick=openSheet; $('#backdrop').onclick=closeSheet;
 
-    $('#openSide').onclick = openSheet;
-    $('#backdrop').onclick = closeSheet;
+    $('#prevDay').onclick=async ()=>{const d=new Date(curDate); d.setDate(d.getDate()-1); curDate=fmt(d); $('#dateDisplay').textContent=curDate; await loadWords(curDate);};
+    $('#goToday').onclick=async ()=>{curDate=todayStr(); $('#dateDisplay').textContent=curDate; await loadWords(curDate);};
 
-    $('#prevDay').onclick = async ()=>{
-      const d = new Date(curDate); d.setDate(d.getDate()-1);
-      curDate = fmt(d); $('#dateDisplay').textContent = curDate;
-      await loadWords(curDate);
-    };
-    $('#goToday').onclick = async ()=>{
-      curDate = todayStr(); $('#dateDisplay').textContent = curDate;
-      await loadWords(curDate);
-    };
+    $('#playBtn').onclick=()=>$('#allPlay').click();
+    $('#allPlay').onclick=async ()=>{ if(!words.length) return; playing=true;
+      for(const w of words){ if(!playing) break; await speak(w.phrase||''); if(!playing) break; if(w.meaning) await speak(w.meaning,'ko'); }};
+    $('#stopPlay').onclick=stopAll;
 
-    $('#playBtn').onclick = ()=> $('#allPlay').click();
-    $('#allPlay').onclick = async ()=>{
-      if (!words.length) return;
-      playing = true;
-      for (const w of words){
-        if (!playing) break;
-        await speak(w.phrase||'');
-        if (!playing) break;
-        if (w.meaning) await speak(w.meaning, 'ko');
-      }
-    };
-    $('#stopPlay').onclick = stopAll;
+    $('#doneToday').onclick=()=>{ addRecord(curDate); toast('오늘분 완료로 기록되었습니다'); const d=new Date(curDate); d.setDate(d.getDate()+1); curDate=fmt(d); $('#dateDisplay').textContent=curDate; loadWords(curDate); };
 
-    $('#rate').oninput = ()=>{ /* 실시간 반영 */ };
-
-    $('#doneToday').onclick = ()=>{
-      addRecord(curDate);
-      toast('오늘분 완료로 기록되었습니다');
-      // 다음날 UI로만 이동 (words.json은 정적)
-      const d = new Date(curDate); d.setDate(d.getDate()+1);
-      curDate = fmt(d); $('#dateDisplay').textContent = curDate;
-      loadWords(curDate);
-    };
-
-    $('#openRecords').onclick = openSheet;
-
-    $('#deleteRecords').onclick = ()=>{
-      openSheet();
-      enterDeleteMode(true);
-    };
-    $('#cancelDel').onclick = ()=> enterDeleteMode(false);
-    $('#applyDel').onclick = deleteSelected;
-
-    $('#voiceSel').onchange = ()=>{ /* 영어 음성 변경 */ };
+    $('#openRecords').onclick=openSheet;
+    $('#deleteRecords').onclick=()=>{ openSheet(); enterDeleteMode(true); };
+    $('#cancelDel').onclick=()=>enterDeleteMode(false);
+    $('#applyDel').onclick=deleteSelected;
   }
 
-  /*************** Init ***************/
   async function init(){
-    adjustSheetPadding();
-    pickVoices();
-    bindEvents();
-    initFirebaseIfAny();
-
-    curDate = todayStr();
-    $('#dateDisplay').textContent = curDate;
-    await loadWords(curDate);
+    adjustSheetPadding(); pickVoices(); bindEvents(); initFirebaseIfAny();
+    curDate=todayStr(); $('#dateDisplay').textContent=curDate; await loadWords(curDate);
   }
   init();
   </script>
 </body>
-                     </html>
+          </html>
