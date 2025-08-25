@@ -106,7 +106,7 @@
 
   .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 14px;border-radius:10px;opacity:0;transition:.25s;z-index:50}
   .toast.show{opacity:1}
-  .gbtn{height:44px;border-radius:12px;border:1px solid #dadce0;background:#fff;font-weight:700;display:flex;align-items:center;gap:10px;padding:0 14px}
+  .gbtn{height:44px;border-radius:12px;border:1px solid #dadce0;background:#fff;font-weight:700;display:flex;align-items:center;gap:10px;padding:0 14px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -205,7 +205,7 @@
 
   <div id="toast" class="toast">저장되었습니다</div>
 
-  <!-- Firebase compat (선택적으로 사용) -->
+  <!-- Firebase compat (선택) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
@@ -316,40 +316,61 @@
   /* Firebase (옵션) */
   let auth=null, firebase=null;
   const hasFb=()=>!!(window.firebase&&window.FB_CONFIG);
+
+  function wireGoogleButtonFallback(){
+    // 설정이 없을 때도 버튼은 보이게 하되, 안내만 띄움
+    const gbtn = $('#googleBtn');
+    if(!gbtn) return;
+    gbtn.onclick = ()=>{
+      alert('Google 로그인을 사용하려면:\n1) Firebase 콘솔에서 Google 로그인 공급자 사용 설정\n2) 승인된 도메인에 rlagusdn6763-eng.github.io 추가\n3) index.html 하단에 window.FB_CONFIG 설정 추가');
+    };
+  }
+
   function initFirebaseIfAny(){
     if(!hasFb()){
-      // Firebase 없으면 Google 버튼 숨김
-      $('#googleBtn').classList.add('hidden');
+      wireGoogleButtonFallback();
       return;
     }
     firebase=window.firebase; firebase.initializeApp(window.FB_CONFIG); auth=firebase.auth();
 
-    // 상태 변경
     auth.onAuthStateChanged(user=>{
       if(user){
         $('#authedBox').classList.remove('hidden'); $('#authForm').classList.add('hidden');
-        $('#accName').textContent=user.displayName||user.email.split('@')[0]; $('#accEmail').textContent=user.email; $('#accInitial').textContent=(user.displayName||user.email||'?').slice(0,1).toUpperCase();
-      }else{$('#authedBox').classList.add('hidden'); $('#authForm').classList.remove('hidden');}
+        $('#accName').textContent=user.displayName||user.email.split('@')[0];
+        $('#accEmail').textContent=user.email;
+        $('#accInitial').textContent=(user.displayName||user.email||'?').slice(0,1).toUpperCase();
+      }else{
+        $('#authedBox').classList.add('hidden'); $('#authForm').classList.remove('hidden');
+      }
     });
 
-    // 이메일/비밀번호
-    $('#authForm').addEventListener('submit',async e=>{e.preventDefault(); const email=$('#email').value.trim(); const pw=$('#passwd').value;
-      try{await auth.signInWithEmailAndPassword(email,pw); toast('로그인 완료');}catch(err){alert(err.message||'로그인 실패');}});
-    $('#signupBtn').onclick=async ()=>{const email=$('#email').value.trim(); const pw=$('#passwd').value;
-      try{await auth.createUserWithEmailAndPassword(email,pw); toast('회원가입 완료');}catch(err){alert(err.message||'회원가입 실패');}};
-    $('#logoutBtn').onclick=async ()=>{try{await auth.signOut(); toast('로그아웃 완료');}catch(e){}};
-
-    // Google 로그인
-    $('#googleBtn').onclick=async ()=>{
-      try{
-        const provider=new firebase.auth.GoogleAuthProvider();
-        await auth.signInWithPopup(provider);
-        toast('Google 로그인 완료');
-      }catch(err){
-        // 권한 도메인 미등록 등
-        alert(err.message || 'Google 로그인 실패');
-      }
+    // 이메일/비번
+    $('#authForm').addEventListener('submit',async e=>{
+      e.preventDefault();
+      const email=$('#email').value.trim(); const pw=$('#passwd').value;
+      try{ await auth.signInWithEmailAndPassword(email,pw); toast('로그인 완료'); }
+      catch(err){ alert(err.message||'로그인 실패'); }
+    });
+    $('#signupBtn').onclick=async ()=>{
+      const email=$('#email').value.trim(); const pw=$('#passwd').value;
+      try{ await auth.createUserWithEmailAndPassword(email,pw); toast('회원가입 완료'); }
+      catch(err){ alert(err.message||'회원가입 실패'); }
     };
+    $('#logoutBtn').onclick=async ()=>{ try{ await auth.signOut(); toast('로그아웃 완료'); }catch(e){} };
+
+    // Google 로그인 (정상 경로)
+    const gbtn=$('#googleBtn');
+    if(gbtn){
+      gbtn.onclick = async ()=>{
+        try{
+          const provider=new firebase.auth.GoogleAuthProvider();
+          await auth.signInWithPopup(provider);
+          toast('Google 로그인 완료');
+        }catch(err){
+          alert(err.message||'Google 로그인 실패');
+        }
+      };
+    }
   }
 
   /* Side sheet open/close */
@@ -392,9 +413,12 @@
   <!-- Firebase 설정을 쓰는 경우, 아래 스크립트를 index.html 맨 아래에 넣어주세요.
   <script>
     window.FB_CONFIG = {
-      apiKey: "…", authDomain:"…", projectId:"…", appId:"…"
+      apiKey: "…",
+      authDomain:"…",
+      projectId:"…",
+      appId:"…"
     };
   </script>
   -->
 </body>
-</html>
+</html
