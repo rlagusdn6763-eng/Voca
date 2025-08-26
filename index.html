@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>오늘의 회화 영단어</title>
 <style>
   :root{--blue:#1e5ef3;--blue2:#1a4fd1;--bg:#f6f7fb;--card:#fff;--text:#111;--muted:#667085;--green:#1fb86a;--red:#e74c3c}
@@ -31,7 +31,7 @@
   .log-list{display:flex;flex-direction:column;gap:8px}.log-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #eef0f3;border-radius:10px}
   .hide{display:none!important}
 
-  /* === Account Drawer === */
+  /* Account Drawer */
   .mask{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:saturate(120%) blur(2px);opacity:0;pointer-events:none;transition:.2s;z-index:60}
   .mask.show{opacity:1;pointer-events:auto}
   .drawer{position:fixed;top:0;right:-360px;width:360px;max-width:88vw;height:100dvh;background:#fff;border-left:1px solid #e5e7eb;box-shadow:-8px 0 24px rgba(0,0,0,.06);transition:right .25s ease;z-index:61;display:flex;flex-direction:column}
@@ -42,9 +42,10 @@
   .drawer-body{padding:16px;overflow:auto}
   .field{display:flex;flex-direction:column;gap:6px;margin:10px 0}
   .input{height:44px;border:1px solid #e5e7eb;border-radius:12px;padding:0 12px;background:#fff}
-  .row-btns{display:flex;gap:10px;margin-top:10px}
+  .row-btns{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
   .big{height:46px;border-radius:12px;padding:0 14px;font-weight:800}
   .big.full{width:100%}
+  .google{border:1px solid #e5e7eb;background:#fff}
 </style>
 </head>
 <body>
@@ -101,58 +102,118 @@
       <button id="drawerClose" class="drawer-x" aria-label="닫기">✕</button>
     </div>
     <div class="drawer-body">
-      <!-- 로그인 폼 (Firebase 없어도 UI만 표시) -->
-      <div class="field"><label>이메일</label><input id="email" class="input" type="email" placeholder="you@example.com"></div>
-      <div class="field"><label>비밀번호</label><input id="password" class="input" type="password" placeholder="8자리 이상"></div>
-      <div class="row-btns">
-        <button id="loginBtn" class="btn big full">로그인</button>
-        <button id="signupBtn" class="btn big full ghost">회원가입</button>
+
+      <!-- 로그인 영역 (이메일/비밀번호) -->
+      <div id="authForms">
+        <div class="field"><label>이메일</label><input id="email" class="input" type="email" placeholder="you@example.com"></div>
+        <div class="field"><label>비밀번호</label><input id="password" class="input" type="password" placeholder="8자리 이상"></div>
+        <div class="row-btns">
+          <button id="loginBtn" class="btn big full">로그인</button>
+          <button id="signupBtn" class="btn big full ghost">회원가입</button>
+        </div>
+        <div class="row-btns">
+          <button id="googleBtn" class="btn big full google">Google로 로그인</button>
+        </div>
       </div>
-      <!-- 로그인 후 표시 자리 -->
+
+      <!-- 로그인 후 표시 -->
       <div id="loginInfo" class="field hide">
         <div style="font-weight:800">로그인됨</div>
+        <div id="loginName" style="margin-top:6px;font-weight:700"></div>
         <div id="loginEmail" style="color:#667085"></div>
-        <button id="logoutBtn" class="btn big red" style="margin-top:10px">로그아웃</button>
+        <button id="logoutBtn" class="btn big red" style="margin-top:12px">로그아웃</button>
       </div>
     </div>
   </aside>
 
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    /* ---------- Firebase(Optional) ---------- */
-    (async () => {
-      try {
-        // 이곳에 본인 Firebase 초기화 코드를 넣을 수 있어요.
-        // 실패하더라도 catch로 넘어가도록 남겨둡니다.
-      } catch (e) { console.warn('Firebase init skipped:', e); }
-    })();
+  <!-- Firebase (modular) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
 
-    /* ---------- Shortcuts ---------- */
+    // ==== 프로젝트 키 (당신 값) ====
+    const firebaseConfig = {
+      apiKey: "AIzaSyBtN9HptAjl3wzemzKIr8nHvRHyOsvjsNI",
+      authDomain: "voca-khw.firebaseapp.com",
+      projectId: "voca-khw",
+      storageBucket: "voca-khw.firebasestorage.app",
+      messagingSenderId: "697341566223",
+      appId: "1:697341566223:web:2a40f413b1edeb543c727a",
+      measurementId: "G-Y5XZEX3W9X"
+    };
+
+    // ---- 앱/인증 준비 ----
+    let app, auth, provider;
+    try {
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      provider = new GoogleAuthProvider();
+    } catch (e) {
+      console.warn("Firebase 초기화 실패(무시 가능):", e);
+    }
+
+    // ---- 계정 드로어 열고닫기 ----
     const $ = s => document.querySelector(s);
-    const $$ = s => document.querySelectorAll(s);
-
-    /* ---------- Drawer Open/Close ---------- */
-    const mask = $('#mask');
-    const drawer = $('#drawer');
-    const accountBtn = $('#accountBtn');
-    const drawerClose = $('#drawerClose');
-
-    function openDrawer(){
-      drawer.classList.add('show');
-      mask.classList.add('show');
-      drawer.setAttribute('aria-hidden','false');
-    }
-    function closeDrawer(){
-      drawer.classList.remove('show');
-      mask.classList.remove('show');
-      drawer.setAttribute('aria-hidden','true');
-    }
-    accountBtn.addEventListener('click', openDrawer);
-    drawerClose.addEventListener('click', closeDrawer);
+    const mask = $('#mask'), drawer = $('#drawer');
+    $('#accountBtn').addEventListener('click', () => { drawer.classList.add('show'); mask.classList.add('show'); drawer.setAttribute('aria-hidden','false'); });
+    $('#drawerClose').addEventListener('click', closeDrawer);
     mask.addEventListener('click', closeDrawer);
-    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeDrawer(); });
+    document.addEventListener('keydown', e => { if(e.key==='Escape') closeDrawer(); });
+    function closeDrawer(){ drawer.classList.remove('show'); mask.classList.remove('show'); drawer.setAttribute('aria-hidden','true'); }
 
-    /* ---------- 기존 앱 로직 (동작 보장 버전) ---------- */
+    // ---- 로그인/가입/구글/로그아웃 ----
+    const emailEl = $('#email'), pwEl = $('#password');
+    const authForms = $('#authForms'), infoBox = $('#loginInfo');
+    const nameBox = $('#loginName'), emailBox = $('#loginEmail');
+
+    $('#loginBtn').addEventListener('click', async () => {
+      if(!auth) return alert('인증 초기화 실패');
+      try{
+        await signInWithEmailAndPassword(auth, emailEl.value.trim(), pwEl.value);
+        alert('로그인 성공');
+      }catch(e){ alert('로그인 실패: '+e.message); }
+    });
+    $('#signupBtn').addEventListener('click', async () => {
+      if(!auth) return alert('인증 초기화 실패');
+      try{
+        await createUserWithEmailAndPassword(auth, emailEl.value.trim(), pwEl.value);
+        alert('회원가입 완료 (이메일/비밀번호)');
+      }catch(e){ alert('회원가입 실패: '+e.message); }
+    });
+    $('#googleBtn').addEventListener('click', async () => {
+      if(!auth) return alert('인증 초기화 실패');
+      try{
+        await signInWithPopup(auth, provider);
+        alert('Google 로그인 성공');
+      }catch(e){ alert('Google 로그인 실패: '+e.message); }
+    });
+    $('#logoutBtn').addEventListener('click', async () => {
+      if(!auth) return;
+      await signOut(auth);
+      alert('로그아웃 되었습니다.');
+    });
+
+    // ---- 상태반영 ----
+    if(auth){
+      onAuthStateChanged(auth, user => {
+        if(user){
+          authForms.classList.add('hide');
+          infoBox.classList.remove('hide');
+          nameBox.textContent = user.displayName || '이름 정보 없음';
+          emailBox.textContent = user.email || '';
+        }else{
+          authForms.classList.remove('hide');
+          infoBox.classList.add('hide');
+          nameBox.textContent = '';
+          emailBox.textContent = '';
+        }
+      });
+    }
+
+    // =======================
+    // 아래는 기존 앱 기능 (단어/재생/기록 등)
+    // =======================
+    const $$ = s => document.querySelectorAll(s);
     const LS_FAV='voca_favs', LS_LOG='voca_logs';
     const listEl = $('#list');
     const dateEl = $('#dateText');
@@ -304,10 +365,11 @@
       const l=logs(); sel.forEach(d=>delete l[d]); saveLogs(l); renderLogsPanel(true,true); if(Object.keys(l).length===0) renderLogsPanel(false,true);
     });
 
-    /* 시작 */
+    // 시작
+    let currentSet=[]; let showFavOnly=false; let queued=false;
+    let POOL=[];
     updateDateText();
     renderForDate();
-  });
   </script>
 </body>
 </html>
