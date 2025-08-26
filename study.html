@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>학습하기</title>
+  <style>
+    :root{
+      --blue:#1f6feb; --green:#18a058; --bg:#f7f8fa; --card:#fff; --text:#111; --muted:#667085; --red:#e5484d;
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Pretendard,system-ui,Apple SD Gothic Neo,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    header{position:sticky;top:0;z-index:20;background:#0d47a1;color:#fff}
+    header .row{display:flex;align-items:center;gap:12px;max-width:860px;margin:0 auto;padding:14px 12px}
+    h1{font-size:20px;margin:0;font-weight:800}
+    .wrap{max-width:860px;margin:16px auto;padding:0 12px}
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:0 1px 0 rgba(0,0,0,.06);padding:16px}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+    .btn{border:0;border-radius:12px;padding:11px 14px;background:#fff;cursor:pointer;font-weight:700}
+    .btn.primary{background:var(--green);color:#fff}
+    .btn.blue{background:var(--blue);color:#fff}
+    .btn.red{background:var(--red);color:#fff}
+    .muted{color:var(--muted)}
+    .choice{border:1px solid #e5e7eb;border-radius:12px;padding:12px;cursor:pointer;background:#fff}
+    .choice.correct{border-color:#22c55e; background:#ecfdf5}
+    .choice.wrong{border-color:#ef4444; background:#fef2f2}
+    .grid{display:grid;gap:10px}
+    .progress{display:flex;align-items:center;gap:12px;color:var(--muted);font-weight:700}
+    .chip{background:#eef2ff;color:#1e40af;border-radius:999px;padding:6px 10px;font-weight:800}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="row">
+      <button id="back" class="btn">← 돌아가기</button>
+      <h1>학습하기</h1>
+      <div style="margin-left:auto" id="dateBox" class="muted"></div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <!-- 모드 선택 -->
+    <div id="modeCard" class="card">
+      <div class="toolbar">
+        <div class="muted">학습 모드를 선택하세요</div>
+      </div>
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+        <button class="btn blue" data-mode="mean">① 단어 → 뜻</button>
+        <button class="btn blue" data-mode="cloze">② 예문 빈칸</button>
+      </div>
+    </div>
+
+    <!-- 퀴즈 -->
+    <div id="quizCard" class="card" style="display:none">
+      <div class="progress">
+        <span id="pIdx" class="chip">1 / 10</span>
+        <span id="pScore">정답 0</span>
+        <span style="margin-left:auto" id="pMode" class="muted"></span>
+      </div>
+      <div id="qText" style="font-size:20px;font-weight:800;line-height:1.5;margin:10px 0 14px"></div>
+      <div id="choices" class="grid"></div>
+      <div class="toolbar" style="margin-top:14px">
+        <button id="nextBtn" class="btn primary" disabled>다음</button>
+        <button id="finishBtn" class="btn red" style="margin-left:auto">그만하기</button>
+      </div>
+    </div>
+
+    <!-- 결과 -->
+    <div id="resultCard" class="card" style="display:none">
+      <h3 style="margin:0 0 6px">결과</h3>
+      <p id="rText" class="muted" style="margin:0 0 12px"></p>
+      <div class="toolbar">
+        <button id="retry" class="btn blue">다시 풀기</button>
+        <button id="toIndex" class="btn">단어 목록으로</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== 유틸 & 상태 ======
+    const qs = k => new URL(location.href).searchParams.get(k);
+    const date = qs('date') || new Date().toISOString().slice(0,10);
+    document.getElementById('dateBox').textContent = date;
+
+    const state = {
+      words: [],
+      order: [],
+      i: 0,
+      score: 0,
+      mode: 'mean', // 'mean' | 'cloze'
+      answered: false
+    };
+
+    // ====== 데이터 로드 ======
+    async function loadWords() {
+      // 날짜별 words.json 경로가 별도로 있으면 바꿔줘도 됨.
+      // 여기서는 루트 words.json 한 개를 사용한다고 가정.
+      const res = await fetch('words.json', {cache:'no-store'});
+      const all = await res.json();
+      // words.json 이 날짜별 묶음이 아니라 "오늘 10개" 배열이면 그대로 사용
+      const arr = Array.isArray(all) ? all : (all[date] || all.words || []);
+      state.words = arr.slice(0, 50); // 안전
+    }
+
+    // ====== 화면 전환 ======
+    const modeCard = document.getElementById('modeCard');
+    const quizCard = document.getElementById('quizCard');
+    const resultCard = document.getElementById('resultCard');
+
+    function show(el){
+      modeCard.style.display = 'none';
+      quizCard.style.display = 'none';
+      resultCard.style.display = 'none';
+      el.style.display = '';
+    }
+
+    // ====== 퀴즈 구성 ======
+    const pIdx = document.getElementById('pIdx');
+    const pScore = document.getElementById('pScore');
+    const pMode = document.getElementById('pMode');
+    const qText = document.getElementById('qText');
+    const choicesWrap = document.getElementById('choices');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function randInt(n){ return Math.floor(Math.random()*n); }
+    function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=randInt(i+1); [a[i],a[j]]=[a[j],a[i]] } return a; }
+
+    function start(mode){
+      state.mode = mode;
+      state.score = 0;
+      state.i = 0;
+      // 문제 순서
+      const N = Math.min(10, state.words.length);
+      state.order = shuffle([...Array(state.words.length).keys()]).slice(0,N);
+      pMode.textContent = (mode==='mean' ? '단어 → 뜻' : '예문 빈칸');
+      show(quizCard);
+      renderQuiz();
+    }
+
+    function makeChoices(correctIdx, field){
+      const vals = new Set([ state.words[correctIdx][field] ]);
+      while(vals.size < Math.min(4, state.words.length)){
+        const j = randInt(state.words.length);
+        vals.add(state.words[j][field]);
+      }
+      return shuffle([...vals]);
+    }
+
+    function renderQuiz(){
+      nextBtn.disabled = true;
+      state.answered = false;
+      const realIdx = state.order[state.i];
+      const w = state.words[realIdx];
+      pIdx.textContent = `${state.i+1} / ${state.order.length}`;
+      pScore.textContent = `정답 ${state.score}`;
+
+      choicesWrap.innerHTML = '';
+      if(state.mode==='mean'){
+        qText.textContent = w.phrase;
+        const choices = makeChoices(realIdx, 'meaning');
+        choices.forEach(txt => addChoice(txt, txt===w.meaning));
+      }else{
+        const s = (w.example || '').replace(new RegExp(w.phrase,'ig'), '_____');
+        qText.textContent = s || '(예문이 없습니다)';
+        const choices = makeChoices(realIdx, 'phrase');
+        choices.forEach(txt => addChoice(txt, txt===w.phrase));
+      }
+    }
+
+    function addChoice(text, isCorrect){
+      const div = document.createElement('button');
+      div.className = 'choice';
+      div.textContent = text;
+      div.onclick = ()=>{
+        if(state.answered) return;
+        state.answered = true;
+        if(isCorrect){ div.classList.add('correct'); state.score++; }
+        else{ div.classList.add('wrong'); }
+        nextBtn.disabled = false;
+      };
+      choicesWrap.appendChild(div);
+    }
+
+    nextBtn.onclick = ()=>{
+      if(state.i < state.order.length-1){ state.i++; renderQuiz(); }
+      else { finish(); }
+    };
+
+    function finish(){
+      show(resultCard);
+      document.getElementById('rText').textContent =
+        `총 ${state.order.length}문제 중 ${state.score}개 정답! 훌륭해요 👏`;
+    }
+
+    // ====== 핸들러 ======
+    document.getElementById('back').onclick = ()=> history.length>1 ? history.back() : location.href='index.html';
+    document.getElementById('finishBtn').onclick = finish;
+    document.getElementById('retry').onclick = ()=>{ show(modeCard); };
+    document.getElementById('toIndex').onclick = ()=> location.href='index.html';
+
+    // 모드 버튼
+    modeCard.addEventListener('click', (e)=>{
+      const btn = e.target.closest('[data-mode]');
+      if(!btn) return;
+      if(!state.words.length){ alert('단어를 불러오는 중입니다. 잠시만…'); return; }
+      start(btn.dataset.mode);
+    });
+
+    // ====== 시작 ======
+    (async()=>{
+      await loadWords();
+      show(modeCard);
+    })();
+  </script>
+</body>
+</html>
