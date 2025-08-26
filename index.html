@@ -8,13 +8,12 @@
   :root{
     --blue:#1e5ef3; --blue2:#1a4fd1; --bg:#f6f7fb; --card:#fff;
     --text:#111; --muted:#667085; --green:#1fb86a; --red:#e74c3c;
-    --radius:14px;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Malgun Gothic,sans-serif}
+  body{margin:0;background:#f6f7fb;color:#111;font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Malgun Gothic,sans-serif}
   /* Header */
   .appbar{position:sticky;top:0;z-index:40;background:linear-gradient(90deg,var(--blue),var(--blue2));color:#fff;padding:16px 20px;display:flex;align-items:center;gap:12px}
-  .title{font-weight:800;font-size:20px;letter-spacing:-.2px;white-space:nowrap}
+  .title{font-weight:800;font-size:20px;white-space:nowrap}
   .spacer{flex:1}
   .icon-btn{width:44px;height:44px;border-radius:999px;display:grid;place-items:center;background:rgba(255,255,255,.15);border:none;color:#fff}
   .icon-btn:active{transform:scale(.98)}
@@ -24,14 +23,13 @@
   .btn.green{background:var(--green);color:#fff;border-color:var(--green)}
   .btn.red{background:var(--red);color:#fff;border-color:var(--red)}
   .btn.ghost{background:#fff}
-  .btn:active{transform:translateY(1px)}
   .date-wrap{grid-column:span 6;display:flex;gap:8px}
   .date-box{flex:1;min-width:0;height:44px;border-radius:12px;background:#fff;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-weight:800;letter-spacing:.2px;padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .date-nav{width:44px}
   .row{grid-column:span 12;display:flex;gap:10px;flex-wrap:wrap}
   .row .btn{min-width:110px}
   /* speed/voice row */
-  .controls{max-width:980px;margin:0 auto;padding:0 16px 10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .controls{max-width:980px;margin:0 auto 10px;padding:0 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
   .range{flex:1;height:6px}
   .select{height:44px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;padding:0 10px}
   /* List */
@@ -110,12 +108,8 @@
   <div class="controls">
     <div style="font-weight:700">속도</div>
     <input id="rate" class="range" type="range" min="0.6" max="1.6" step="0.1" value="1.0">
-    <select id="enVoice" class="select">
-      <option value="">영어 음성</option>
-    </select>
-    <select id="koVoice" class="select">
-      <option value="">한국어 음성</option>
-    </select>
+    <select id="enVoice" class="select"><option value="">영어 음성</option></select>
+    <select id="koVoice" class="select"><option value="">한국어 음성</option></select>
   </div>
 
   <!-- 메인 -->
@@ -144,7 +138,7 @@
     </div>
     <div class="drawer-body" id="drawerBody">
       <!-- 로그인 -->
-      <div id="loginView" class="">
+      <div id="loginView">
         <div class="pill" style="margin-bottom:10px">로그인</div>
         <div class="field"><label for="loginEmail">이메일</label><input id="loginEmail" class="input" type="email" placeholder="you@example.com" autocomplete="username"></div>
         <div class="field"><label for="loginPw">비밀번호</label><input id="loginPw" class="input" type="password" placeholder="8자리 이상" autocomplete="current-password"></div>
@@ -158,6 +152,7 @@
           Google로 로그인
         </button>
       </div>
+
       <!-- 회원가입 -->
       <div id="signupView" class="hide">
         <div class="pill" style="margin-bottom:10px">회원가입</div>
@@ -173,22 +168,49 @@
           <button id="backToLogin" class="btn full">로그인으로</button>
         </div>
       </div>
-      <!-- 프로필 -->
+
+      <!-- 프로필 + 수정 -->
       <div id="profileView" class="hide">
-        <div class="pill" style="margin-bottom:10px">로그인됨</div>
-        <div class="card" style="margin-bottom:12px"><div style="font-weight:700;margin-bottom:6px">이메일</div><div id="pfEmail" style="font-weight:800"></div></div>
-        <div class="card" style="margin-bottom:16px"><div style="font-weight:700;margin-bottom:6px">닉네임</div><div id="pfNick" style="font-weight:800"></div></div>
+        <div class="pill" style="margin-bottom:12px">로그인됨</div>
+
+        <div class="field">
+          <label>이메일</label>
+          <input id="pfEmail" class="input" disabled>
+        </div>
+
+        <div class="row2">
+          <div class="field full">
+            <label>닉네임</label>
+            <input id="pfNick" class="input" disabled>
+          </div>
+          <div class="field full">
+            <label>아이디</label>
+            <input id="pfCustomId" class="input" disabled placeholder="선택 항목">
+          </div>
+        </div>
+
+        <div class="row2" style="margin-top:8px">
+          <button id="editStart" class="btn full">수정</button>
+          <button id="editSave"  class="btn green full hide">저장</button>
+          <button id="editCancel"class="btn ghost full hide">취소</button>
+        </div>
+
+        <div style="height:10px"></div>
+        <button id="sendReset" class="btn ghost full">비밀번호 재설정 메일 보내기</button>
+
+        <div class="danger">이메일/비밀번호 직접 변경은 재인증이 필요합니다. 위 버튼으로 비밀번호를 재설정하세요.</div>
+
+        <div style="height:12px"></div>
         <button id="logoutBtn" class="btn red full">로그아웃</button>
-        <div class="danger">닉네임 변경은 Firestore <b>users/{uid}</b> 문서의 <b>nickname</b> 수정.</div>
       </div>
     </div>
   </aside>
 
   <!-- Firebase & App -->
   <script type="module">
-    /* ============ Firebase ============ */
+    /* ===== Firebase ===== */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -216,36 +238,23 @@
       return (await getDoc(ref)).data();
     }
 
-    /* ============ UI refs ============ */
-    const $ = sel => document.querySelector(sel);
-    const $$ = sel => document.querySelectorAll(sel);
+    /* ====== UI refs ====== */
+    const $ = s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+    // Drawer
+    const accountBtn=$('#accountBtn'), drawer=$('#accountDrawer'), backdrop=$('#drawerBackdrop'), xbtn=$('#drawerClose');
+    const openDrawer=()=>{drawer.classList.add('open');backdrop.classList.add('show')};
+    const closeDrawer=()=>{drawer.classList.remove('open');backdrop.classList.remove('show')};
+    accountBtn.addEventListener('click',openDrawer); xbtn.addEventListener('click',closeDrawer); backdrop.addEventListener('click',closeDrawer);
 
-    const accountBtn = $('#accountBtn'), drawer = $('#accountDrawer'), backdrop = $('#drawerBackdrop'), xbtn = $('#drawerClose');
-    const loginView = $('#loginView'), signupView = $('#signupView'), profileView = $('#profileView');
-    const loginEmail = $('#loginEmail'), loginPw = $('#loginPw'), loginBtn = $('#loginBtn'), openSignup = $('#openSignup');
-    const sgId = $('#sgId'), sgNick = $('#sgNick'), sgEmail = $('#sgEmail'), sgPw1 = $('#sgPw1'), sgPw2 = $('#sgPw2'), doSignup = $('#doSignup'), backToLogin = $('#backToLogin');
-    const googleBtn = $('#googleBtn'), logoutBtn = $('#logoutBtn'), pfEmail = $('#pfEmail'), pfNick = $('#pfNick');
+    // Views
+    const loginView=$('#loginView'), signupView=$('#signupView'), profileView=$('#profileView');
+    const showLogin=()=>{loginView.classList.remove('hide');signupView.classList.add('hide');profileView.classList.add('hide');};
+    const showSignup=()=>{loginView.classList.add('hide');signupView.classList.remove('hide');profileView.classList.add('hide');};
+    const showProfile=()=>{loginView.classList.add('hide');signupView.classList.add('hide');profileView.classList.remove('hide');};
 
-    const dateText = $('#dateText'), prevDate = $('#prevDate'), nextDate = $('#nextDate'), todayBtn = $('#todayBtn');
-    const playAll = $('#playAll'), stopAll = $('#stopAll'), markDone = $('#markDone');
-    const favToggle = $('#favToggle'), openLog = $('#openLog'), openLogDelete = $('#openLogDelete');
-    const rateEl = $('#rate'), enVoiceSel = $('#enVoice'), koVoiceSel = $('#koVoice');
-    const listEl = $('#list');
-    const logPanel = $('#logPanel'), logCancel = $('#logCancel'), logDoDelete = $('#logDoDelete'), logList = $('#logList'), logEmpty = $('#logEmpty');
-
-    // drawer open/close
-    const openDrawer = ()=>{ drawer.classList.add('open'); backdrop.classList.add('show') };
-    const closeDrawer= ()=>{ drawer.classList.remove('open'); backdrop.classList.remove('show') };
-    accountBtn.addEventListener('click', openDrawer);
-    xbtn.addEventListener('click', closeDrawer);
-    backdrop.addEventListener('click', closeDrawer);
-
-    function showLogin(){ loginView.classList.remove('hide'); signupView.classList.add('hide'); profileView.classList.add('hide'); }
-    function showSignup(){ loginView.classList.add('hide'); signupView.classList.remove('hide'); profileView.classList.add('hide'); }
-    function showProfile(){ loginView.classList.add('hide'); signupView.classList.add('hide'); profileView.classList.remove('hide'); }
-
-    openSignup.addEventListener('click', showSignup);
-    backToLogin.addEventListener('click', showLogin);
+    // 로그인/가입
+    const loginEmail=$('#loginEmail'), loginPw=$('#loginPw'), loginBtn=$('#loginBtn'), openSignup=$('#openSignup'), googleBtn=$('#googleBtn');
+    const sgId=$('#sgId'), sgNick=$('#sgNick'), sgEmail=$('#sgEmail'), sgPw1=$('#sgPw1'), sgPw2=$('#sgPw2'), doSignup=$('#doSignup'), backToLogin=$('#backToLogin');
 
     loginBtn.addEventListener('click', async ()=>{
       try{
@@ -254,12 +263,16 @@
         await signInWithEmailAndPassword(auth,email,pw);
       }catch(e){ alert('로그인 실패: '+e.message); }
     });
+    openSignup.addEventListener('click',showSignup);
+    backToLogin.addEventListener('click',showLogin);
+
     googleBtn.addEventListener('click', async ()=>{
       try{
         const cred = await signInWithPopup(auth, provider);
         await upsertUserProfile(cred.user);
       }catch(e){ alert('Google 로그인 실패: '+e.message); }
     });
+
     doSignup.addEventListener('click', async ()=>{
       try{
         const id=sgId.value.trim(), nick=sgNick.value.trim(), email=sgEmail.value.trim(), pw1=sgPw1.value.trim(), pw2=sgPw2.value.trim();
@@ -270,85 +283,119 @@
         alert('회원가입 완료!');
       }catch(e){ alert('회원가입 실패: '+e.message); }
     });
+
+    // 프로필 수정/표시/비번 재설정/로그아웃
+    const pfEmail=$('#pfEmail'), pfNick=$('#pfNick'), pfCustomId=$('#pfCustomId');
+    const editStart=$('#editStart'), editSave=$('#editSave'), editCancel=$('#editCancel');
+    const sendReset=$('#sendReset'), logoutBtn=$('#logoutBtn');
+
+    function setEditable(on){
+      [pfNick,pfCustomId].forEach(el=>el.disabled=!on);
+      editStart.classList.toggle('hide',on);
+      editSave.classList.toggle('hide',!on);
+      editCancel.classList.toggle('hide',!on);
+    }
+    let _cacheProfile={nickname:'',customId:''};
+
+    editStart.addEventListener('click', ()=> setEditable(true));
+    editCancel.addEventListener('click', ()=>{
+      pfNick.value=_cacheProfile.nickname||'';
+      pfCustomId.value=_cacheProfile.customId||'';
+      setEditable(false);
+    });
+    editSave.addEventListener('click', async ()=>{
+      try{
+        const user = auth.currentUser;
+        if(!user) return;
+        const nickname = pfNick.value.trim();
+        const customId = pfCustomId.value.trim();
+        await upsertUserProfile(user,{nickname,customId});
+        _cacheProfile={nickname,customId};
+        setEditable(false);
+        alert('회원정보가 저장되었습니다.');
+      }catch(e){ alert('저장 실패: '+e.message); }
+    });
+
+    sendReset.addEventListener('click', async ()=>{
+      const user=auth.currentUser; if(!user||!user.email) return alert('로그인이 필요합니다.');
+      try{ await sendPasswordResetEmail(auth,user.email); alert('재설정 메일을 보냈습니다. 메일함을 확인하세요.'); }
+      catch(e){ alert('보내기 실패: '+e.message); }
+    });
+
     logoutBtn.addEventListener('click', async ()=>{ try{ await signOut(auth); showLogin(); alert('로그아웃 되었습니다.'); }catch(e){ alert('로그아웃 실패: '+e.message); }});
 
     onAuthStateChanged(auth, async (user)=>{
       if(user){
         try{
-          const d = await (await getDoc(doc(db,'users',user.uid))).data();
-          pfEmail.textContent = user.email||'-';
-          pfNick.textContent  = d?.nickname||'(닉네임 미입력)';
-        }catch{ pfEmail.textContent=user.email||'-'; pfNick.textContent='(프로필 조회 실패)'; }
+          const snap = await getDoc(doc(db,'users',user.uid));
+          const d = snap.data()||{};
+          pfEmail.value = user.email||'';
+          pfNick.value  = d.nickname||'';
+          pfCustomId.value = d.customId||'';
+          _cacheProfile = { nickname: pfNick.value, customId: pfCustomId.value };
+        }catch{ pfEmail.value=user.email||''; pfNick.value=''; pfCustomId.value=''; }
+        setEditable(false);
         showProfile();
       }else showLogin();
     });
 
-    /* ============ 단어/학습 로직 ============ */
+    /* ===== 단어/학습 ===== */
     const LS_FAV='voca_favs', LS_LOG='voca_logs';
-    let POOL=[]; let currentSet=[]; let showFavOnly=false; let deleteMode=false; let queued=false;
+    const $date=$('#dateText'), $prev=$('#prevDate'), $next=$('#nextDate'), $today=$('#todayBtn');
+    const $play=$('#playAll'), $stop=$('#stopAll'), $done=$('#markDone');
+    const $favT=$('#favToggle'), $openLog=$('#openLog'), $openDel=$('#openLogDelete');
+    const rateEl=$('#rate'), enSel=$('#enVoice'), koSel=$('#koVoice');
+    const listEl=$('#list');
+    const logPanel=$('#logPanel'), logCancel=$('#logCancel'), logDoDel=$('#logDoDelete'), logList=$('#logList'), logEmpty=$('#logEmpty');
 
-    const logs = ()=> JSON.parse(localStorage.getItem(LS_LOG)||'{}');
-    const saveLogs = o=> localStorage.setItem(LS_LOG,JSON.stringify(o));
-    const favs = ()=> new Set(JSON.parse(localStorage.getItem(LS_FAV)||'[]'));
-    const saveFavs = set=> localStorage.setItem(LS_FAV,JSON.stringify([...set]));
+    let POOL=[]; let currentSet=[]; let showFavOnly=false; let queued=false;
+    const logs=()=>JSON.parse(localStorage.getItem(LS_LOG)||'{}');
+    const saveLogs=o=>localStorage.setItem(LS_LOG,JSON.stringify(o));
+    const favs=()=>new Set(JSON.parse(localStorage.getItem(LS_FAV)||'[]'));
+    const saveFavs=s=>localStorage.setItem(LS_FAV,JSON.stringify([...s]));
 
     function fmt(d){return d.toISOString().slice(0,10)}
-    let cur = new Date();
-    function setDate(d){ dateText.textContent = fmt(d); renderForDate(); }
-    prevDate.addEventListener('click', ()=>{cur.setDate(cur.getDate()-1); setDate(cur);});
-    nextDate.addEventListener('click', ()=>{cur.setDate(cur.getDate()+1); setDate(cur);});
-    todayBtn.addEventListener('click', ()=>{cur=new Date(); setDate(cur);});
+    let cur=new Date();
+    function setDate(d){ $date.textContent=fmt(d); renderForDate(); }
+    $prev.addEventListener('click',()=>{cur.setDate(cur.getDate()-1);setDate(cur);});
+    $next.addEventListener('click',()=>{cur.setDate(cur.getDate()+1);setDate(cur);});
+    $today.addEventListener('click',()=>{cur=new Date();setDate(cur);});
 
-    // seed-based shuffle
+    // seeded shuffle
     function xmur3(str){ let h=1779033703^str.length; for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353); h=h<<13|h>>>19;} return ()=>{h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return (h^h>>>16)>>>0};}
     function mulberry32(a){return function(){var t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15, t|1);t^=t+Math.imul(t^t>>>7, t|61);return ((t^t>>>14)>>>0)/4294967296;}}
-    function pickDaily(pool, dateStr, n=10){
-      const seed = xmur3(dateStr)(); const rnd = mulberry32(seed);
-      const idxs = pool.map((_,i)=>i);
-      // Fisher-Yates with seeded rnd
-      for(let i=idxs.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [idxs[i],idxs[j]]=[idxs[j],idxs[i]]; }
-      return idxs.slice(0, Math.min(n, idxs.length)).map(i=>pool[i]);
+    function pickDaily(pool,dateStr,n=10){
+      const seed=xmur3(dateStr)(); const rnd=mulberry32(seed);
+      const idxs=pool.map((_,i)=>i);
+      for(let i=idxs.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[idxs[i],idxs[j]]=[idxs[j],idxs[i]];}
+      return idxs.slice(0,Math.min(n,idxs.length)).map(i=>pool[i]);
     }
 
     // voices
     let voices=[];
     function fillVoices(){
-      voices = speechSynthesis.getVoices();
-      const en = voices.filter(v=>/^en(-|_)/i.test(v.lang));
-      const ko = voices.filter(v=>/^ko(-|_)/i.test(v.lang));
-      enVoiceSel.innerHTML = '<option value="">영어 음성</option>'+en.map(v=>`<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
-      koVoiceSel.innerHTML = '<option value="">한국어 음성</option>'+ko.map(v=>`<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
-      // 기본 선택
-      const defEn = en.find(v=>/US|en-US/i.test(v.lang)) || en[0];
-      const defKo = ko[0];
-      if(defEn) enVoiceSel.value = defEn.name;
-      if(defKo) koVoiceSel.value = defKo.name;
+      voices=speechSynthesis.getVoices();
+      const en=voices.filter(v=>/^en(-|_)/i.test(v.lang));
+      const ko=voices.filter(v=>/^ko(-|_)/i.test(v.lang));
+      enSel.innerHTML='<option value="">영어 음성</option>'+en.map(v=>`<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
+      koSel.innerHTML='<option value="">한국어 음성</option>'+ko.map(v=>`<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
+      const defEn=en.find(v=>/US|en-US/i.test(v.lang))||en[0]; const defKo=ko[0];
+      if(defEn) enSel.value=defEn.name; if(defKo) koSel.value=defKo.name;
     }
     fillVoices();
-    if (typeof speechSynthesis !== 'undefined') {
-      speechSynthesis.onvoiceschanged = fillVoices;
-    }
+    if(typeof speechSynthesis!=='undefined'){ speechSynthesis.onvoiceschanged=fillVoices; }
 
-    function speak(text, lang){
-      const u = new SpeechSynthesisUtterance(text);
-      u.rate = Number(rateEl.value)||1;
-      // voice pick strictly by selected dropdown
-      if(lang.startsWith('en') && enVoiceSel.value){
-        const v = voices.find(v=>v.name===enVoiceSel.value); if(v) u.voice=v;
-      }else if(lang.startsWith('ko') && koVoiceSel.value){
-        const v = voices.find(v=>v.name===koVoiceSel.value); if(v) u.voice=v;
-      }else{
-        const v = voices.find(v=>v.lang.toLowerCase().startsWith(lang)); if(v) u.voice=v;
-      }
-      u.lang = lang;
-      speechSynthesis.speak(u);
+    function speak(text,lang){
+      const u=new SpeechSynthesisUtterance(text); u.rate=Number(rateEl.value)||1;
+      if(lang.startsWith('en')&&enSel.value){const v=voices.find(v=>v.name===enSel.value); if(v) u.voice=v;}
+      else if(lang.startsWith('ko')&&koSel.value){const v=voices.find(v=>v.name===koSel.value); if(v) u.voice=v;}
+      u.lang=lang; speechSynthesis.speak(u);
     }
 
     function renderList(items){
-      const favset = favs();
-      listEl.innerHTML='';
+      const favset=favs(); listEl.innerHTML='';
       items.forEach((w,idx)=>{
-        const card = document.createElement('div'); card.className='card';
+        const card=document.createElement('div'); card.className='card';
         card.innerHTML=`
           <div class="idx">${idx+1}</div>
           <div>
@@ -362,126 +409,63 @@
               <button class="chip ko">KO</button>
             </div>
             <button class="star">${favset.has(w.phrase)?'★':'☆'}</button>
-          </div>
-        `;
-        card.querySelector('.en').addEventListener('click',()=>{ speak(w.phrase,'en-US') });
-        card.querySelector('.ko').addEventListener('click',()=>{ speak(w.meaning,'ko-KR') });
+          </div>`;
+        card.querySelector('.en').addEventListener('click',()=>speak(w.phrase,'en-US'));
+        card.querySelector('.ko').addEventListener('click',()=>speak(w.meaning,'ko-KR'));
         card.querySelector('.star').addEventListener('click',e=>{
-          const set=favs();
-          if(set.has(w.phrase)){ set.delete(w.phrase); e.target.textContent='☆'; }
-          else{ set.add(w.phrase); e.target.textContent='★'; }
-          saveFavs(set);
-          if(showFavOnly) renderForDate(); // 필터 중이면 즉시 반영
+          const set=favs(); if(set.has(w.phrase)){set.delete(w.phrase); e.target.textContent='☆';} else {set.add(w.phrase); e.target.textContent='★';}
+          saveFavs(set); if(showFavOnly) renderForDate();
         });
         listEl.appendChild(card);
       });
     }
 
-    async function loadPool(){
-      const res = await fetch('./pool.json',{cache:'no-store'});
-      POOL = await res.json();
-    }
-
+    async function loadPool(){ const res=await fetch('./pool.json',{cache:'no-store'}); POOL=await res.json(); }
     function buildSet(){
-      const dateStr = dateText.textContent;
-      const all = pickDaily(POOL, dateStr, 10);
-      if(!showFavOnly) return all;
-      const set=favs();
-      return all.filter(w=>set.has(w.phrase));
+      const dateStr=$date.textContent; const all=pickDaily(POOL,dateStr,10);
+      if(!showFavOnly) return all; const set=favs(); return all.filter(w=>set.has(w.phrase));
     }
+    async function renderForDate(){ if(POOL.length===0) await loadPool(); currentSet=buildSet(); renderList(currentSet); renderLogsPanel(false); }
 
-    async function renderForDate(){
-      if(POOL.length===0) await loadPool();
-      currentSet = buildSet();
-      renderList(currentSet);
-      renderLogsPanel(false); // 패널 갱신
-    }
-
-    // 전체 재생: 각 단어 EN → KO (예문은 EN만)
-    playAll.addEventListener('click', ()=>{
-      if(!currentSet.length) return;
-      speechSynthesis.cancel();
-      queued=true;
-      const seq=[];
-      currentSet.forEach(w=>{
-        seq.push({t:w.phrase,lang:'en-US'});
-        if(w.example) seq.push({t:w.example,lang:'en-US'});
-        seq.push({t:w.meaning,lang:'ko-KR'});
-      });
-      let i=0;
-      const playNext=()=>{
-        if(!queued || i>=seq.length) { queued=false; return; }
-        const item = seq[i++];
-        const u = new SpeechSynthesisUtterance(item.t);
-        u.rate = Number(rateEl.value)||1;
-        if(item.lang.startsWith('en') && enVoiceSel.value){
-          const v = voices.find(v=>v.name===enVoiceSel.value); if(v) u.voice=v;
-        }else if(item.lang.startsWith('ko') && koVoiceSel.value){
-          const v = voices.find(v=>v.name===koVoiceSel.value); if(v) u.voice=v;
-        }
-        u.lang=item.lang;
-        u.onend=playNext;
-        speechSynthesis.speak(u);
-      };
-      playNext();
+    // controls
+    let queued=false;
+    $play.addEventListener('click',()=>{
+      if(!currentSet.length) return; speechSynthesis.cancel(); queued=true;
+      const seq=[]; currentSet.forEach(w=>{seq.push({t:w.phrase,lang:'en-US'}); if(w.example) seq.push({t:w.example,lang:'en-US'}); seq.push({t:w.meaning,lang:'ko-KR'});});
+      let i=0; const next=()=>{ if(!queued||i>=seq.length){queued=false;return;} const it=seq[i++]; const u=new SpeechSynthesisUtterance(it.t); u.rate=Number(rateEl.value)||1;
+        if(it.lang.startsWith('en')&&enSel.value){const v=voices.find(v=>v.name===enSel.value); if(v) u.voice=v;}
+        else if(it.lang.startsWith('ko')&&koSel.value){const v=voices.find(v=>v.name===koSel.value); if(v) u.voice=v;}
+        u.lang=it.lang; u.onend=next; speechSynthesis.speak(u); };
+      next();
     });
-    stopAll.addEventListener('click', ()=>{ queued=false; speechSynthesis.cancel(); });
+    $stop.addEventListener('click',()=>{queued=false; speechSynthesis.cancel();});
+    $done.addEventListener('click',()=>{ const d=$date.textContent; const l=logs(); l[d]=true; saveLogs(l); alert('오늘분 완료로 기록했습니다.'); cur.setDate(cur.getDate()+1); setDate(cur); });
+    $favT.addEventListener('click',()=>{showFavOnly=!showFavOnly; $favT.classList.toggle('mute',showFavOnly); renderForDate();});
 
-    // 완료 → 기록 저장 & 다음날로 이동
-    markDone.addEventListener('click', ()=>{
-      const d = dateText.textContent;
-      const l = logs(); l[d]=true; saveLogs(l);
-      alert('오늘분 완료로 기록했습니다.');
-      cur.setDate(cur.getDate()+1); setDate(cur);
+    // 기록 패널
+    const openLog=()=>renderLogsPanel(false,true), openDel=()=>renderLogsPanel(true,true);
+    $('#openLog').addEventListener('click',openLog); $('#openLogDelete').addEventListener('click',openDel);
+    logCancel.addEventListener('click',()=>renderLogsPanel(false,true));
+    logDoDel.addEventListener('click',()=>{
+      const checks=$$('#logList input[type=checkbox]'); const sel=[...checks].filter(c=>c.checked).map(c=>c.dataset.date);
+      if(!sel.length) return alert('삭제할 날짜를 선택하세요.');
+      const l=logs(); sel.forEach(d=>delete l[d]); saveLogs(l); renderLogsPanel(true,true); if(Object.keys(l).length===0) renderLogsPanel(false,true);
     });
-
-    // 어려운단어 필터
-    favToggle.addEventListener('click', ()=>{ showFavOnly=!showFavOnly; favToggle.classList.toggle('mute',showFavOnly); renderForDate(); });
-
-    // 기록 보기 / 삭제 모드
-    openLog.addEventListener('click', ()=> renderLogsPanel(false,true));
-    openLogDelete.addEventListener('click', ()=> renderLogsPanel(true,true));
-    logCancel.addEventListener('click', ()=> renderLogsPanel(false,true));
-    logDoDelete.addEventListener('click', ()=>{
-      const checks = $$('#logList input[type=checkbox]');
-      const selected = [...checks].filter(c=>c.checked).map(c=>c.dataset.date);
-      if(!selected.length) return alert('삭제할 날짜를 선택하세요.');
-      const l = logs();
-      selected.forEach(d=> delete l[d]);
-      saveLogs(l);
-      renderLogsPanel(true,true); // 남은 항목으로 갱신
-      if(Object.keys(l).length===0){ renderLogsPanel(false,true); }
-    });
-
     function renderLogsPanel(asDelete=false, open=false){
-      const l = logs();
-      const dates = Object.keys(l).sort();
-      logList.innerHTML='';
-      if(dates.length===0){ logEmpty.classList.remove('hide'); }
-      else logEmpty.classList.add('hide');
+      const l=logs(); const dates=Object.keys(l).sort(); logList.innerHTML='';
+      if(dates.length===0) logEmpty.classList.remove('hide'); else logEmpty.classList.add('hide');
       dates.forEach(d=>{
-        const row = document.createElement('div'); row.className='log-item';
-        row.innerHTML = `
-          ${asDelete?`<input type="checkbox" data-date="${d}">`:''}
-          <div style="font-weight:800">${d}</div>
-          <div class="spacer"></div>
-          <button class="btn ghost go">이동</button>
-        `;
-        row.querySelector('.go').addEventListener('click', ()=>{ cur=new Date(d); setDate(cur); window.scrollTo({top:0,behavior:'smooth'}); });
+        const row=document.createElement('div'); row.className='log-item';
+        row.innerHTML=`${asDelete?`<input type="checkbox" data-date="${d}">`:''}<div style="font-weight:800">${d}</div><div class="spacer"></div><button class="btn ghost go">이동</button>`;
+        row.querySelector('.go').addEventListener('click',()=>{cur=new Date(d); setDate(cur); window.scrollTo({top:0,behavior:'smooth'});});
         logList.appendChild(row);
       });
-      deleteMode = asDelete;
-      logCancel.classList.toggle('hide', !asDelete);
-      logDoDelete.classList.toggle('hide', !asDelete);
-      logPanel.classList.remove('hide');
-      if(open) window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+      logCancel.classList.toggle('hide',!asDelete); logDoDel.classList.toggle('hide',!asDelete);
+      logPanel.classList.remove('hide'); if(open) window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
     }
 
-    /* 초기화 */
-    function init(){
-      setDate(cur);
-    }
-    init();
+    // start
+    setDate(cur);
   </script>
 </body>
 </html>
