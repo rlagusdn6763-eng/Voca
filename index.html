@@ -7,27 +7,30 @@
 <style>
   :root{--blue:#1e5ef3;--blue2:#1a4fd1;--bg:#f6f7fb;--card:#fff;--text:#111;--muted:#667085;--green:#1fb86a;--red:#e74c3c}
   *{box-sizing:border-box} body{margin:0;background:#f6f7fb;color:#111;font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Malgun Gothic,sans-serif}
+  /* AppBar */
   .appbar{position:sticky;top:0;z-index:40;background:linear-gradient(90deg,var(--blue),var(--blue2));color:#fff;padding:16px 20px;display:flex;align-items:center;gap:12px}
   .title{font-weight:800;font-size:20px;white-space:nowrap}.spacer{flex:1}
   .icon-btn{width:44px;height:44px;border-radius:999px;display:grid;place-items:center;background:rgba(255,255,255,.15);border:none;color:#fff;cursor:pointer}
+  /* Toolbar */
   .toolbar{max-width:980px;margin:16px auto;padding:0 16px;display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
   .btn{height:44px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;padding:0 14px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;cursor:pointer}
   .btn.green{background:var(--green);color:#fff;border-color:var(--green)} .btn.red{background:var(--red);color:#fff;border-color:var(--red)}
   .date-wrap{grid-column:span 12;display:grid;grid-template-columns:44px 1fr 44px;gap:8px}
   .date-box{height:44px;border-radius:12px;background:#fff;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-weight:800;padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .row{grid-column:span 12;display:flex;gap:10px;flex-wrap:wrap}.row .btn{min-width:110px}
+  .row{grid-column:span 12;display:flex;gap:10px;flex-wrap:wrap} .row .btn{min-width:110px}
   .controls{max-width:980px;margin:0 auto 10px;padding:0 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-  .range{flex:1;height:6px}.select{height:44px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;padding:0 10px}
+  .range{flex:1;height:6px} .select{height:44px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;padding:0 10px}
   .container{max-width:980px;margin:8px auto 80px;padding:0 16px}
   .card{background:#fff;border:1px solid #eef0f3;border-radius:14px;padding:14px;margin:10px 0;display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
   .idx{width:34px;height:34px;border-radius:10px;background:#eef2ff;color:#1737e6;font-weight:800;display:grid;place-items:center}
-  .ph{font-weight:800;font-size:18px}.mean{color:#344054}.ex{color:#667085;margin-top:6px}
+  .ph{font-weight:800;font-size:18px} .mean{color:#344054} .ex{color:#667085;margin-top:6px}
   .chip{height:36px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;padding:0 10px;font-weight:800;cursor:pointer}
   .star{height:36px;border-radius:10px;border:1px solid #ffe1c7;background:#fff7ed;color:#d97706;font-weight:800;padding:0 10px;cursor:pointer}
   .log-panel{background:#fff;border:1px solid #eef0f3;border-radius:14px;padding:12px;margin-top:8px}
   .log-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}.ghost{background:#fff;border:1px solid #e5e7eb}
   .log-list{display:flex;flex-direction:column;gap:8px}.log-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #eef0f3;border-radius:10px}
   .hide{display:none!important}
+
   /* Drawer */
   .mask{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:saturate(120%) blur(2px);opacity:0;pointer-events:none;transition:.2s;z-index:60}
   .mask.show{opacity:1;pointer-events:auto}
@@ -44,6 +47,23 @@
   .big.full{width:100%}
   .google{border:1px solid #e5e7eb;background:#fff}
   .card-box{border:1px solid #eef0f3;border-radius:12px;padding:12px}
+
+  /* === 학습 모달 === */
+  .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:.2s;z-index:80}
+  .modal-mask.show{opacity:1;pointer-events:auto}
+  .modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(720px,92vw);background:#fff;border-radius:16px;border:1px solid #e5e7eb;box-shadow:0 20px 60px rgba(0,0,0,.15);z-index:81;display:none}
+  .modal.show{display:block}
+  .modal-h{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #f0f2f4}
+  .modal-t{font-weight:800}
+  .modal-x{margin-left:auto;border:none;background:#f3f4f6;width:36px;height:36px;border-radius:10px;cursor:pointer}
+  .modal-b{padding:16px}
+  .q-meta{display:flex;gap:10px;align-items:center;margin-bottom:10px;color:#667085}
+  .choices{display:grid;gap:8px}
+  .choice{padding:12px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;text-align:left}
+  .choice.correct{border-color:#1fb86a;background:#ecfdf5}
+  .choice.wrong{border-color:#e74c3c;background:#fef2f2}
+  .q-bottom{display:flex;gap:10px;align-items:center;margin-top:12px}
+  .pill{padding:6px 10px;border-radius:999px;background:#f3f4f6;border:1px solid #e5e7eb}
 </style>
 </head>
 <body>
@@ -67,6 +87,11 @@
       <button id="favToggle" class="btn">★ 어려운 단어</button>
       <button id="openLog" class="btn">기록</button>
       <button id="openLogDelete" class="btn red">기록 삭제</button>
+    </div>
+    <!-- 학습 버튼 -->
+    <div class="row">
+      <button id="quizMeanBtn" class="btn">학습: 단어 → 뜻</button>
+      <button id="quizClozeBtn" class="btn">학습: 예문 빈칸</button>
     </div>
   </section>
 
@@ -92,7 +117,7 @@
     </div>
   </main>
 
-  <!-- Drawer + Mask -->
+  <!-- Account Drawer + Mask -->
   <div id="mask" class="mask"></div>
   <aside id="drawer" class="drawer" aria-hidden="true">
     <div class="drawer-header">
@@ -100,8 +125,7 @@
       <button id="drawerClose" class="drawer-x" aria-label="닫기">✕</button>
     </div>
     <div class="drawer-body">
-
-      <!-- 로그인/가입 -->
+      <!-- 로그인 폼 간소: 필요시 기존 확장 버전으로 교체 가능 -->
       <div id="authForms">
         <div class="field"><label>이메일</label><input id="email" class="input" type="email" placeholder="you@example.com"></div>
         <div class="field"><label>비밀번호</label><input id="password" class="input" type="password" placeholder="8자리 이상"></div>
@@ -109,12 +133,7 @@
           <button id="loginBtn" class="btn big full">로그인</button>
           <button id="signupBtn" class="btn big full ghost">회원가입</button>
         </div>
-        <div class="row-btns">
-          <button id="googleBtn" class="btn big full google">Google로 로그인</button>
-        </div>
       </div>
-
-      <!-- 로그인 정보 -->
       <div id="loginInfo" class="hide">
         <div class="card-box" style="margin-bottom:10px">
           <div style="font-weight:800;margin-bottom:8px">로그인됨</div>
@@ -122,58 +141,40 @@
           <div id="loginEmail" style="color:#667085"></div>
         </div>
         <div class="row-btns">
-          <button id="editProfileBtn" class="btn big full">프로필 수정</button>
           <button id="logoutBtn" class="btn big red full">로그아웃</button>
         </div>
-      </div>
-
-      <!-- 프로필 수정 -->
-      <div id="profileEdit" class="hide">
-        <div class="card-box" style="margin-bottom:10px">
-          <div style="font-weight:800;margin-bottom:8px">프로필 수정</div>
-          <div class="field"><label>닉네임</label><input id="editDisplayName" class="input" placeholder="새 닉네임"></div>
-          <div class="field"><label>현재 비밀번호 (이메일 로그인일 때만, 비번 변경 시 필요)</label><input id="editCurPw" class="input" type="password" placeholder="현재 비밀번호"></div>
-          <div class="field"><label>새 비밀번호 (선택)</label><input id="editNewPw" class="input" type="password" placeholder="8자리 이상"></div>
-          <div class="field"><label>새 비밀번호 확인</label><input id="editNewPw2" class="input" type="password" placeholder="다시 입력"></div>
-        </div>
-        <div class="row-btns">
-          <button id="saveProfileBtn" class="btn big full green">저장</button>
-          <button id="cancelProfileBtn" class="btn big full ghost">취소</button>
-        </div>
-        <div style="color:#667085;margin-top:8px">※ Google 계정은 비밀번호가 없을 수 있어요. 이 경우 저장 시 Google 팝업으로 재인증합니다.</div>
       </div>
     </div>
   </aside>
 
-  <!-- Firebase + App -->
+  <!-- 학습 모달 -->
+  <div id="quizMask" class="modal-mask"></div>
+  <div id="quizModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="quizTitle">
+    <div class="modal-h">
+      <div id="quizTitle" class="modal-t">학습</div>
+      <button id="quizClose" class="modal-x" aria-label="닫기">✕</button>
+    </div>
+    <div class="modal-b">
+      <div class="q-meta">
+        <div id="quizProgress" class="pill">1 / 10</div>
+        <div id="quizScore" class="pill">정답 0</div>
+      </div>
+      <div id="quizQuestion" style="font-weight:800;font-size:18px;margin-bottom:10px"></div>
+      <div id="quizSub" style="color:#667085;margin-bottom:12px"></div>
+      <div id="quizChoices" class="choices"></div>
+      <div class="q-bottom">
+        <button id="quizNext" class="btn">다음</button>
+        <button id="quizRetry" class="btn hide">다시하기</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
-    /************ Firebase ************/
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-    import {
-      getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut,
-      GoogleAuthProvider, signInWithPopup, updateProfile, updatePassword,
-      EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup
-    } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+    /************ (옵션) Firebase 최소 로그인만 유지 – 필요 없으면 제거해도 앱은 동작합니다 ************/
+    // 불필요 복잡도 없애기 위해 인증 에러 무시. 로그인 필요 기능은 현재 없음.
+    const $ = s => document.querySelector(s); const $$ = s => document.querySelectorAll(s);
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBtN9HptAjl3wzemzKIr8nHvRHyOsvjsNI",
-      authDomain: "voca-khw.firebaseapp.com",
-      projectId: "voca-khw",
-      storageBucket: "voca-khw.firebasestorage.app",
-      messagingSenderId: "697341566223",
-      appId: "1:697341566223:web:2a40f413b1edeb543c727a",
-      measurementId: "G-Y5XZEX3W9X"
-    };
-
-    let app, auth, provider;
-    try { app = initializeApp(firebaseConfig); auth = getAuth(app); provider = new GoogleAuthProvider(); }
-    catch(e){ console.warn('Firebase 초기화 오류(무시 가능):', e); }
-
-    /************ DOM helpers ************/
-    const $ = s => document.querySelector(s);
-    const $$ = s => document.querySelectorAll(s);
-
-    /************ Drawer ************/
+    // Drawer 열고 닫기
     const mask = $('#mask'), drawer = $('#drawer');
     $('#accountBtn').addEventListener('click', () => { drawer.classList.add('show'); mask.classList.add('show'); drawer.setAttribute('aria-hidden','false'); });
     $('#drawerClose').addEventListener('click', closeDrawer);
@@ -181,115 +182,23 @@
     document.addEventListener('keydown', e => { if(e.key==='Escape') closeDrawer(); });
     function closeDrawer(){ drawer.classList.remove('show'); mask.classList.remove('show'); drawer.setAttribute('aria-hidden','true'); }
 
-    /************ Auth UI ************/
-    const emailEl = $('#email'), pwEl = $('#password');
-    const authForms = $('#authForms'), infoBox = $('#loginInfo');
-    const nameBox = $('#loginName'), emailBox = $('#loginEmail');
-
-    $('#loginBtn').addEventListener('click', async () => {
-      if(!auth) return alert('인증 초기화 실패');
-      try{ await signInWithEmailAndPassword(auth, emailEl.value.trim(), pwEl.value); alert('로그인 성공'); }
-      catch(e){ alert(mapAuthError(e)); }
+    // 간단 로그인 (로컬 흉내)
+    $('#loginBtn').addEventListener('click', ()=>{
+      const email = $('#email').value.trim();
+      if(!email) return alert('이메일을 입력하세요.');
+      $('#loginName').textContent = email.split('@')[0];
+      $('#loginEmail').textContent = email;
+      $('#authForms').classList.add('hide'); $('#loginInfo').classList.remove('hide');
     });
-    $('#signupBtn').addEventListener('click', async () => {
-      if(!auth) return alert('인증 초기화 실패');
-      try{ await createUserWithEmailAndPassword(auth, emailEl.value.trim(), pwEl.value); alert('회원가입 완료'); }
-      catch(e){ alert(mapAuthError(e)); }
-    });
-    $('#googleBtn').addEventListener('click', async () => {
-      if(!auth) return alert('인증 초기화 실패');
-      try{ await signInWithPopup(auth, provider); alert('Google 로그인 성공'); }
-      catch(e){ alert(mapAuthError(e)); }
-    });
-    $('#logoutBtn').addEventListener('click', async () => { if(auth){ await signOut(auth); alert('로그아웃 되었습니다.'); } });
-
-    if(auth){
-      onAuthStateChanged(auth, user => {
-        if(user){
-          authForms.classList.add('hide'); infoBox.classList.remove('hide'); profileEdit.classList.add('hide');
-          nameBox.textContent = user.displayName || '이름 정보 없음';
-          emailBox.textContent = user.email || '';
-        }else{
-          authForms.classList.remove('hide'); infoBox.classList.add('hide'); profileEdit.classList.add('hide');
-          nameBox.textContent=''; emailBox.textContent='';
-        }
-      });
-    }
-
-    /************ Profile Edit ************/
-    const profileEdit = $('#profileEdit');
-    const editDisplayName = $('#editDisplayName'), editCurPw=$('#editCurPw'), editNewPw=$('#editNewPw'), editNewPw2=$('#editNewPw2');
-    $('#editProfileBtn').addEventListener('click', ()=>{
-      profileEdit.classList.remove('hide'); infoBox.classList.add('hide');
-      const u=auth?.currentUser; editDisplayName.value = (u?.displayName)||'';
-      editCurPw.value=''; editNewPw.value=''; editNewPw2.value='';
-    });
-    $('#cancelProfileBtn').addEventListener('click', ()=>{
-      profileEdit.classList.add('hide'); infoBox.classList.remove('hide');
+    $('#signupBtn').addEventListener('click', ()=> alert('회원가입은 Firebase 연결 버전에서 사용하세요.'));
+    $('#logoutBtn').addEventListener('click', ()=>{
+      $('#authForms').classList.remove('hide'); $('#loginInfo').classList.add('hide');
+      $('#loginName').textContent=''; $('#loginEmail').textContent='';
     });
 
-    $('#saveProfileBtn').addEventListener('click', async ()=>{
-      const u = auth?.currentUser; if(!u) return alert('로그인 상태가 아닙니다.');
-      const newName = editDisplayName.value.trim();
-      const curPw = editCurPw.value;
-      const newPw = editNewPw.value;
-      const newPw2 = editNewPw2.value;
-
-      try{
-        // 1) 닉네임 먼저 저장 (부분 성공 허용)
-        if(newName && newName !== (u.displayName||'')){
-          await updateProfile(u,{displayName:newName});
-        }
-
-        // 2) 비밀번호 변경이 요청된 경우
-        if(newPw || newPw2){
-          if(newPw.length<8) throw new Error('auth/weak-password');
-          if(newPw!==newPw2) throw new Error('auth/password-mismatch');
-
-          const providerId = (u.providerData[0]?.providerId)||'password';
-          try{
-            // reauth
-            if(providerId === 'password'){
-              if(!u.email) throw new Error('auth/missing-email');
-              if(!curPw) throw new Error('auth/missing-current-password');
-              const cred = EmailAuthProvider.credential(u.email, curPw);
-              await reauthenticateWithCredential(u, cred);
-            }else if(providerId === 'google.com'){
-              await reauthenticateWithPopup(u, new GoogleAuthProvider());
-            }
-            // update
-            await updatePassword(u, newPw);
-          }catch(e){
-            // reauth 실패 시 사용자 친화 메시지
-            throw e;
-          }
-        }
-
-        alert('프로필이 저장되었습니다.');
-        // 화면 갱신
-        nameBox.textContent = (auth.currentUser?.displayName)||'이름 정보 없음';
-        profileEdit.classList.add('hide'); infoBox.classList.remove('hide');
-
-      }catch(e){
-        alert(mapAuthError(e));
-      }
-    });
-
-    function mapAuthError(e){
-      const code = (e?.code)||String(e);
-      if(code.includes('auth/weak-password')) return '비밀번호가 너무 약합니다. 8자 이상으로 설정하세요.';
-      if(code.includes('auth/password-mismatch')) return '새 비밀번호 확인이 일치하지 않습니다.';
-      if(code.includes('auth/missing-current-password')) return '현재 비밀번호를 입력해 주세요.';
-      if(code.includes('auth/missing-email')) return '이메일 정보가 없습니다. 다시 로그인해 주세요.';
-      if(code.includes('auth/requires-recent-login')) return '보안을 위해 최근 로그인 후에 변경할 수 있어요. 다시 로그인한 뒤 시도해 주세요.';
-      if(code.includes('auth/wrong-password')) return '현재 비밀번호가 올바르지 않습니다.';
-      if(code.includes('auth/popup-closed-by-user')) return '인증 창이 닫혔습니다. 다시 시도해 주세요.';
-      return '작업 실패: '+(e.message||code);
-    }
-
-    /************ 단어/학습 앱 ************/
+    /************ 학습 앱 본체 ************/
     const LS_FAV='voca_favs', LS_LOG='voca_logs';
-    const listEl = $('#list'), dateEl = $('#dateText'), rateEl = $('#rate');
+    const listEl = $('#list'); const dateEl = $('#dateText'); const rateEl = $('#rate');
     const enSel=$('#enVoice'), koSel=$('#koVoice');
     const logPanel=$('#logPanel'), logCancel=$('#logCancel'), logDoDel=$('#logDoDelete'), logList=$('#logList'), logEmpty=$('#logEmpty');
 
@@ -341,8 +250,8 @@
       if(typeof speechSynthesis==='undefined') return;
       const u=new SpeechSynthesisUtterance(text);
       u.rate=Number(rateEl.value)||1;
-      if(lang.startsWith('en')&&enSel.value){const v=voices.find(v=>v.name===enSel.value); if(v) u.voice=v;}
-      else if(lang.startsWith('ko')&&koSel.value){const v=voices.find(v=>v.name===koSel.value); if(v) u.voice=v;}
+      const vEn=voices.find(v=>v.name===enSel.value); const vKo=voices.find(v=>v.name===koSel.value);
+      if(lang.startsWith('en')&&vEn) u.voice=vEn; else if(lang.startsWith('ko')&&vKo) u.voice=vKo;
       u.lang=lang; speechSynthesis.speak(u);
     }
 
@@ -443,7 +352,136 @@
       const l=logs(); sel.forEach(d=>delete l[d]); saveLogs(l); renderLogsPanel(true,true); if(Object.keys(l).length===0) renderLogsPanel(false,true);
     });
 
-    // Start
+    /************ 학습(퀴즈) 기능 ************/
+    const quizMask = $('#quizMask'), quizModal = $('#quizModal');
+    const quizTitle = $('#quizTitle'), quizProgress = $('#quizProgress'), quizScore = $('#quizScore');
+    const quizQuestion = $('#quizQuestion'), quizSub = $('#quizSub'), quizChoices = $('#quizChoices');
+    const quizNext = $('#quizNext'), quizRetry = $('#quizRetry'), quizClose = $('#quizClose');
+
+    const MODE_MEAN = 'mean';    // 단어 -> 뜻
+    const MODE_CLOZE = 'cloze';  // 예문 빈칸
+
+    let quizState = null; // {mode, items, i, score}
+
+    $('#quizMeanBtn').addEventListener('click', ()=> openQuiz(MODE_MEAN));
+    $('#quizClozeBtn').addEventListener('click', ()=> openQuiz(MODE_CLOZE));
+    quizClose.addEventListener('click', closeQuiz);
+    quizMask.addEventListener('click', closeQuiz);
+    document.addEventListener('keydown', e => { if(e.key==='Escape') closeQuiz(); });
+
+    quizNext.addEventListener('click', ()=> nextQuestion());
+    quizRetry.addEventListener('click', ()=> openQuiz(quizState?.mode||MODE_MEAN));
+
+    function openQuiz(mode){
+      if(currentSet.length===0){ alert('단어 목록을 불러오는 중이에요. 잠시 후 다시 시도해주세요.'); return; }
+      // 아이템 복사/섞기
+      const items = [...currentSet];
+      shuffle(items);
+      // cloze는 예문 있는 것만
+      const usable = (mode===MODE_CLOZE) ? items.filter(w=>w.example && w.example.trim().length>0) : items;
+      if(usable.length===0){ alert('이 날짜의 세트엔 예문이 없어 빈칸 학습을 만들 수 없어요.'); return; }
+
+      quizState = { mode, items: usable, i:0, score:0 };
+      quizTitle.textContent = mode===MODE_MEAN ? '학습: 단어 → 뜻' : '학습: 예문 빈칸';
+      quizRetry.classList.add('hide');
+      quizNext.disabled = true;
+      showQuestion();
+      quizModal.classList.add('show'); quizMask.classList.add('show');
+    }
+
+    function closeQuiz(){
+      quizModal.classList.remove('show'); quizMask.classList.remove('show');
+    }
+
+    function showQuestion(){
+      const {mode, items, i, score} = quizState;
+      const w = items[i];
+      quizProgress.textContent = `${i+1} / ${items.length}`;
+      quizScore.textContent = `정답 ${score}`;
+
+      // 보기 만들기
+      const opts = buildOptions(w, mode);
+      quizChoices.innerHTML = '';
+      let answered = false;
+
+      if(mode===MODE_MEAN){
+        quizQuestion.textContent = w.phrase;       // 질문: 영어 단어/구
+        quizSub.textContent = '뜻을 고르세요.';
+      }else{
+        const cloze = makeCloze(w);
+        quizQuestion.textContent = cloze;
+        quizSub.textContent = '빈칸에 들어갈 단어/구를 고르세요.';
+      }
+
+      opts.forEach(opt=>{
+        const btn = document.createElement('button');
+        btn.className = 'choice';
+        btn.textContent = opt.text;
+        btn.addEventListener('click', ()=>{
+          if(answered) return;
+          answered = true;
+          if(opt.correct){ btn.classList.add('correct'); quizState.score++; }
+          else{ btn.classList.add('wrong'); }
+          // 나머지 정답 표시
+          [...quizChoices.children].forEach(b=>{
+            if(b!==btn){
+              const ok = b.dataset.correct==='1';
+              if(ok) b.classList.add('correct');
+            }
+          });
+          quizScore.textContent = `정답 ${quizState.score}`;
+          quizNext.disabled = false;
+        });
+        if(opt.correct) btn.dataset.correct='1';
+        quizChoices.appendChild(btn);
+      });
+
+      quizNext.textContent = (i===items.length-1) ? '결과 보기' : '다음';
+      quizNext.disabled = true;
+    }
+
+    function nextQuestion(){
+      const {items} = quizState;
+      if(quizState.i >= items.length-1){
+        // 끝
+        quizQuestion.textContent = '학습 완료!';
+        quizSub.textContent = `점수: ${quizState.score} / ${items.length}`;
+        quizChoices.innerHTML = '';
+        quizNext.disabled = true;
+        quizRetry.classList.remove('hide');
+      }else{
+        quizState.i++;
+        showQuestion();
+      }
+    }
+
+    function buildOptions(w, mode){
+      // 정답 텍스트
+      const answer = (mode===MODE_MEAN) ? w.meaning : w.phrase;
+      // 보기 후보 풀: 현재 세트 안에서 뽑되, 정답 제외
+      const pool = currentSet.filter(x => (mode===MODE_MEAN ? x.meaning : x.phrase) !== answer);
+      shuffle(pool);
+      const distractors = pool.slice(0,3).map(x => ({text: (mode===MODE_MEAN)?x.meaning:x.phrase, correct:false}));
+      const list = [{text:answer, correct:true}, ...distractors];
+      shuffle(list);
+      return list;
+    }
+
+    function makeCloze(w){
+      const ex = w.example||'';
+      const p = w.phrase.trim();
+      if(!ex) return `_____. (${p})`;
+      // 단어/구 일치 대소문자 무시로 치환
+      const re = new RegExp(p.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'ig');
+      const replaced = ex.replace(re, '_____');
+      // 혹시 치환이 안 되면 힌트 괄호
+      if(replaced === ex) return `${ex} (빈칸: ${p})`;
+      return replaced;
+    }
+
+    function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} }
+
+    /************ 시작 ************/
     function start(){ updateDateText(); renderForDate(); }
     start();
   </script>
