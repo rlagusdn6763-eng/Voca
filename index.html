@@ -5,93 +5,43 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>오늘의 회화 영단어</title>
 <style>
-  :root{
-    --blue:#1e5ef3; --blue2:#1a4fd1; --bg:#f6f7fb; --card:#fff;
-    --text:#111; --muted:#667085; --green:#1fb86a; --red:#e74c3c;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:#f6f7fb;color:#111;font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Malgun Gothic,sans-serif}
-  /* Header */
+  :root{--blue:#1e5ef3;--blue2:#1a4fd1;--bg:#f6f7fb;--card:#fff;--text:#111;--muted:#667085;--green:#1fb86a;--red:#e74c3c}
+  *{box-sizing:border-box} body{margin:0;background:#f6f7fb;color:#111;font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Malgun Gothic,sans-serif}
   .appbar{position:sticky;top:0;z-index:40;background:linear-gradient(90deg,var(--blue),var(--blue2));color:#fff;padding:16px 20px;display:flex;align-items:center;gap:12px}
-  .title{font-weight:800;font-size:20px;white-space:nowrap}
-  .spacer{flex:1}
+  .title{font-weight:800;font-size:20px;white-space:nowrap} .spacer{flex:1}
   .icon-btn{width:44px;height:44px;border-radius:999px;display:grid;place-items:center;background:rgba(255,255,255,.15);border:none;color:#fff}
-  .icon-btn:active{transform:scale(.98)}
-  /* Toolbar */
   .toolbar{max-width:980px;margin:16px auto;padding:0 16px;display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
   .btn{height:44px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;padding:0 14px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
-  .btn.green{background:var(--green);color:#fff;border-color:var(--green)}
-  .btn.red{background:var(--red);color:#fff;border-color:var(--red)}
-  .btn.ghost{background:#fff}
-  .date-wrap{grid-column:span 6;display:flex;gap:8px}
-  .date-box{flex:1;min-width:0;height:44px;border-radius:12px;background:#fff;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-weight:800;letter-spacing:.2px;padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .date-nav{width:44px}
-  .row{grid-column:span 12;display:flex;gap:10px;flex-wrap:wrap}
-  .row .btn{min-width:110px}
-  /* speed/voice row */
+  .btn.green{background:var(--green);color:#fff;border-color:var(--green)} .btn.red{background:var(--red);color:#fff;border-color:var(--red)}
+  .date-wrap{grid-column:span 12;display:grid;grid-template-columns:44px 1fr 44px;gap:8px}
+  .date-box{height:44px;border-radius:12px;background:#fff;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-weight:800;padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row{grid-column:span 12;display:flex;gap:10px;flex-wrap:wrap} .row .btn{min-width:110px}
   .controls{max-width:980px;margin:0 auto 10px;padding:0 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-  .range{flex:1;height:6px}
-  .select{height:44px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;padding:0 10px}
-  /* List */
+  .range{flex:1;height:6px} .select{height:44px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;padding:0 10px}
   .container{max-width:980px;margin:8px auto 80px;padding:0 16px}
   .card{background:#fff;border:1px solid #eef0f3;border-radius:14px;padding:14px;margin:10px 0;display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
   .idx{width:34px;height:34px;border-radius:10px;background:#eef2ff;color:#1737e6;font-weight:800;display:grid;place-items:center}
-  .ph{font-weight:800;font-size:18px}
-  .mean{color:#344054}
-  .ex{color:#667085;margin-top:6px}
+  .ph{font-weight:800;font-size:18px} .mean{color:#344054} .ex{color:#667085;margin-top:6px}
   .chip{height:36px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;padding:0 10px;font-weight:800}
-  .star{width:36px;height:36px;border-radius:10px;border:1px solid #ffe1c7;background:#fff7ed;color:#d97706;font-weight:800}
-  .mute{color:#98a2b3}
-  .hint{color:var(--muted);margin:12px 0}
-  /* Drawer */
-  .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:.2s;z-index:80}
-  .drawer{position:fixed;top:0;right:-420px;width:420px;max-width:92vw;height:100vh;background:#fff;border-radius:16px 0 0 16px;box-shadow:-16px 0 40px rgba(0,0,0,.18);transition:.25s;z-index:90;display:flex;flex-direction:column}
-  .drawer.open{right:0}
-  .drawer-backdrop.show{opacity:1;pointer-events:auto}
-  .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #eef0f3}
-  .drawer-title{font-weight:800;font-size:22px}
-  .xbtn{width:40px;height:40px;border-radius:10px;border:1px solid #e5e7eb;background:#fff}
-  .drawer-body{padding:18px 20px;overflow:auto}
-  .field{display:flex;flex-direction:column;gap:8px;margin:12px 0}
-  .field label{font-weight:700}
-  .input{height:44px;border:1px solid #e5e7eb;border-radius:12px;padding:0 12px;font-size:16px;background:#fff}
-  .row2{display:flex;gap:10px}
-  .full{width:100%}
-  .google{background:#fff;border:1px solid #e5e7eb}
-  .pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;background:#f1f5ff;color:#1743e6;font-weight:800;padding:8px 12px}
-  .danger{background:#fff1f0;border:1px solid #ffd6d3;color:#b42318;border-radius:14px;padding:12px;margin-top:10px}
-  /* 기록 패널 */
+  .star{height:36px;border-radius:10px;border:1px solid #ffe1c7;background:#fff7ed;color:#d97706;font-weight:800;padding:0 10px}
   .log-panel{background:#fff;border:1px solid #eef0f3;border-radius:14px;padding:12px;margin-top:8px}
-  .log-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-  .ghost{background:#fff;border:1px solid #e5e7eb}
-  .log-list{display:flex;flex-direction:column;gap:8px}
-  .log-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #eef0f3;border-radius:10px}
-  .hide{display:none !important}
-  @media (max-width:520px){
-    .title{font-size:18px}
-    .row .btn{min-width:104px}
-    .date-wrap{grid-column:span 12}
-  }
+  .log-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}.ghost{background:#fff;border:1px solid #e5e7eb}
+  .log-list{display:flex;flex-direction:column;gap:8px}.log-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #eef0f3;border-radius:10px}
+  .hide{display:none!important}
 </style>
 </head>
 <body>
-  <!-- 헤더 -->
   <header class="appbar">
     <div class="title">오늘의 회화 영단어</div>
     <div class="spacer"></div>
-    <button id="accountBtn" class="icon-btn" aria-label="계정">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle>
-      </svg>
-    </button>
+    <button id="accountBtn" class="icon-btn" aria-label="계정">•••</button>
   </header>
 
-  <!-- 툴바 -->
   <section class="toolbar" aria-label="도구">
     <div class="date-wrap">
-      <button id="prevDate" class="btn date-nav" aria-label="이전 날짜">◀</button>
+      <button id="prevDate" class="btn" aria-label="이전">◀</button>
       <div id="dateText" class="date-box">YYYY-MM-DD</div>
-      <button id="nextDate" class="btn date-nav" aria-label="다음 날짜">▶</button>
+      <button id="nextDate" class="btn" aria-label="다음">▶</button>
     </div>
     <div class="row">
       <button id="playAll" class="btn">전체 재생</button>
@@ -104,7 +54,6 @@
     </div>
   </section>
 
-  <!-- 속도/보이스 -->
   <div class="controls">
     <div style="font-weight:700">속도</div>
     <input id="rate" class="range" type="range" min="0.6" max="1.6" step="0.1" value="1.0">
@@ -112,269 +61,85 @@
     <select id="koVoice" class="select"><option value="">한국어 음성</option></select>
   </div>
 
-  <!-- 메인 -->
   <main class="container">
     <div id="list"></div>
 
-    <!-- 기록 패널 -->
     <div id="logPanel" class="log-panel hide">
       <div class="log-head">
         <div style="font-weight:800">완료 기록</div>
-        <div class="spacer"></div>
+        <div style="flex:1"></div>
         <button id="logCancel" class="btn ghost hide">취소</button>
         <button id="logDoDelete" class="btn red hide">삭제하기</button>
       </div>
-      <div id="logEmpty" class="hint">기록이 없습니다.</div>
+      <div id="logEmpty" style="color:#667085">기록이 없습니다.</div>
       <div id="logList" class="log-list"></div>
     </div>
   </main>
 
-  <!-- 계정 드로어 -->
-  <div id="drawerBackdrop" class="drawer-backdrop"></div>
-  <aside id="accountDrawer" class="drawer" aria-label="계정">
-    <div class="drawer-head">
-      <div class="drawer-title">계정</div>
-      <button id="drawerClose" class="xbtn" aria-label="닫기">✕</button>
-    </div>
-    <div class="drawer-body" id="drawerBody">
-      <!-- 로그인 -->
-      <div id="loginView">
-        <div class="pill" style="margin-bottom:10px">로그인</div>
-        <div class="field"><label for="loginEmail">이메일</label><input id="loginEmail" class="input" type="email" placeholder="you@example.com" autocomplete="username"></div>
-        <div class="field"><label for="loginPw">비밀번호</label><input id="loginPw" class="input" type="password" placeholder="8자리 이상" autocomplete="current-password"></div>
-        <div class="row2" style="margin-top:8px">
-          <button id="loginBtn" class="btn full">로그인</button>
-          <button id="openSignup" class="btn full">회원가입</button>
-        </div>
-        <div style="height:12px"></div>
-        <button id="googleBtn" class="btn google full" aria-label="Google로 로그인">
-          <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 31.7 29.3 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.4 1.1 7.4 2.9l5.7-5.7C33.6 7 28.9 5 24 5 13 5 4 14 4 25s9 20 20 20c11.5 0 19.3-8.1 19.3-19.5 0-1.3-.1-2.1-.7-3z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.9 16.1 19.1 13 24 13c2.8 0 5.4 1.1 7.4 2.9l5.7-5.7C33.6 7 28.9 5 24 5 15.5 5 8.2 9.9 6.3 14.7z"/><path fill="#4CAF50" d="M24 45c5.2 0 10-1.8 13.7-5l-6.3-5.2C29.3 35 26.8 36 24 36c-5.3 0-9.7-3.4-11.4-8.1l-6.5 5.1C8.1 40.1 15.5 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1.3 3.7-5.3 7-11.3 7-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.4 1.1 7.4 2.9l5.7-5.7C33.6 7 28.9 5 24 5 15.5 5 8.2 9.9 6.3 14.7z"/></svg>
-          Google로 로그인
-        </button>
-      </div>
-
-      <!-- 회원가입 -->
-      <div id="signupView" class="hide">
-        <div class="pill" style="margin-bottom:10px">회원가입</div>
-        <div class="field"><label for="sgId">아이디(선택)</label><input id="sgId" class="input" placeholder="예: rlagusdn6763"></div>
-        <div class="field"><label for="sgNick">닉네임</label><input id="sgNick" class="input" placeholder="닉네임 입력"></div>
-        <div class="field"><label for="sgEmail">이메일</label><input id="sgEmail" class="input" type="email" placeholder="you@example.com" autocomplete="username"></div>
-        <div class="row2">
-          <div class="field full"><label for="sgPw1">비밀번호</label><input id="sgPw1" class="input" type="password" placeholder="8자리 이상" autocomplete="new-password"></div>
-          <div class="field full"><label for="sgPw2">비밀번호 확인</label><input id="sgPw2" class="input" type="password" placeholder="다시 입력" autocomplete="new-password"></div>
-        </div>
-        <div class="row2" style="margin-top:8px">
-          <button id="doSignup" class="btn full">회원가입 완료</button>
-          <button id="backToLogin" class="btn full">로그인으로</button>
-        </div>
-      </div>
-
-      <!-- 프로필 + 수정 -->
-      <div id="profileView" class="hide">
-        <div class="pill" style="margin-bottom:12px">로그인됨</div>
-
-        <div class="field">
-          <label>이메일</label>
-          <input id="pfEmail" class="input" disabled>
-        </div>
-
-        <div class="row2">
-          <div class="field full">
-            <label>닉네임</label>
-            <input id="pfNick" class="input" disabled>
-          </div>
-          <div class="field full">
-            <label>아이디</label>
-            <input id="pfCustomId" class="input" disabled placeholder="선택 항목">
-          </div>
-        </div>
-
-        <div class="row2" style="margin-top:8px">
-          <button id="editStart" class="btn full">수정</button>
-          <button id="editSave"  class="btn green full hide">저장</button>
-          <button id="editCancel"class="btn ghost full hide">취소</button>
-        </div>
-
-        <div style="height:10px"></div>
-        <button id="sendReset" class="btn ghost full">비밀번호 재설정 메일 보내기</button>
-
-        <div class="danger">이메일/비밀번호 직접 변경은 재인증이 필요합니다. 위 버튼으로 비밀번호를 재설정하세요.</div>
-
-        <div style="height:12px"></div>
-        <button id="logoutBtn" class="btn red full">로그아웃</button>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Firebase & App -->
-  <script type="module">
-    /* ===== Firebase ===== */
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBtN9HptAjl3wzemzKIr8nHvRHyOsvjsNI",
-      authDomain: "voca-khw.firebaseapp.com",
-      projectId: "voca-khw",
-      storageBucket: "voca-khw.firebasestorage.app",
-      messagingSenderId: "697341566223",
-      appId: "1:697341566223:web:2a40f413b1edeb543c727a",
-      measurementId: "G-Y5XZEX3W9X"
-    };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
-    const provider = new GoogleAuthProvider();
-
-    async function upsertUserProfile(user, extra={}) {
-      const ref = doc(db, "users", user.uid);
-      const snap = await getDoc(ref);
-      if(!snap.exists()){
-        await setDoc(ref, { email:user.email??"", nickname: extra.nickname??"", customId: extra.customId??"", createdAt:new Date().toISOString() });
-      } else if(Object.keys(extra).length){
-        await setDoc(ref, { ...snap.data(), ...extra }, { merge:true });
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    /* ---------- 안전장치: Firebase 오류가 나도 아래 코드 계속 실행 ---------- */
+    (async () => {
+      try {
+        // 필요하면 본인 Firebase 모듈을 여기서 import하고 init 하세요.
+        // 실패해도 catch로 넘어가서 나머지 앱은 정상 동작합니다.
+      } catch (e) {
+        console.warn('Firebase 초기화 건너뜀:', e);
       }
-      return (await getDoc(ref)).data();
-    }
+    })();
 
-    /* ====== UI refs ====== */
-    const $ = s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
-    // Drawer
-    const accountBtn=$('#accountBtn'), drawer=$('#accountDrawer'), backdrop=$('#drawerBackdrop'), xbtn=$('#drawerClose');
-    const openDrawer=()=>{drawer.classList.add('open');backdrop.classList.add('show')};
-    const closeDrawer=()=>{drawer.classList.remove('open');backdrop.classList.remove('show')};
-    accountBtn.addEventListener('click',openDrawer); xbtn.addEventListener('click',closeDrawer); backdrop.addEventListener('click',closeDrawer);
+    /* ---------- 공통 ---------- */
+    const $ = s => document.querySelector(s);
+    const $$ = s => document.querySelectorAll(s);
 
-    // Views
-    const loginView=$('#loginView'), signupView=$('#signupView'), profileView=$('#profileView');
-    const showLogin=()=>{loginView.classList.remove('hide');signupView.classList.add('hide');profileView.classList.add('hide');};
-    const showSignup=()=>{loginView.classList.add('hide');signupView.classList.remove('hide');profileView.classList.add('hide');};
-    const showProfile=()=>{loginView.classList.add('hide');signupView.classList.add('hide');profileView.classList.remove('hide');};
-
-    // 로그인/가입
-    const loginEmail=$('#loginEmail'), loginPw=$('#loginPw'), loginBtn=$('#loginBtn'), openSignup=$('#openSignup'), googleBtn=$('#googleBtn');
-    const sgId=$('#sgId'), sgNick=$('#sgNick'), sgEmail=$('#sgEmail'), sgPw1=$('#sgPw1'), sgPw2=$('#sgPw2'), doSignup=$('#doSignup'), backToLogin=$('#backToLogin');
-
-    loginBtn.addEventListener('click', async ()=>{
-      try{
-        const email=loginEmail.value.trim(), pw=loginPw.value.trim();
-        if(!email||!pw) return alert('이메일/비밀번호를 입력하세요.');
-        await signInWithEmailAndPassword(auth,email,pw);
-      }catch(e){ alert('로그인 실패: '+e.message); }
-    });
-    openSignup.addEventListener('click',showSignup);
-    backToLogin.addEventListener('click',showLogin);
-
-    googleBtn.addEventListener('click', async ()=>{
-      try{
-        const cred = await signInWithPopup(auth, provider);
-        await upsertUserProfile(cred.user);
-      }catch(e){ alert('Google 로그인 실패: '+e.message); }
-    });
-
-    doSignup.addEventListener('click', async ()=>{
-      try{
-        const id=sgId.value.trim(), nick=sgNick.value.trim(), email=sgEmail.value.trim(), pw1=sgPw1.value.trim(), pw2=sgPw2.value.trim();
-        if(!nick) return alert('닉네임 입력'); if(!email) return alert('이메일 입력');
-        if(pw1.length<8) return alert('비밀번호 8자리 이상'); if(pw1!==pw2) return alert('비밀번호 불일치');
-        const cred = await createUserWithEmailAndPassword(auth,email,pw1);
-        await upsertUserProfile(cred.user,{nickname:nick,customId:id});
-        alert('회원가입 완료!');
-      }catch(e){ alert('회원가입 실패: '+e.message); }
-    });
-
-    // 프로필 수정/표시/비번 재설정/로그아웃
-    const pfEmail=$('#pfEmail'), pfNick=$('#pfNick'), pfCustomId=$('#pfCustomId');
-    const editStart=$('#editStart'), editSave=$('#editSave'), editCancel=$('#editCancel');
-    const sendReset=$('#sendReset'), logoutBtn=$('#logoutBtn');
-
-    function setEditable(on){
-      [pfNick,pfCustomId].forEach(el=>el.disabled=!on);
-      editStart.classList.toggle('hide',on);
-      editSave.classList.toggle('hide',!on);
-      editCancel.classList.toggle('hide',!on);
-    }
-    let _cacheProfile={nickname:'',customId:''};
-
-    editStart.addEventListener('click', ()=> setEditable(true));
-    editCancel.addEventListener('click', ()=>{
-      pfNick.value=_cacheProfile.nickname||'';
-      pfCustomId.value=_cacheProfile.customId||'';
-      setEditable(false);
-    });
-    editSave.addEventListener('click', async ()=>{
-      try{
-        const user = auth.currentUser;
-        if(!user) return;
-        const nickname = pfNick.value.trim();
-        const customId = pfCustomId.value.trim();
-        await upsertUserProfile(user,{nickname,customId});
-        _cacheProfile={nickname,customId};
-        setEditable(false);
-        alert('회원정보가 저장되었습니다.');
-      }catch(e){ alert('저장 실패: '+e.message); }
-    });
-
-    sendReset.addEventListener('click', async ()=>{
-      const user=auth.currentUser; if(!user||!user.email) return alert('로그인이 필요합니다.');
-      try{ await sendPasswordResetEmail(auth,user.email); alert('재설정 메일을 보냈습니다. 메일함을 확인하세요.'); }
-      catch(e){ alert('보내기 실패: '+e.message); }
-    });
-
-    logoutBtn.addEventListener('click', async ()=>{ try{ await signOut(auth); showLogin(); alert('로그아웃 되었습니다.'); }catch(e){ alert('로그아웃 실패: '+e.message); }});
-
-    onAuthStateChanged(auth, async (user)=>{
-      if(user){
-        try{
-          const snap = await getDoc(doc(db,'users',user.uid));
-          const d = snap.data()||{};
-          pfEmail.value = user.email||'';
-          pfNick.value  = d.nickname||'';
-          pfCustomId.value = d.customId||'';
-          _cacheProfile = { nickname: pfNick.value, customId: pfCustomId.value };
-        }catch{ pfEmail.value=user.email||''; pfNick.value=''; pfCustomId.value=''; }
-        setEditable(false);
-        showProfile();
-      }else showLogin();
-    });
-
-    /* ===== 단어/학습 ===== */
     const LS_FAV='voca_favs', LS_LOG='voca_logs';
-    const $date=$('#dateText'), $prev=$('#prevDate'), $next=$('#nextDate'), $today=$('#todayBtn');
-    const $play=$('#playAll'), $stop=$('#stopAll'), $done=$('#markDone');
-    const $favT=$('#favToggle'), $openLog=$('#openLog'), $openDel=$('#openLogDelete');
-    const rateEl=$('#rate'), enSel=$('#enVoice'), koSel=$('#koVoice');
-    const listEl=$('#list');
+    const listEl = $('#list');
+    const dateEl = $('#dateText');
+    const rateEl = $('#rate');
+    const enSel = $('#enVoice');
+    const koSel = $('#koVoice');
     const logPanel=$('#logPanel'), logCancel=$('#logCancel'), logDoDel=$('#logDoDelete'), logList=$('#logList'), logEmpty=$('#logEmpty');
 
-    let POOL=[]; let currentSet=[]; let showFavOnly=false; let queued=false;
-    const logs=()=>JSON.parse(localStorage.getItem(LS_LOG)||'{}');
-    const saveLogs=o=>localStorage.setItem(LS_LOG,JSON.stringify(o));
-    const favs=()=>new Set(JSON.parse(localStorage.getItem(LS_FAV)||'[]'));
-    const saveFavs=s=>localStorage.setItem(LS_FAV,JSON.stringify([...s]));
+    let POOL = [];            // 메인 데이터
+    let currentSet = [];      // 현재 날짜의 10개
+    let showFavOnly = false;  // 어려운 단어 필터
+    let queued = false;       // 전체재생 큐
 
-    function fmt(d){return d.toISOString().slice(0,10)}
-    let cur=new Date();
-    function setDate(d){ $date.textContent=fmt(d); renderForDate(); }
-    $prev.addEventListener('click',()=>{cur.setDate(cur.getDate()-1);setDate(cur);});
-    $next.addEventListener('click',()=>{cur.setDate(cur.getDate()+1);setDate(cur);});
-    $today.addEventListener('click',()=>{cur=new Date();setDate(cur);});
+    // fetch 실패 시 사용할 샘플(최소 가동 보장)
+    const FALLBACK_POOL = [
+      {phrase:'deal with', meaning:'다루다, 처리하다', example:'She had to deal with many problems.'},
+      {phrase:'depend on', meaning:'의지하다', example:'You can depend on me.'},
+      {phrase:'along with', meaning:'~와 함께', example:'Do you get along with your neighbors?'},
+      {phrase:'figure out', meaning:'이해하다, 해결하다', example:'We need to figure out the answer.'},
+      {phrase:'run into', meaning:'우연히 만나다', example:'I ran into an old friend.'},
+      {phrase:'bring up', meaning:'언급하다, 키우다', example:'He brought up an interesting point.'},
+      {phrase:'check out', meaning:'확인하다', example:'Check out this new app.'},
+      {phrase:'carry on', meaning:'계속하다', example:'Please carry on with your work.'},
+      {phrase:'look for', meaning:'찾다', example:'I am looking for my keys.'},
+      {phrase:'get over', meaning:'극복하다', example:'It took time to get over it.'},
+      {phrase:'pick up', meaning:'줍다/배우다', example:'You will pick it up soon.'},
+      {phrase:'turn out', meaning:'~로 드러나다', example:'It turned out to be true.'}
+    ];
 
-    // seeded shuffle
-    function xmur3(str){ let h=1779033703^str.length; for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353); h=h<<13|h>>>19;} return ()=>{h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return (h^h>>>16)>>>0};}
-    function mulberry32(a){return function(){var t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15, t|1);t^=t+Math.imul(t^t>>>7, t|61);return ((t^t>>>14)>>>0)/4294967296;}}
-    function pickDaily(pool,dateStr,n=10){
-      const seed=xmur3(dateStr)(); const rnd=mulberry32(seed);
-      const idxs=pool.map((_,i)=>i);
-      for(let i=idxs.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[idxs[i],idxs[j]]=[idxs[j],idxs[i]];}
-      return idxs.slice(0,Math.min(n,idxs.length)).map(i=>pool[i]);
-    }
+    /* ---------- 날짜 ---------- */
+    let cur = new Date();
+    const fmt = d => d.toISOString().slice(0,10);
+    function updateDateText() { dateEl.textContent = fmt(cur); }
 
-    // voices
+    $('#prevDate').addEventListener('click', () => { cur.setDate(cur.getDate()-1); updateDateText(); renderForDate(); });
+    $('#nextDate').addEventListener('click', () => { cur.setDate(cur.getDate()+1); updateDateText(); renderForDate(); });
+    $('#todayBtn').addEventListener('click', () => { cur = new Date(); updateDateText(); renderForDate(); });
+
+    /* ---------- 로컬 저장소 ---------- */
+    const logs = () => JSON.parse(localStorage.getItem(LS_LOG)||'{}');
+    const saveLogs = o => localStorage.setItem(LS_LOG, JSON.stringify(o));
+    const favs = () => new Set(JSON.parse(localStorage.getItem(LS_FAV)||'[]'));
+    const saveFavs = s => localStorage.setItem(LS_FAV, JSON.stringify([...s]));
+
+    /* ---------- 음성 ---------- */
     let voices=[];
     function fillVoices(){
-      voices=speechSynthesis.getVoices();
+      voices = speechSynthesis.getVoices();
       const en=voices.filter(v=>/^en(-|_)/i.test(v.lang));
       const ko=voices.filter(v=>/^ko(-|_)/i.test(v.lang));
       enSel.innerHTML='<option value="">영어 음성</option>'+en.map(v=>`<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
@@ -383,15 +148,45 @@
       if(defEn) enSel.value=defEn.name; if(defKo) koSel.value=defKo.name;
     }
     fillVoices();
-    if(typeof speechSynthesis!=='undefined'){ speechSynthesis.onvoiceschanged=fillVoices; }
+    if(typeof speechSynthesis!=='undefined'){ speechSynthesis.onvoiceschanged = fillVoices; }
 
-    function speak(text,lang){
-      const u=new SpeechSynthesisUtterance(text); u.rate=Number(rateEl.value)||1;
-      if(lang.startsWith('en')&&enSel.value){const v=voices.find(v=>v.name===enSel.value); if(v) u.voice=v;}
-      else if(lang.startsWith('ko')&&koSel.value){const v=voices.find(v=>v.name===koSel.value); if(v) u.voice=v;}
-      u.lang=lang; speechSynthesis.speak(u);
+    function speak(text, lang){
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = Number(rateEl.value)||1;
+      if(lang.startsWith('en') && enSel.value){ const v=voices.find(v=>v.name===enSel.value); if(v) u.voice=v; }
+      if(lang.startsWith('ko') && koSel.value){ const v=voices.find(v=>v.name===koSel.value); if(v) u.voice=v; }
+      u.lang = lang;
+      speechSynthesis.speak(u);
     }
 
+    /* ---------- 데이터 뽑기 ---------- */
+    function xmur3(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19}return()=>{h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return(h^h>>>16)>>>0}}
+    function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+    function pickDaily(pool,dateStr,n=10){
+      const seed=xmur3(dateStr)(); const rnd=mulberry32(seed);
+      const idxs=pool.map((_,i)=>i);
+      for(let i=idxs.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1)); [idxs[i],idxs[j]]=[idxs[j],idxs[i]];}
+      return idxs.slice(0,Math.min(n,idxs.length)).map(i=>pool[i]);
+    }
+
+    async function loadPool(){
+      try{
+        const res = await fetch('./pool.json', {cache:'no-store'});
+        if(!res.ok) throw new Error(res.status);
+        POOL = await res.json();
+      }catch(e){
+        console.warn('pool.json 로드 실패, 내장 데이터 사용:', e);
+        POOL = FALLBACK_POOL; // 최소 동작 보장
+      }
+    }
+
+    function buildSet(){
+      const all = pickDaily(POOL, dateEl.textContent, 10);
+      if(!showFavOnly) return all;
+      const set=favs(); return all.filter(w=>set.has(w.phrase));
+    }
+
+    /* ---------- 렌더 ---------- */
     function renderList(items){
       const favset=favs(); listEl.innerHTML='';
       items.forEach((w,idx)=>{
@@ -413,23 +208,24 @@
         card.querySelector('.en').addEventListener('click',()=>speak(w.phrase,'en-US'));
         card.querySelector('.ko').addEventListener('click',()=>speak(w.meaning,'ko-KR'));
         card.querySelector('.star').addEventListener('click',e=>{
-          const set=favs(); if(set.has(w.phrase)){set.delete(w.phrase); e.target.textContent='☆';} else {set.add(w.phrase); e.target.textContent='★';}
+          const set=favs();
+          if(set.has(w.phrase)){ set.delete(w.phrase); e.target.textContent='☆'; }
+          else { set.add(w.phrase); e.target.textContent='★'; }
           saveFavs(set); if(showFavOnly) renderForDate();
         });
         listEl.appendChild(card);
       });
     }
 
-    async function loadPool(){ const res=await fetch('./pool.json',{cache:'no-store'}); POOL=await res.json(); }
-    function buildSet(){
-      const dateStr=$date.textContent; const all=pickDaily(POOL,dateStr,10);
-      if(!showFavOnly) return all; const set=favs(); return all.filter(w=>set.has(w.phrase));
+    async function renderForDate(){
+      if(POOL.length===0) await loadPool();
+      currentSet = buildSet();
+      renderList(currentSet);
+      renderLogsPanel(false);
     }
-    async function renderForDate(){ if(POOL.length===0) await loadPool(); currentSet=buildSet(); renderList(currentSet); renderLogsPanel(false); }
 
-    // controls
-    let queued=false;
-    $play.addEventListener('click',()=>{
+    /* ---------- 컨트롤 ---------- */
+    $('#playAll').addEventListener('click',()=>{
       if(!currentSet.length) return; speechSynthesis.cancel(); queued=true;
       const seq=[]; currentSet.forEach(w=>{seq.push({t:w.phrase,lang:'en-US'}); if(w.example) seq.push({t:w.example,lang:'en-US'}); seq.push({t:w.meaning,lang:'ko-KR'});});
       let i=0; const next=()=>{ if(!queued||i>=seq.length){queued=false;return;} const it=seq[i++]; const u=new SpeechSynthesisUtterance(it.t); u.rate=Number(rateEl.value)||1;
@@ -438,34 +234,40 @@
         u.lang=it.lang; u.onend=next; speechSynthesis.speak(u); };
       next();
     });
-    $stop.addEventListener('click',()=>{queued=false; speechSynthesis.cancel();});
-    $done.addEventListener('click',()=>{ const d=$date.textContent; const l=logs(); l[d]=true; saveLogs(l); alert('오늘분 완료로 기록했습니다.'); cur.setDate(cur.getDate()+1); setDate(cur); });
-    $favT.addEventListener('click',()=>{showFavOnly=!showFavOnly; $favT.classList.toggle('mute',showFavOnly); renderForDate();});
+    $('#stopAll').addEventListener('click',()=>{queued=false; speechSynthesis.cancel();});
+    $('#markDone').addEventListener('click',()=>{
+      const d=dateEl.textContent; const l=logs(); l[d]=true; saveLogs(l);
+      alert('오늘분 완료로 기록했습니다.'); cur.setDate(cur.getDate()+1); updateDateText(); renderForDate();
+    });
+    $('#favToggle').addEventListener('click',()=>{showFavOnly=!showFavOnly; renderForDate();});
 
-    // 기록 패널
-    const openLog=()=>renderLogsPanel(false,true), openDel=()=>renderLogsPanel(true,true);
-    $('#openLog').addEventListener('click',openLog); $('#openLogDelete').addEventListener('click',openDel);
+    /* ---------- 기록 ---------- */
+    function renderLogsPanel(asDelete=false, open=false){
+      const l=logs(); const dates=Object.keys(l).sort(); logList.innerHTML='';
+      if(dates.length===0) logEmpty.classList.remove('hide'); else logEmpty.classList.add('hide');
+      dates.forEach(d=>{
+        const row=document.createElement('div'); row.className='log-item';
+        row.innerHTML=`${asDelete?`<input type="checkbox" data-date="${d}">`:''}<div style="font-weight:800">${d}</div><div style="flex:1"></div><button class="btn ghost go">이동</button>`;
+        row.querySelector('.go').addEventListener('click',()=>{cur=new Date(d); updateDateText(); renderForDate(); window.scrollTo({top:0,behavior:'smooth'});});
+        logList.appendChild(row);
+      });
+      logCancel.classList.toggle('hide',!asDelete);
+      logDoDel.classList.toggle('hide',!asDelete);
+      logPanel.classList.remove('hide'); if(open) window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+    }
+    $('#openLog').addEventListener('click',()=>renderLogsPanel(false,true));
+    $('#openLogDelete').addEventListener('click',()=>renderLogsPanel(true,true));
     logCancel.addEventListener('click',()=>renderLogsPanel(false,true));
     logDoDel.addEventListener('click',()=>{
       const checks=$$('#logList input[type=checkbox]'); const sel=[...checks].filter(c=>c.checked).map(c=>c.dataset.date);
       if(!sel.length) return alert('삭제할 날짜를 선택하세요.');
       const l=logs(); sel.forEach(d=>delete l[d]); saveLogs(l); renderLogsPanel(true,true); if(Object.keys(l).length===0) renderLogsPanel(false,true);
     });
-    function renderLogsPanel(asDelete=false, open=false){
-      const l=logs(); const dates=Object.keys(l).sort(); logList.innerHTML='';
-      if(dates.length===0) logEmpty.classList.remove('hide'); else logEmpty.classList.add('hide');
-      dates.forEach(d=>{
-        const row=document.createElement('div'); row.className='log-item';
-        row.innerHTML=`${asDelete?`<input type="checkbox" data-date="${d}">`:''}<div style="font-weight:800">${d}</div><div class="spacer"></div><button class="btn ghost go">이동</button>`;
-        row.querySelector('.go').addEventListener('click',()=>{cur=new Date(d); setDate(cur); window.scrollTo({top:0,behavior:'smooth'});});
-        logList.appendChild(row);
-      });
-      logCancel.classList.toggle('hide',!asDelete); logDoDel.classList.toggle('hide',!asDelete);
-      logPanel.classList.remove('hide'); if(open) window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
-    }
 
-    // start
-    setDate(cur);
+    /* ---------- 시작 ---------- */
+    updateDateText();
+    renderForDate();
+  });
   </script>
 </body>
 </html>
