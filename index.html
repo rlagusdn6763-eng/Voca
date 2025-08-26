@@ -1,446 +1,129 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>오늘의 회화 영단어</title>
-<style>
-  :root{
-    --blue:#1767ff; --blue2:#0f56d8; --green:#17b26a; --red:#e54848;
-    --bg:#f5f7fb; --card:#ffffff; --text:#0f1a2a; --muted:#6b7a90; --ring:rgba(23,103,255,.15);
-    --radius:16px;
-  }
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,AppleSDGothicNeo,'Noto Sans KR',Segoe UI,Roboto,Helvetica,Arial;}
-  .topbar{position:sticky;top:0;z-index:20;background:linear-gradient(90deg,var(--blue),var(--blue2));color:#fff;padding:18px 16px 20px;}
-  .topbar .title{font-size:20px;font-weight:800;letter-spacing:.3px}
-  .container{max-width:960px;margin:0 auto;padding:16px}
-  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-  .date-wrap{display:flex;align-items:center;gap:10px;justify-content:center;margin:12px 0}
-  .iconbtn{width:56px;height:56px;border-radius:14px;background:#fff;border:none;box-shadow:0 4px 18px rgba(23,103,255,.08);display:grid;place-items:center;font-size:20px}
-  .date{flex:1;min-width:240px;height:56px;border-radius:14px;border:none;background:#fff;font-weight:700;font-size:24px;text-align:center;box-shadow:0 4px 18px rgba(23,103,255,.08)}
-  .btn{height:52px;padding:0 18px;border-radius:14px;border:1px solid #e6e9ef;background:#fff;font-weight:700}
-  .btn:active{transform:translateY(1px)}
-  .btn.primary{background:var(--green);color:#fff;border-color:var(--green)}
-  .btn.red{background:var(--red);color:#fff;border-color:var(--red)}
-  .btn.ghost{background:#fff}
-  .select{height:48px;border-radius:12px;border:1px solid #e6e9ef;background:#fff;padding:0 14px;font-weight:600}
-  .slider{height:6px;width:260px}
-  .word{background:var(--card);border-radius:18px;padding:16px 14px;box-shadow:0 6px 18px rgba(15,26,42,.06)}
-  .word .hd{display:flex;align-items:center;gap:10px}
-  .index{width:34px;height:34px;border-radius:10px;background:#eef3ff;color:var(--blue);display:grid;place-items:center;font-weight:800}
-  .ph{font-size:20px;font-weight:800}
-  .mean{color:var(--muted);margin-top:4px}
-  .ex{color:#374151;margin-top:8px}
-  .chip{height:36px;padding:0 12px;border-radius:11px;border:1px solid #e6e9ef;background:#fff;font-weight:700}
-  .list{display:grid;gap:12px;margin-top:14px}
-  .panel{margin-top:10px;background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(15,26,42,.06)}
-  .section-title{font-weight:900;margin-bottom:6px}
-  /* Modal (학습) */
-  .modal-back{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:50}
-  .modal{width:min(680px,92vw);background:#fff;border-radius:20px;padding:18px 16px;box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:86vh;overflow:auto}
-  .modal .title{font-size:18px;font-weight:900;margin:6px 0 12px}
-  .q-meta{display:flex;gap:10px;color:var(--muted);font-weight:800}
-  .choice{display:block;width:100%;text-align:left;padding:14px;border-radius:12px;border:1px solid #e6e9ef;background:#fff;margin:8px 0;font-weight:700}
-  .choice.correct{border-color:#22c55e;background:rgba(34,197,94,.08)}
-  .choice.wrong{border-color:#ef4444;background:rgba(239,68,68,.08)}
-  .modal-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
-  /* helpers */
-  .space{flex:1}
-  .muted{color:var(--muted)}
-  .hidden{display:none !important}
-  @media (max-width:520px){
-    .date{font-size:20px}
-    .iconbtn{width:48px;height:48px}
-    .btn{height:48px;border-radius:12px}
-    .chip{height:34px}
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>오늘의 회화 영단어</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --blue:#1f6feb; --green:#18a058; --red:#e5484d; --bg:#f7f8fa; --card:#fff; --text:#111; --muted:#667085;
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:Pretendard,system-ui,Apple SD Gothic Neo,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    header{background:linear-gradient(90deg,#0d47a1,#1976d2); color:#fff; padding:18px 16px; position:sticky; top:0; z-index:30}
+    header .row{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:980px;margin:0 auto}
+    h1{font-size:22px;margin:0;font-weight:800;letter-spacing:-.2px}
+    .wrap{max-width:980px;margin:16px auto;padding:0 12px}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;margin:14px 0}
+    .btn{border:0;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.06);transition:.15s}
+    .btn.primary{background:var(--green);color:#fff}
+    .btn.ghost{background:#fff}
+    .btn.red{background:var(--red);color:#fff}
+    .dateBox{display:flex;align-items:center;gap:10px;justify-content:center}
+    .date{min-width:240px;text-align:center;background:#fff;border-radius:12px;padding:12px 16px;font-weight:800;letter-spacing:.4px}
+    .iconBtn{width:48px;height:48px;border-radius:12px;border:0;background:#fff;display:grid;place-items:center;box-shadow:0 1px 0 rgba(0,0,0,.06)}
+    .select{height:44px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;padding:0 12px}
+    .card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:0 1px 0 rgba(0,0,0,.06)}
+    .muted{color:var(--muted)}
+    @media (max-width:420px){
+      .date{min-width:200px;font-size:16px;padding:10px 12px}
+      .iconBtn{width:44px;height:44px}
+      .btn{padding:11px 14px;font-size:15px}
+    }
+  </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="container row" style="justify-content:space-between;align-items:center">
-      <div class="title">오늘의 회화 영단어</div>
-      <button id="menuBtn" class="iconbtn" aria-label="메뉴">⋮</button>
-    </div>
-  </div>
-
-  <div class="container">
-    <!-- 날짜/재생 -->
-    <div class="date-wrap">
-      <button id="prevBtn" class="iconbtn" aria-label="이전 날짜">◀</button>
-      <input id="dateInput" class="date" readonly />
-      <button id="playBtn" class="iconbtn" aria-label="재생">▶</button>
-    </div>
-
+  <header>
     <div class="row">
-      <button class="btn" id="playAllBtn">전체 재생</button>
-      <button class="btn" id="stopBtn">정지</button>
-      <button class="btn primary" id="doneBtn">오늘분 완료</button>
-      <button class="btn" id="todayBtn">오늘의 단어</button>
+      <h1>오늘의 회화 영단어</h1>
+      <button id="moreBtn" class="iconBtn" aria-label="계정">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="toolbar dateBox">
+      <button id="prevDay" class="iconBtn" aria-label="이전 날짜">◀</button>
+      <div id="dateView" class="date">YYYY-MM-DD</div>
+      <button id="nextDay" class="iconBtn" aria-label="다음 날짜">▶</button>
     </div>
 
-    <div class="row" style="margin-top:8px">
-      <button class="btn" id="hardBtn">★ 어려운 단어</button>
-      <button class="btn" id="recordBtn">기록</button>
-      <button class="btn red" id="deleteRecordBtn">기록 삭제</button>
-      <div class="space"></div>
+    <div class="toolbar">
+      <button id="playAll" class="btn">전체 재생</button>
+      <button id="stopAll" class="btn">정지</button>
+      <button id="doneToday" class="btn primary">오늘분 완료</button>
+      <button id="goToday" class="btn">오늘의 단어</button>
+      <button id="hardBtn" class="btn ghost">★ 어려운 단어</button>
+      <button id="logBtn" class="btn ghost">기록</button>
+      <button id="delLogBtn" class="btn red">기록 삭제</button>
+      <!-- ✅ 학습하기 버튼 추가 -->
+      <button id="studyBtn" class="btn" style="background:var(--blue);color:#fff">학습하기</button>
     </div>
 
-    <div class="panel row" style="align-items:center;gap:14px">
-      <div class="section-title">속도</div>
-      <input id="rate" class="slider" type="range" min="0.6" max="1.4" step="0.1" value="1.0" />
-      <div class="space"></div>
-      <select id="enVoice" class="select" title="영어 음성">
-        <option value="">영어 음성</option>
-      </select>
+    <div class="toolbar">
+      <label class="muted" style="display:flex;align-items:center;gap:10px">
+        속도
+        <input id="rate" type="range" min="0.6" max="1.4" value="1" step="0.1">
+      </label>
+      <select id="enVoice" class="select" aria-label="영어 음성"></select>
+      <select id="koVoice" class="select" aria-label="한국어 음성"></select>
     </div>
 
-    <div class="row" style="margin-top:8px">
-      <button class="chip" id="quizMeanBtn">학습: 단어→뜻</button>
-      <button class="chip" id="quizClozeBtn">학습: 예문 빈칸</button>
-    </div>
-
-    <div id="wordList" class="list" aria-live="polite"></div>
+    <div id="list" class="card muted">여기에 단어 리스트 / 날짜 선택 등이 들어갑니다…</div>
   </div>
 
-  <!-- 학습 모달 -->
-  <div id="modalBack" class="modal-back" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="modal">
-      <div class="row" style="align-items:center">
-        <div class="title" id="quizTitle">학습</div>
-        <div class="space"></div>
-        <button id="closeModal" class="iconbtn" aria-label="닫기">✕</button>
-      </div>
-      <div class="q-meta"><span id="qIdx">1/10</span> · <span id="qScore">정답 0</span></div>
-      <div id="qText" style="margin:12px 0;font-size:18px;font-weight:800"></div>
-      <div id="choiceWrap"></div>
-      <div class="modal-foot">
-        <button id="nextBtn" class="btn">다음</button>
-      </div>
-    </div>
-  </div>
-
-<script>
-/* -----------------------------
-   유틸: 날짜/포맷/시드랜덤
---------------------------------*/
-const fmt = d => d.toISOString().slice(0,10);
-const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
-function seededShuffle(arr, seedStr){ // 같은 날짜 -> 같은 결과
-  let seed = 0; for (let i=0;i<seedStr.length;i++) seed = (seed*31 + seedStr.charCodeAt(i)) >>> 0;
-  const a = arr.slice();
-  for(let i=a.length-1;i>0;i--){
-    seed = (seed * 1664525 + 1013904223) >>> 0;
-    const j = seed % (i+1);
-    [a[i],a[j]] = [a[j],a[i]];
-  }
-  return a;
-}
-
-/* -----------------------------
-   전역 상태
---------------------------------*/
-const st = {
-  date: new Date(),
-  pool: [],
-  words: [],       // 오늘 10개
-  rate: 1.0,
-  enVoice: null,
-  speaking: false,
-
-  // 학습
-  quizType: 'mean', // 'mean' | 'cloze'
-  qi: 0,
-  score: 0,
-  orderIdxs: []
-};
-
-/* -----------------------------
-   DOM 참조
---------------------------------*/
-const dateInput = document.getElementById('dateInput');
-const prevBtn = document.getElementById('prevBtn');
-const playBtn = document.getElementById('playBtn');
-const playAllBtn = document.getElementById('playAllBtn');
-const stopBtn = document.getElementById('stopBtn');
-const todayBtn = document.getElementById('todayBtn');
-const doneBtn = document.getElementById('doneBtn');
-
-const hardBtn = document.getElementById('hardBtn');
-const recordBtn = document.getElementById('recordBtn');
-const deleteRecordBtn = document.getElementById('deleteRecordBtn');
-
-const rate = document.getElementById('rate');
-const enVoiceSel = document.getElementById('enVoice');
-const wordList = document.getElementById('wordList');
-
-const modalBack = document.getElementById('modalBack');
-const closeModal = document.getElementById('closeModal');
-const nextBtn = document.getElementById('nextBtn');
-const quizMeanBtn = document.getElementById('quizMeanBtn');
-const quizClozeBtn = document.getElementById('quizClozeBtn');
-const qText = document.getElementById('qText');
-const qIdx = document.getElementById('qIdx');
-const qScore = document.getElementById('qScore');
-const choiceWrap = document.getElementById('choiceWrap');
-const quizTitle = document.getElementById('quizTitle');
-
-/* -----------------------------
-   초기화
---------------------------------*/
-async function init(){
-  dateInput.value = fmt(st.date);
-  await loadPool();
-  detectVoices();
-  makeTodayWords();   // pool에서 자동 10개
-  renderWords();
-}
-async function loadPool(){
-  try{
-    const res = await fetch('pool.json?ts='+(Date.now())); // 캐시 방지
-    st.pool = await res.json();
-  }catch(e){
-    console.error('pool.json 로드 실패', e);
-    st.pool = [];
-  }
-}
-
-/* -----------------------------
-   날짜별 단어: pool에서 자동 10개
---------------------------------*/
-function makeTodayWords(){
-  if (!st.pool.length){ st.words = []; return; }
-  const key = fmt(st.date).replace(/-/g,''); // YYYYMMDD
-  const shuffled = seededShuffle(st.pool, key);
-  st.words = shuffled.slice(0, Math.min(10, shuffled.length));
-}
-
-/* -----------------------------
-   렌더링
---------------------------------*/
-function renderWords(){
-  dateInput.value = fmt(st.date);
-  wordList.innerHTML = '';
-  if(!st.words.length){
-    wordList.innerHTML = '<div class="panel muted">이 날짜에 보여줄 단어가 없습니다.</div>';
-    return;
-  }
-  st.words.forEach((w, idx)=>{
-    const wrap = document.createElement('div');
-    wrap.className = 'word';
-
-    const hd = document.createElement('div');
-    hd.className = 'hd';
-    hd.innerHTML = `<div class="index">${idx+1}</div>
-      <div class="ph">${w.phrase}</div>
-      <div class="space"></div>
-      <button class="chip btn-en">EN</button>
-      <button class="chip btn-ko">KO</button>
-      <button class="chip btn-fav" title="어려운 단어로 저장">☆</button>`;
-    wrap.appendChild(hd);
-
-    const mean = document.createElement('div');
-    mean.className = 'mean';
-    mean.textContent = w.meaning;
-    wrap.appendChild(mean);
-
-    const ex = document.createElement('div');
-    ex.className = 'ex';
-    ex.textContent = `예문: ${w.example || ''}`;
-    wrap.appendChild(ex);
-
-    // 이벤트
-    hd.querySelector('.btn-en').onclick = ()=> speak(w.phrase, 'en');
-    hd.querySelector('.btn-ko').onclick = ()=> speak(w.meaning, 'ko');
-    hd.querySelector('.btn-fav').onclick = ()=> toggleHard(w);
-
-    wordList.appendChild(wrap);
-  });
-}
-
-/* -----------------------------
-   음성 합성 (영/한)
---------------------------------*/
-function detectVoices(){
-  function fill(){
-    const voices = speechSynthesis.getVoices();
-    const en = voices.filter(v=> /^en(-|_|$)/i.test(v.lang));
-    enVoiceSel.innerHTML = '<option value="">영어 음성</option>' + en.map(v=>`<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
-    // 기본 en-US 유사 선택
-    const pick = en.find(v=>/en-US/i.test(v.lang)) || en[0];
-    if(pick){ enVoiceSel.value = pick.name; st.enVoice = pick; }
-  }
-  fill();
-  window.speechSynthesis.onvoiceschanged = fill;
-}
-enVoiceSel.addEventListener('change', ()=>{
-  const name = enVoiceSel.value;
-  st.enVoice = speechSynthesis.getVoices().find(v=>v.name===name) || null;
-});
-
-function speak(text, lang){
-  if(!('speechSynthesis' in window)) return alert('이 브라우저는 음성 합성을 지원하지 않습니다.');
-  const u = new SpeechSynthesisUtterance(text);
-  u.rate = parseFloat(rate.value || '1');
-  if(lang==='en' && st.enVoice){ u.voice = st.enVoice; u.lang = st.enVoice.lang; }
-  else if(lang==='en'){ u.lang = 'en-US'; }
-  if(lang==='ko'){ u.lang = 'ko-KR'; }
-  speechSynthesis.cancel();
-  speechSynthesis.speak(u);
-}
-rate.addEventListener('input',()=> st.rate = parseFloat(rate.value));
-
-/* -----------------------------
-   재생/정지
---------------------------------*/
-playAllBtn.onclick = async ()=>{
-  for(const w of st.words){
-    if(st.speaking===false) st.speaking = true;
-    if(!st.speaking) break;
-    speak(w.phrase,'en');
-    await wait(1200);
-    speak(w.meaning,'ko');
-    await wait(1400);
-  }
-  st.speaking = false;
-};
-stopBtn.onclick = ()=>{ st.speaking=false; speechSynthesis.cancel(); }
-playBtn.onclick = ()=>{
-  if(!st.words.length) return;
-  let i=0;
-  const playOne = ()=>{
-    if(i>=st.words.length || !st.speaking) { st.speaking=false; return; }
-    const w = st.words[i++];
-    speak(w.phrase,'en'); setTimeout(()=> speak(w.meaning,'ko'), 900);
-    setTimeout(playOne, 1800);
-  };
-  st.speaking = true; playOne();
-};
-function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
-
-/* -----------------------------
-   날짜 컨트롤
---------------------------------*/
-prevBtn.onclick = ()=> changeDate(-1);
-todayBtn.onclick = ()=> { st.date = new Date(); makeTodayWords(); renderWords(); };
-function changeDate(delta){
-  st.date = addDays(st.date, delta);
-  makeTodayWords();
-  renderWords();
-}
-
-/* -----------------------------
-   어려운 단어 (로컬 저장)
---------------------------------*/
-const HARD_KEY = 'hard_words_v1';
-function loadHard(){ try{ return JSON.parse(localStorage.getItem(HARD_KEY)||'[]'); }catch{ return []; } }
-function saveHard(arr){ localStorage.setItem(HARD_KEY, JSON.stringify(arr)); }
-function toggleHard(w){
-  const list = loadHard();
-  const i = list.findIndex(x=>x.phrase===w.phrase);
-  if(i>=0) list.splice(i,1); else list.push(w);
-  saveHard(list);
-  alert(i>=0?'어려운 단어에서 제거했어요.':'어려운 단어로 저장했어요.');
-}
-hardBtn.onclick = ()=>{
-  const list = loadHard();
-  if(!list.length) return alert('저장된 어려운 단어가 없습니다.');
-  st.words = list.slice(0,10);
-  renderWords();
-};
-
-/* -----------------------------
-   기록 (완료 날짜만 로컬에)
---------------------------------*/
-const REC_KEY = 'done_dates_v1';
-function loadRec(){ try{ return JSON.parse(localStorage.getItem(REC_KEY)||'[]'); }catch{ return []; } }
-function saveRec(arr){ localStorage.setItem(REC_KEY, JSON.stringify(arr)); }
-doneBtn.onclick = ()=>{
-  const d = fmt(st.date);
-  const arr = loadRec();
-  if(!arr.includes(d)){ arr.push(d); saveRec(arr); }
-  alert('오늘분 완료로 기록했습니다.');
-};
-recordBtn.onclick = ()=>{
-  const arr = loadRec().sort();
-  if(!arr.length) return alert('기록이 없습니다.');
-  alert('완료한 날짜:\n' + arr.join('\n'));
-};
-deleteRecordBtn.onclick = ()=>{
-  if(confirm('기록(완료 날짜)을 모두 삭제할까요?')){ localStorage.removeItem(REC_KEY); alert('삭제했습니다.'); }
-};
-
-/* -----------------------------
-   학습 (뜻 / 빈칸)
---------------------------------*/
-quizMeanBtn.onclick = ()=> openQuiz('mean');
-quizClozeBtn.onclick = ()=> openQuiz('cloze');
-closeModal.onclick = ()=> hideModal();
-nextBtn.onclick = ()=> nextQuiz();
-
-function openQuiz(type){
-  if(!st.words.length) return alert('학습할 단어가 없습니다.');
-  st.quizType = type;
-  st.qi = 0; st.score = 0;
-  st.orderIdxs = seededShuffle([...Array(st.words.length).keys()], fmt(st.date)); // 고정 순서
-  quizTitle.textContent = type==='mean' ? '학습: 단어 → 뜻' : '학습: 예문 빈칸';
-  modalBack.style.display = 'flex';
-  modalBack.setAttribute('aria-hidden','false');
-  renderQuiz();
-}
-function hideModal(){
-  modalBack.style.display = 'none';
-  modalBack.setAttribute('aria-hidden','true');
-}
-function renderQuiz(){
-  const i = st.orderIdxs[st.qi];
-  const w = st.words[i];
-  qIdx.textContent = `${st.qi+1} / ${st.words.length}`;
-  qScore.textContent = `정답 ${st.score}`;
-  choiceWrap.innerHTML = '';
-  if(st.quizType==='mean'){
-    qText.textContent = w.phrase;
-    const choices = makeChoices(i, 'meaning');
-    renderChoices(choices, w.meaning);
-  }else{
-    const sentence = (w.example||'').replace(new RegExp(w.phrase,'i'),'_____');
-    qText.innerHTML = `<div>${sentence}</div><div class="muted" style="margin-top:6px">(빈칸: <b>${w.phrase}</b>)</div>`;
-    const choices = makeChoices(i, 'phrase');
-    renderChoices(choices, w.phrase);
-  }
-}
-function makeChoices(correctIdx, field){
-  const all = st.words.map(x=>x[field]).filter(Boolean);
-  const correct = st.words[correctIdx][field];
-  const pool = all.filter(v=>v!==correct);
-  const shuffled = seededShuffle(pool, fmt(st.date)+'_'+field);
-  const picks = shuffled.slice(0,3);
-  const arr = seededShuffle([correct, ...picks], correct+fmt(st.date));
-  return arr;
-}
-function renderChoices(items, answer){
-  items.forEach(text=>{
-    const b = document.createElement('button');
-    b.className = 'choice';
-    b.textContent = text;
-    b.onclick = ()=>{
-      const correct = (text===answer);
-      b.classList.add(correct?'correct':'wrong');
-      Array.from(choiceWrap.children).forEach(x=> x.disabled = true);
-      if(correct) st.score++;
+  <script>
+    // ---- 날짜 상태 ----
+    const fmt = d => d.toISOString().slice(0,10);
+    const getLocalDate = () => {
+      const n = new Date();
+      n.setMinutes(n.getMinutes() - n.getTimezoneOffset());
+      return new Date(n.toISOString().slice(0,10));
     };
-    choiceWrap.appendChild(b);
-  });
-}
-function nextQuiz(){
-  if(st.qi < st.words.length-1){ st.qi++; renderQuiz(); }
-  else { alert(`학습 완료! 정답: ${st.score} / ${st.words.length}`); hideModal(); }
-}
+    const st = {
+      date: (localStorage.getItem('voca_currentDate') || fmt(getLocalDate())),
+    };
+    const dateView = document.getElementById('dateView');
+    function renderDate(){ dateView.textContent = st.date; localStorage.setItem('voca_currentDate', st.date); }
+    function shiftDate(delta){
+      const d = new Date(st.date); d.setDate(d.getDate()+delta);
+      st.date = fmt(d); renderDate();
+      // 👉 여기에 날짜별 words.json 불러오는 로직을 추가하면 됨
+    }
+    document.getElementById('prevDay').onclick = ()=>shiftDate(-1);
+    document.getElementById('nextDay').onclick = ()=>shiftDate(+1);
+    document.getElementById('goToday').onclick =()=>{
+      st.date = fmt(getLocalDate()); renderDate();
+    };
 
-/* -----------------------------
-   시작
---------------------------------*/
-init();
-</script>
+    // ✅ 학습하기 버튼: study.html로 이동
+    document.getElementById('studyBtn').onclick = ()=>{
+      const date = encodeURIComponent(st.date || fmt(getLocalDate()));
+      location.href = `study.html?date=${date}`;
+    };
+
+    renderDate();
+
+    // 음성 옵션 채우기
+    function fillVoices(){
+      const enSelect = document.getElementById('enVoice');
+      const koSelect = document.getElementById('koVoice');
+      enSelect.innerHTML = `<option>영어 음성</option>`;
+      koSelect.innerHTML = `<option>한국어 음성</option>`;
+      const vs = speechSynthesis.getVoices();
+      vs.forEach(v=>{
+        const opt = new Option(`${v.name} (${v.lang})`, v.name);
+        if(v.lang.startsWith('en')) enSelect.add(opt.cloneNode(true));
+        if(v.lang.startsWith('ko')) koSelect.add(opt.cloneNode(true));
+      });
+    }
+    if (typeof speechSynthesis!=='undefined'){
+      speechSynthesis.onvoiceschanged = fillVoices; fillVoices();
+    }
+  </script>
 </body>
 </html>
