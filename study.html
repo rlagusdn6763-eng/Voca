@@ -1,217 +1,145 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>학습하기</title>
   <style>
+    /* === index와 동일한 스타일 (필요한 부분만 복사) === */
     :root{
-      --blue:#1f6feb; --green:#18a058; --bg:#f7f8fa; --card:#fff; --text:#111; --muted:#667085; --red:#e5484d;
-      --radius:14px;
+      --appbar-h: 64px;
+      --brand: linear-gradient(90deg,#1565d8,#1e88e5);
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --danger: #e11d48;
+      --radius: 14px;
+      --shadow: 0 8px 30px rgba(2,12,27,.08);
     }
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:Pretendard,system-ui,Apple SD Gothic Neo,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
-    header{position:sticky;top:0;z-index:20;background:#0d47a1;color:#fff}
-    header .row{display:flex;align-items:center;gap:12px;max-width:860px;margin:0 auto;padding:14px 12px}
-    h1{font-size:20px;margin:0;font-weight:800}
-    .wrap{max-width:860px;margin:16px auto;padding:0 12px}
-    .card{background:var(--card);border-radius:var(--radius);box-shadow:0 1px 0 rgba(0,0,0,.06);padding:16px}
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-    .btn{border:0;border-radius:12px;padding:11px 14px;background:#fff;cursor:pointer;font-weight:700}
-    .btn.primary{background:var(--green);color:#fff}
-    .btn.blue{background:var(--blue);color:#fff}
-    .btn.red{background:var(--red);color:#fff}
-    .muted{color:var(--muted)}
-    .choice{border:1px solid #e5e7eb;border-radius:12px;padding:12px;cursor:pointer;background:#fff}
-    .choice.correct{border-color:#22c55e; background:#ecfdf5}
-    .choice.wrong{border-color:#ef4444; background:#fef2f2}
-    .grid{display:grid;gap:10px}
-    .progress{display:flex;align-items:center;gap:12px;color:var(--muted);font-weight:700}
-    .chip{background:#eef2ff;color:#1e40af;border-radius:999px;padding:6px 10px;font-weight:800}
+    body{margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",Apple SD Gothic Neo,"Helvetica Neue",Arial,sans-serif; padding-top:var(--appbar-h)}
+    .appbar{position:fixed; inset:0 0 auto 0; height:var(--appbar-h); background:var(--brand); color:#fff; z-index:1000; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 10px rgba(0,0,0,.06)}
+    .appbar__inner{width:min(100%, 1000px); display:flex; align-items:center; justify-content:space-between; padding:0 14px}
+    .appbar__title{font-size:20px; font-weight:800; letter-spacing:.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .icon-btn{width:44px; height:44px; display:grid; place-items:center; border-radius:12px; background:rgba(255,255,255,.14); color:#fff; border:none; outline:none; cursor:pointer}
+    .container{width:min(100%, 960px); margin:16px auto 60px; padding:0 14px}
+    .card{background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); padding:16px}
+    .backdrop{position:fixed; inset:0; background:rgba(15,23,42,.4); opacity:0; visibility:hidden; transition:.2s ease; z-index:2000}
+    .backdrop.show{opacity:1; visibility:visible}
+    .drawer{position:fixed; inset:0 auto 0 0; width:min(90vw, 440px); background:#fff; transform:translateX(-100%); transition:transform .25s ease; z-index:2001; overflow:auto; padding-bottom:40px}
+    .drawer.show{transform:translateX(0)}
+    .drawer__head{position:sticky; top:0; background:#fff; padding:16px 18px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #eef2f7; z-index:1}
+    .drawer__title{font-size:22px; font-weight:800}
+    .chip{display:inline-flex; align-items:center; gap:8px; background:#eef2ff; color:#1e3a8a; padding:8px 10px; border-radius:999px; font-weight:700}
+    .sq-btn{height:44px; padding:0 16px; border-radius:12px; border:1px solid #e6eaf2; background:#fff; cursor:pointer; font-weight:700; box-shadow:var(--shadow)}
+    .danger{color:#fff; background:var(--danger)}
   </style>
 </head>
 <body>
-  <header>
-    <div class="row">
-      <button id="back" class="btn">← 돌아가기</button>
-      <h1>학습하기</h1>
-      <div style="margin-left:auto" id="dateBox" class="muted"></div>
+  <!-- AppBar -->
+  <header class="appbar" role="banner" aria-label="상단바">
+    <div class="appbar__inner">
+      <div class="appbar__title">학습하기</div>
+      <div style="display:flex; gap:8px; align-items:center">
+        <a href="index.html" class="icon-btn" aria-label="돌아가기" title="메인으로">←</a>
+        <button id="menuBtn" class="icon-btn" aria-haspopup="dialog" aria-controls="accountDrawer" aria-expanded="false" title="계정">⋮</button>
+      </div>
     </div>
   </header>
 
-  <div class="wrap">
-    <!-- 모드 선택 -->
-    <div id="modeCard" class="card">
-      <div class="toolbar">
-        <div class="muted">학습 모드를 선택하세요</div>
-      </div>
-      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
-        <button class="btn blue" data-mode="mean">① 단어 → 뜻</button>
-        <button class="btn blue" data-mode="cloze">② 예문 빈칸</button>
-      </div>
-    </div>
-
-    <!-- 퀴즈 -->
-    <div id="quizCard" class="card" style="display:none">
-      <div class="progress">
-        <span id="pIdx" class="chip">1 / 10</span>
-        <span id="pScore">정답 0</span>
-        <span style="margin-left:auto" id="pMode" class="muted"></span>
-      </div>
-      <div id="qText" style="font-size:20px;font-weight:800;line-height:1.5;margin:10px 0 14px"></div>
-      <div id="choices" class="grid"></div>
-      <div class="toolbar" style="margin-top:14px">
-        <button id="nextBtn" class="btn primary" disabled>다음</button>
-        <button id="finishBtn" class="btn red" style="margin-left:auto">그만하기</button>
+  <main class="container">
+    <div class="card">
+      <h2 style="margin:0 0 10px 0">오늘의 학습</h2>
+      <div id="studyRoot">문제 영역이 여기에 렌더링됩니다…</div>
+      <div style="display:flex; gap:10px; margin-top:12px">
+        <button id="studyPrevBtn" class="sq-btn">이전</button>
+        <button id="studyNextBtn" class="sq-btn">다음</button>
+        <button id="studyExitBtn" class="sq-btn">끝내기</button>
       </div>
     </div>
+  </main>
 
-    <!-- 결과 -->
-    <div id="resultCard" class="card" style="display:none">
-      <h3 style="margin:0 0 6px">결과</h3>
-      <p id="rText" class="muted" style="margin:0 0 12px"></p>
-      <div class="toolbar">
-        <button id="retry" class="btn blue">다시 풀기</button>
-        <button id="toIndex" class="btn">단어 목록으로</button>
+  <!-- Drawer Backdrop / Drawer (index와 동일) -->
+  <div id="drawerBackdrop" class="backdrop" tabindex="-1" aria-hidden="true"></div>
+  <aside id="accountDrawer" class="drawer" role="dialog" aria-modal="true" aria-label="계정 패널" aria-hidden="true">
+    <div class="drawer__head">
+      <div class="drawer__title">계정</div>
+      <button id="drawerCloseBtn" class="icon-btn" aria-label="닫기">✕</button>
+    </div>
+
+    <div style="padding:18px">
+      <div id="drawerLoggedOut" style="display:none">
+        <div style="color:#64748b">이메일로 로그인</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px">
+          <input id="emailInput" class="sq-btn" placeholder="you@example.com" inputmode="email" />
+          <input id="passwordInput" class="sq-btn" placeholder="8자리 이상" type="password" />
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px">
+          <button id="loginBtn" class="sq-btn" style="background:#10b981; color:#fff; border-color:#10b981">로그인</button>
+          <button id="signupOpenBtn" class="sq-btn">회원가입</button>
+        </div>
+        <div style="margin-top:12px">
+          <button id="googleLoginBtn" class="sq-btn" style="width:100%">Google로 로그인</button>
+        </div>
+      </div>
+
+      <div id="drawerLoggedIn" style="display:none">
+        <div class="chip">로그인됨</div>
+        <div class="card" style="padding:12px; margin-top:12px">
+          <div><strong>이메일</strong> <span id="profileEmail"></span></div>
+          <div style="margin-top:8px"><strong>닉네임</strong> <span id="profileNickname"></span></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px">
+          <button id="openProfileEditBtn" class="sq-btn">정보 수정</button>
+          <button id="logoutBtn" class="sq-btn danger">로그아웃</button>
+        </div>
       </div>
     </div>
-  </div>
+  </aside>
 
+  <!-- Drawer/헤더 제어 (index와 동일) -->
   <script>
-    // ====== 유틸 & 상태 ======
-    const qs = k => new URL(location.href).searchParams.get(k);
-    const date = qs('date') || new Date().toISOString().slice(0,10);
-    document.getElementById('dateBox').textContent = date;
+    (function(){
+      const menuBtn = document.getElementById('menuBtn');
+      const drawer = document.getElementById('accountDrawer');
+      const backdrop = document.getElementById('drawerBackdrop');
+      const closeBtn = document.getElementById('drawerCloseBtn');
 
-    const state = {
-      words: [],
-      order: [],
-      i: 0,
-      score: 0,
-      mode: 'mean', // 'mean' | 'cloze'
-      answered: false
-    };
-
-    // ====== 데이터 로드 ======
-    async function loadWords() {
-      // 날짜별 words.json 경로가 별도로 있으면 바꿔줘도 됨.
-      // 여기서는 루트 words.json 한 개를 사용한다고 가정.
-      const res = await fetch('words.json', {cache:'no-store'});
-      const all = await res.json();
-      // words.json 이 날짜별 묶음이 아니라 "오늘 10개" 배열이면 그대로 사용
-      const arr = Array.isArray(all) ? all : (all[date] || all.words || []);
-      state.words = arr.slice(0, 50); // 안전
-    }
-
-    // ====== 화면 전환 ======
-    const modeCard = document.getElementById('modeCard');
-    const quizCard = document.getElementById('quizCard');
-    const resultCard = document.getElementById('resultCard');
-
-    function show(el){
-      modeCard.style.display = 'none';
-      quizCard.style.display = 'none';
-      resultCard.style.display = 'none';
-      el.style.display = '';
-    }
-
-    // ====== 퀴즈 구성 ======
-    const pIdx = document.getElementById('pIdx');
-    const pScore = document.getElementById('pScore');
-    const pMode = document.getElementById('pMode');
-    const qText = document.getElementById('qText');
-    const choicesWrap = document.getElementById('choices');
-    const nextBtn = document.getElementById('nextBtn');
-
-    function randInt(n){ return Math.floor(Math.random()*n); }
-    function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=randInt(i+1); [a[i],a[j]]=[a[j],a[i]] } return a; }
-
-    function start(mode){
-      state.mode = mode;
-      state.score = 0;
-      state.i = 0;
-      // 문제 순서
-      const N = Math.min(10, state.words.length);
-      state.order = shuffle([...Array(state.words.length).keys()]).slice(0,N);
-      pMode.textContent = (mode==='mean' ? '단어 → 뜻' : '예문 빈칸');
-      show(quizCard);
-      renderQuiz();
-    }
-
-    function makeChoices(correctIdx, field){
-      const vals = new Set([ state.words[correctIdx][field] ]);
-      while(vals.size < Math.min(4, state.words.length)){
-        const j = randInt(state.words.length);
-        vals.add(state.words[j][field]);
-      }
-      return shuffle([...vals]);
-    }
-
-    function renderQuiz(){
-      nextBtn.disabled = true;
-      state.answered = false;
-      const realIdx = state.order[state.i];
-      const w = state.words[realIdx];
-      pIdx.textContent = `${state.i+1} / ${state.order.length}`;
-      pScore.textContent = `정답 ${state.score}`;
-
-      choicesWrap.innerHTML = '';
-      if(state.mode==='mean'){
-        qText.textContent = w.phrase;
-        const choices = makeChoices(realIdx, 'meaning');
-        choices.forEach(txt => addChoice(txt, txt===w.meaning));
-      }else{
-        const s = (w.example || '').replace(new RegExp(w.phrase,'ig'), '_____');
-        qText.textContent = s || '(예문이 없습니다)';
-        const choices = makeChoices(realIdx, 'phrase');
-        choices.forEach(txt => addChoice(txt, txt===w.phrase));
-      }
-    }
-
-    function addChoice(text, isCorrect){
-      const div = document.createElement('button');
-      div.className = 'choice';
-      div.textContent = text;
-      div.onclick = ()=>{
-        if(state.answered) return;
-        state.answered = true;
-        if(isCorrect){ div.classList.add('correct'); state.score++; }
-        else{ div.classList.add('wrong'); }
-        nextBtn.disabled = false;
+      const openDrawer = () => {
+        drawer.classList.add('show');
+        drawer.setAttribute('aria-hidden','false');
+        backdrop.classList.add('show');
+        backdrop.setAttribute('aria-hidden','false');
+        menuBtn.setAttribute('aria-expanded','true');
+        setTimeout(()=> drawer.focus?.(), 0);
       };
-      choicesWrap.appendChild(div);
-    }
+      const closeDrawer = () => {
+        drawer.classList.remove('show');
+        drawer.setAttribute('aria-hidden','true');
+        backdrop.classList.remove('show');
+        backdrop.setAttribute('aria-hidden','true');
+        menuBtn.setAttribute('aria-expanded','false');
+        menuBtn.focus();
+      };
+      menuBtn.addEventListener('click', openDrawer);
+      backdrop.addEventListener('click', closeDrawer);
+      closeBtn.addEventListener('click', closeDrawer);
+      window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeDrawer(); });
 
-    nextBtn.onclick = ()=>{
-      if(state.i < state.order.length-1){ state.i++; renderQuiz(); }
-      else { finish(); }
-    };
-
-    function finish(){
-      show(resultCard);
-      document.getElementById('rText').textContent =
-        `총 ${state.order.length}문제 중 ${state.score}개 정답! 훌륭해요 👏`;
-    }
-
-    // ====== 핸들러 ======
-    document.getElementById('back').onclick = ()=> history.length>1 ? history.back() : location.href='index.html';
-    document.getElementById('finishBtn').onclick = finish;
-    document.getElementById('retry').onclick = ()=>{ show(modeCard); };
-    document.getElementById('toIndex').onclick = ()=> location.href='index.html';
-
-    // 모드 버튼
-    modeCard.addEventListener('click', (e)=>{
-      const btn = e.target.closest('[data-mode]');
-      if(!btn) return;
-      if(!state.words.length){ alert('단어를 불러오는 중입니다. 잠시만…'); return; }
-      start(btn.dataset.mode);
-    });
-
-    // ====== 시작 ======
-    (async()=>{
-      await loadWords();
-      show(modeCard);
+      // 헤더 높이 보정
+      const appbar = document.querySelector('.appbar');
+      const syncPadding = () => {
+        const h = appbar.getBoundingClientRect().height || 64;
+        document.body.style.paddingTop = h + 'px';
+      };
+      syncPadding();
+      window.addEventListener('resize', syncPadding);
     })();
   </script>
+
+  <!-- 여기에 기존 학습 로직 스크립트를 연결하세요 -->
+  <!-- <script src="study-logic.js"></script> -->
 </body>
 </html>
