@@ -1,145 +1,110 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>학습하기</title>
-  <style>
-    /* === index와 동일한 스타일 (필요한 부분만 복사) === */
-    :root{
-      --appbar-h: 64px;
-      --brand: linear-gradient(90deg,#1565d8,#1e88e5);
-      --bg: #f6f8fb;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --primary: #2563eb;
-      --danger: #e11d48;
-      --radius: 14px;
-      --shadow: 0 8px 30px rgba(2,12,27,.08);
-    }
-    *{box-sizing:border-box}
-    body{margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",Apple SD Gothic Neo,"Helvetica Neue",Arial,sans-serif; padding-top:var(--appbar-h)}
-    .appbar{position:fixed; inset:0 0 auto 0; height:var(--appbar-h); background:var(--brand); color:#fff; z-index:1000; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 10px rgba(0,0,0,.06)}
-    .appbar__inner{width:min(100%, 1000px); display:flex; align-items:center; justify-content:space-between; padding:0 14px}
-    .appbar__title{font-size:20px; font-weight:800; letter-spacing:.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-    .icon-btn{width:44px; height:44px; display:grid; place-items:center; border-radius:12px; background:rgba(255,255,255,.14); color:#fff; border:none; outline:none; cursor:pointer}
-    .container{width:min(100%, 960px); margin:16px auto 60px; padding:0 14px}
-    .card{background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); padding:16px}
-    .backdrop{position:fixed; inset:0; background:rgba(15,23,42,.4); opacity:0; visibility:hidden; transition:.2s ease; z-index:2000}
-    .backdrop.show{opacity:1; visibility:visible}
-    .drawer{position:fixed; inset:0 auto 0 0; width:min(90vw, 440px); background:#fff; transform:translateX(-100%); transition:transform .25s ease; z-index:2001; overflow:auto; padding-bottom:40px}
-    .drawer.show{transform:translateX(0)}
-    .drawer__head{position:sticky; top:0; background:#fff; padding:16px 18px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #eef2f7; z-index:1}
-    .drawer__title{font-size:22px; font-weight:800}
-    .chip{display:inline-flex; align-items:center; gap:8px; background:#eef2ff; color:#1e3a8a; padding:8px 10px; border-radius:999px; font-weight:700}
-    .sq-btn{height:44px; padding:0 16px; border-radius:12px; border:1px solid #e6eaf2; background:#fff; cursor:pointer; font-weight:700; box-shadow:var(--shadow)}
-    .danger{color:#fff; background:var(--danger)}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>학습하기</title>
+<style>
+  :root{--blue1:#0a58ff;--blue2:#1170ff;--bg:#f6f7fb;--card:#fff;--muted:#6b7280;--green:#18a16a;--red:#e74c3c;--radius:16px}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:#111;font-family:-apple-system,system-ui,Segoe UI,Roboto,Noto Sans KR,Apple SD Gothic Neo,Helvetica,Arial,sans-serif}
+  .appbar{position:sticky;top:0;z-index:1000;background:linear-gradient(90deg,var(--blue1),var(--blue2));color:#fff;padding:14px 16px 16px;display:flex;align-items:center;gap:12px}
+  .title{font-size:22px;font-weight:800}.spacer{flex:1}.icon-btn{width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,.18);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .wrap{padding:16px;max-width:840px;margin:0 auto}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:0 8px 18px rgba(0,0,0,.06);padding:16px}
+  .muted{color:var(--muted)} .mt8{margin-top:8px}.mt12{margin-top:12px}
+  .choice{width:100%;border:1px solid #e5e7eb;border-radius:12px;background:#fff;height:44px;padding:0 14px;text-align:left;font-weight:600}
+  .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+</style>
 </head>
 <body>
-  <!-- AppBar -->
-  <header class="appbar" role="banner" aria-label="상단바">
-    <div class="appbar__inner">
-      <div class="appbar__title">학습하기</div>
-      <div style="display:flex; gap:8px; align-items:center">
-        <a href="index.html" class="icon-btn" aria-label="돌아가기" title="메인으로">←</a>
-        <button id="menuBtn" class="icon-btn" aria-haspopup="dialog" aria-controls="accountDrawer" aria-expanded="false" title="계정">⋮</button>
-      </div>
+<header class="appbar">
+  <div class="title">학습하기</div>
+  <div class="spacer"></div>
+  <button id="goBack" class="icon-btn" title="뒤로" aria-label="뒤로">↩</button>
+  <button id="openAccount" class="icon-btn" title="계정" aria-label="계정">⋯</button>
+</header>
+
+<main class="wrap">
+  <section class="card">
+    <h2>오늘의 학습</h2>
+    <div id="meta" class="muted mt8"></div>
+    <div id="qbox" class="mt12">문제 영역이 여기에 렌더링됩니다…</div>
+    <div class="row mt12">
+      <button id="prev" class="choice">이전</button>
+      <button id="next" class="choice">다음</button>
+      <button id="finish" class="choice" style="background:var(--red);color:#fff;border-color:transparent">끝내기</button>
     </div>
-  </header>
+  </section>
+</main>
 
-  <main class="container">
-    <div class="card">
-      <h2 style="margin:0 0 10px 0">오늘의 학습</h2>
-      <div id="studyRoot">문제 영역이 여기에 렌더링됩니다…</div>
-      <div style="display:flex; gap:10px; margin-top:12px">
-        <button id="studyPrevBtn" class="sq-btn">이전</button>
-        <button id="studyNextBtn" class="sq-btn">다음</button>
-        <button id="studyExitBtn" class="sq-btn">끝내기</button>
-      </div>
+<script>
+/* 공통 */
+const $=s=>document.querySelector(s);
+$("#goBack").onclick=()=>history.back();
+
+/* 데이터 로드 */
+const params=new URLSearchParams(location.search);
+const date=params.get("date")||new Date().toISOString().slice(0,10);
+const key=`words_${date}`;
+let words=JSON.parse(localStorage.getItem(key)||"[]");
+if(!words.length){
+  // index에서 저장된게 없을 때 샘플 생성
+  words=[
+    {i:1,en:"make do with",ko:"임시방편으로 사용하다",ex:"We had to make do with what we had."},
+    {i:2,en:"depend on",ko:"의지하다",ex:"You can depend on me."},
+    {i:3,en:"get along with",ko:"잘 지내다",ex:"Do you get along with your neighbors?"},
+    {i:4,en:"stick to",ko:"고수하다",ex:"Stick to the plan."},
+    {i:5,en:"pick out",ko:"고르다",ex:"She picked out a dress."},
+    {i:6,en:"call off",ko:"취소하다",ex:"They called off the meeting."},
+    {i:7,en:"nod off",ko:"꾸벅꾸벅 졸다",ex:"He nodded off during the lecture."},
+    {i:8,en:"show off",ko:"뽐내다",ex:"He likes to show off."},
+    {i:9,en:"put away",ko:"치우다",ex:"Please put away your toys."},
+    {i:10,en:"run into",ko:"우연히 만나다",ex:"I ran into an old friend."}
+  ];
+}
+
+/* 문제 생성: ① 단어→뜻 ② 예문 빈칸 */
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const bank=[];
+words.forEach(w=>{
+  // 유형 A: 뜻 고르기
+  const wrongs=shuffle(words.filter(x=>x.en!==w.en)).slice(0,3).map(x=>x.ko);
+  bank.push({type:"ko", stem:`${w.en} 의 뜻을 고르세요.`, choices:shuffle([w.ko,...wrongs]), answer:w.ko});
+  // 유형 B: 예문 빈칸 (정답 힌트 제거!)
+  const sentence=w.ex.replace(new RegExp(w.en,"i"),"_____");
+  const wrongP=shuffle(words.filter(x=>x.en!==w.en)).slice(0,3).map(x=>x.en);
+  bank.push({type:"gap", stem:`${sentence}`, choices:shuffle([w.en,...wrongP]), answer:w.en});
+});
+const quiz=bank.slice(0,10); // 10문제
+
+/* 진행 상태 */
+let idx=0, correct=0; const meta=$("#meta"), qbox=$("#qbox");
+function render(){
+  meta.textContent=`${idx+1} / ${quiz.length} · 정답 ${correct}`;
+  const q=quiz[idx];
+  qbox.innerHTML=`
+    <div style="font-size:20px;font-weight:800">${q.type==="ko"?"뜻 고르기":"예문 빈칸"}</div>
+    <div class="mt12" style="font-size:18px">${q.stem}</div>
+    <div class="mt12" style="display:grid;gap:10px">
+      ${q.choices.map((c,i)=>`<button class="choice" data-i="${i}">${c}</button>`).join("")}
     </div>
-  </main>
+  `;
+  qbox.querySelectorAll(".choice").forEach(btn=>{
+    btn.onclick=()=>{
+      const pick=btn.textContent.trim();
+      const ok=pick===q.answer;
+      if(ok){correct++; btn.style.borderColor="var(--green)"; btn.style.background="var(--green)"; btn.style.color="#fff";}
+      else {btn.style.borderColor="var(--red)"; btn.style.background="var(--red)"; btn.style.color="#fff";}
+      setTimeout(()=>{ if(idx<quiz.length-1){idx++; render();} else {finish();}}, 350);
+    };
+  });
+}
+render();
 
-  <!-- Drawer Backdrop / Drawer (index와 동일) -->
-  <div id="drawerBackdrop" class="backdrop" tabindex="-1" aria-hidden="true"></div>
-  <aside id="accountDrawer" class="drawer" role="dialog" aria-modal="true" aria-label="계정 패널" aria-hidden="true">
-    <div class="drawer__head">
-      <div class="drawer__title">계정</div>
-      <button id="drawerCloseBtn" class="icon-btn" aria-label="닫기">✕</button>
-    </div>
-
-    <div style="padding:18px">
-      <div id="drawerLoggedOut" style="display:none">
-        <div style="color:#64748b">이메일로 로그인</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px">
-          <input id="emailInput" class="sq-btn" placeholder="you@example.com" inputmode="email" />
-          <input id="passwordInput" class="sq-btn" placeholder="8자리 이상" type="password" />
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px">
-          <button id="loginBtn" class="sq-btn" style="background:#10b981; color:#fff; border-color:#10b981">로그인</button>
-          <button id="signupOpenBtn" class="sq-btn">회원가입</button>
-        </div>
-        <div style="margin-top:12px">
-          <button id="googleLoginBtn" class="sq-btn" style="width:100%">Google로 로그인</button>
-        </div>
-      </div>
-
-      <div id="drawerLoggedIn" style="display:none">
-        <div class="chip">로그인됨</div>
-        <div class="card" style="padding:12px; margin-top:12px">
-          <div><strong>이메일</strong> <span id="profileEmail"></span></div>
-          <div style="margin-top:8px"><strong>닉네임</strong> <span id="profileNickname"></span></div>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px">
-          <button id="openProfileEditBtn" class="sq-btn">정보 수정</button>
-          <button id="logoutBtn" class="sq-btn danger">로그아웃</button>
-        </div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Drawer/헤더 제어 (index와 동일) -->
-  <script>
-    (function(){
-      const menuBtn = document.getElementById('menuBtn');
-      const drawer = document.getElementById('accountDrawer');
-      const backdrop = document.getElementById('drawerBackdrop');
-      const closeBtn = document.getElementById('drawerCloseBtn');
-
-      const openDrawer = () => {
-        drawer.classList.add('show');
-        drawer.setAttribute('aria-hidden','false');
-        backdrop.classList.add('show');
-        backdrop.setAttribute('aria-hidden','false');
-        menuBtn.setAttribute('aria-expanded','true');
-        setTimeout(()=> drawer.focus?.(), 0);
-      };
-      const closeDrawer = () => {
-        drawer.classList.remove('show');
-        drawer.setAttribute('aria-hidden','true');
-        backdrop.classList.remove('show');
-        backdrop.setAttribute('aria-hidden','true');
-        menuBtn.setAttribute('aria-expanded','false');
-        menuBtn.focus();
-      };
-      menuBtn.addEventListener('click', openDrawer);
-      backdrop.addEventListener('click', closeDrawer);
-      closeBtn.addEventListener('click', closeDrawer);
-      window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeDrawer(); });
-
-      // 헤더 높이 보정
-      const appbar = document.querySelector('.appbar');
-      const syncPadding = () => {
-        const h = appbar.getBoundingClientRect().height || 64;
-        document.body.style.paddingTop = h + 'px';
-      };
-      syncPadding();
-      window.addEventListener('resize', syncPadding);
-    })();
-  </script>
-
-  <!-- 여기에 기존 학습 로직 스크립트를 연결하세요 -->
-  <!-- <script src="study-logic.js"></script> -->
+$("#prev").onclick=()=>{ if(idx>0){idx--; render();} };
+$("#next").onclick=()=>{ if(idx<quiz.length-1){idx++; render();} };
+const finish=()=>{ alert(`학습 완료! 점수: ${correct} / ${quiz.length}`); history.back(); };
+$("#finish").onclick=finish;
+</script>
 </body>
 </html>
