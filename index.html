@@ -1,383 +1,226 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>오늘의 회화 영단어</title>
-  <style>
-    :root{
-      --blue:#0d6efd;
-      --blue-grad1:#1473ff; --blue-grad2:#0a58ff;
-      --bg:#f6f7fb; --card:#ffffff; --muted:#6b7280;
-      --green:#18a16a; --red:#e74c3c; --ring:rgba(13,110,253,.35);
-      --radius:16px;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:#111;font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,Helvetica,Arial,sans-serif}
-    /* 헤더 */
-    .appbar{
-      position:sticky;top:0;z-index:1000;
-      background:linear-gradient(90deg,var(--blue-grad2),var(--blue-grad1));
-      color:#fff;padding:14px 16px 16px;display:flex;align-items:center;gap:12px
-    }
-    .appbar__title{font-size:22px;font-weight:800;letter-spacing:.2px}
-    .appbar__spacer{flex:1}
-    .icon-btn{
-      display:inline-flex;align-items:center;justify-content:center;
-      width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,.15);
-      color:#fff;font-size:20px;cursor:pointer
-    }
-    .icon-btn:active{transform:scale(.98)}
-
-    /* 컨텐츠 래퍼 */
-    .wrap{padding:16px;max-width:840px;margin:0 auto}
-
-    /* 카드/버튼 */
-    .card{background:var(--card);border-radius:var(--radius);box-shadow:0 8px 18px rgba(0,0,0,.06)}
-    .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-    .pill{height:46px;border-radius:999px;border:1px solid #e5e7eb;background:#fff;padding:0 18px;font-size:16px}
-    .sq-btn{height:44px;border-radius:12px;border:0;background:#fff;padding:0 16px;font-weight:700;cursor:pointer}
-    .sq-btn--green{background:var(--green);color:#fff}
-    .sq-btn--red{background:var(--red);color:#fff}
-    .muted{color:var(--muted)}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .mt8{margin-top:8px}.mt10{margin-top:10px}.mt12{margin-top:12px}.mt16{margin-top:16px}
-
-    /* 날짜 영역 */
-    .datebar{display:flex;align-items:center;gap:10px;justify-content:space-between}
-    .dateCenter{flex:1;display:flex;justify-content:center}
-    .datePill{
-      min-width:260px;max-width:420px;padding:10px 16px;height:46px;
-      display:flex;align-items:center;justify-content:center;
-      background:#fff;border:1px solid #e5e7eb;border-radius:999px;font-size:20px;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis
-    }
-
-    /* 리스트 영역 플레이스홀더 */
-    .list-placeholder{padding:18px;color:var(--muted)}
-
-    /* ===== Drawer (풀스크린) ===== */
-    .drawer{
-      position:fixed;inset:0;z-index:2000;
-      background:rgba(0,0,0,.35);
-      display:none; /* 기본 감춤 */
-    }
-    .drawer[aria-hidden="false"]{display:block}
-    .drawer__panel{
-      position:absolute;top:0;right:0;height:100%;width:min(480px,92vw);
-      background:#fff;border-radius:16px 0 0 16px;
-      box-shadow:-8px 0 24px rgba(0,0,0,.18);
-      transform:translateX(100%);transition:transform .28s ease;
-      display:flex;flex-direction:column
-    }
-    .drawer[aria-hidden="false"] .drawer__panel{transform:translateX(0)}
-    .drawer__head{padding:18px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:10px}
-    .drawer__title{font-size:22px;font-weight:800}
-    .drawer__body{padding:16px;overflow:auto}
-    .field{width:100%;height:46px;border-radius:12px;border:1px solid #e5e7eb;padding:0 14px;font-size:16px}
-
-    /* 작은 화면 버튼 폰트 한 줄 유지 */
-    .sq-btn{font-size:15px;line-height:1}
-
-    @media (min-width:768px){
-      .datePill{font-size:22px}
-    }
-  </style>
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>오늘의 회화 영단어</title>
+<style>
+  :root{
+    --blue1:#0a58ff; --blue2:#1170ff;
+    --bg:#f6f7fb; --card:#fff; --muted:#6b7280;
+    --green:#18a16a; --red:#e74c3c;
+    --radius:16px;
+  }
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:#111;font-family:-apple-system,system-ui,Segoe UI,Roboto,Noto Sans KR,Apple SD Gothic Neo,Helvetica,Arial,sans-serif}
+  /* 헤더 */
+  .appbar{position:sticky;top:0;z-index:1000;background:linear-gradient(90deg,var(--blue1),var(--blue2));color:#fff;padding:14px 16px 16px;display:flex;align-items:center;gap:12px}
+  .title{font-size:22px;font-weight:800}
+  .spacer{flex:1}
+  .icon-btn{width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,.18);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .wrap{padding:16px;max-width:840px;margin:0 auto}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:0 8px 18px rgba(0,0,0,.06)}
+  /* 날짜바 */
+  .datebar{display:flex;align-items:center;gap:10px;justify-content:space-between}
+  .date-pill{flex:1;display:flex;justify-content:center;align-items:center;height:46px;border:1px solid #e5e7eb;border-radius:999px;background:#fff;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 16px}
+  /* 컨트롤 그리드 */
+  .gridBtns{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px}
+  .btn{height:44px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-weight:700}
+  .btn--green{background:var(--green);color:#fff;border-color:transparent}
+  .btn--red{background:var(--red);color:#fff;border-color:transparent}
+  .muted{color:var(--muted)} .mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+  /* 리스트 */
+  .item{padding:14px;margin:10px 0}
+  .item h3{margin:0;font-size:18px}
+  /* Drawer (풀스크린) */
+  .drawer{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.35);display:none}
+  .drawer[aria-hidden="false"]{display:block}
+  .panel{position:absolute;right:0;top:0;height:100%;width:min(480px,92vw);background:#fff;border-radius:16px 0 0 16px;box-shadow:-8px 0 24px rgba(0,0,0,.2);transform:translateX(100%);transition:.28s}
+  .drawer[aria-hidden="false"] .panel{transform:translateX(0)}
+  .p-head{padding:16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:10px}
+  .p-title{font-size:22px;font-weight:800} .p-body{padding:16px;overflow:auto}
+  .field{height:46px;border:1px solid #e5e7eb;border-radius:12px;padding:0 14px;width:100%}
+</style>
+<!-- Firebase compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <!-- 헤더 -->
-  <header class="appbar" role="banner">
-    <div class="appbar__title">오늘의 회화 영단어</div>
-    <div class="appbar__spacer"></div>
-    <!-- (선택) 학습 페이지로 이동 버튼 -->
-    <button id="goStudyBtn" class="icon-btn" title="학습하기" aria-label="학습하기">▶</button>
-    <!-- 계정 버튼 -->
-    <button id="accountBtn" class="icon-btn" title="계정" aria-label="계정">⋯</button>
-  </header>
+<header class="appbar">
+  <div class="title">오늘의 회화 영단어</div>
+  <div class="spacer"></div>
+  <button id="goStudy" class="icon-btn" title="학습하기" aria-label="학습하기">▶</button>
+  <button id="openAccount" class="icon-btn" title="계정" aria-label="계정">⋯</button>
+</header>
 
-  <main class="wrap" role="main">
-    <!-- 날짜 바 -->
-    <div class="card" style="padding:14px">
-      <div class="datebar">
-        <button id="prevDayBtn" class="icon-btn" aria-label="이전 날짜">◀</button>
-        <div class="dateCenter"><div id="dateText" class="datePill">YYYY-MM-DD</div></div>
-        <button id="nextDayBtn" class="icon-btn" aria-label="다음 날짜">▶</button>
-      </div>
+<main class="wrap">
+  <!-- 날짜 -->
+  <div class="card" style="padding:14px">
+    <div class="datebar">
+      <button id="prev" class="icon-btn" aria-label="이전">◀</button>
+      <div id="dateText" class="date-pill">YYYY-MM-DD</div>
+      <button id="next" class="icon-btn" aria-label="다음">▶</button>
     </div>
+  </div>
 
-    <!-- 상단 컨트롤 -->
-    <section class="card mt16" style="padding:14px">
-      <div class="toolbar">
-        <button id="btnPlayAll" class="sq-btn">전체 재생</button>
-        <button id="btnStop" class="sq-btn">정지</button>
-        <button id="btnDone" class="sq-btn sq-btn--green">오늘분 완료</button>
-        <button id="btnToday" class="sq-btn">오늘의 단어</button>
-        <button id="btnFav" class="sq-btn">★ 어려운 단어</button>
-        <button id="btnHistory" class="sq-btn">기록</button>
-        <button id="btnHistoryDel" class="sq-btn sq-btn--red">기록 삭제</button>
-      </div>
+  <!-- 컨트롤 -->
+  <section class="card mt16" style="padding:14px">
+    <div class="gridBtns">
+      <button id="playAll" class="btn">전체 재생</button>
+      <button id="stopAll" class="btn">정지</button>
+      <button id="markDone" class="btn btn--green">오늘분 완료</button>
+      <button id="goToday" class="btn">오늘의 단어</button>
+      <button id="showFav" class="btn">★ 어려운 단어</button>
+      <button id="showHistory" class="btn">기록</button>
+      <button id="delHistory" class="btn btn--red">기록 삭제</button>
+      <button id="goStudy2" class="btn" style="grid-column:1/-1">학습하기</button>
+    </div>
+    <div class="mt12">
+      <div class="muted">속도</div>
+      <input id="speed" type="range" min="0.5" max="1.5" step="0.05" value="1" style="width:100%"/>
+    </div>
+    <div class="mt12" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <select id="voiceEn" class="field"><option>영어 음성</option></select>
+      <select id="voiceKo" class="field"><option>한국어 음성</option></select>
+    </div>
+  </section>
 
-      <div class="mt12">
-        <div class="muted" style="margin-bottom:6px">속도</div>
-        <input id="speedRange" type="range" min="0.5" max="1.5" step="0.05" value="1" style="width:100%"/>
-      </div>
+  <!-- 리스트 -->
+  <section class="card mt16" style="padding:14px">
+    <div id="list">여기에 단어 리스트 / 날짜 선택 등이 들어갑니다…</div>
+  </section>
+</main>
 
-      <div class="mt12 grid2">
-        <select id="voiceEn" class="pill" aria-label="영어 음성">
-          <option value="">영어 음성</option>
-        </select>
-        <select id="voiceKo" class="pill" aria-label="한국어 음성">
-          <option value="">한국어 음성</option>
-        </select>
-      </div>
-    </section>
-
-    <!-- 단어 리스트 영역 -->
-    <section id="listWrap" class="card mt16" style="padding:14px">
-      <div id="wordList" class="list-placeholder">여기에 단어 리스트 / 날짜 선택 등이 들어갑니다…</div>
-    </section>
-  </main>
-
-  <!-- ============ 계정 Drawer ============ -->
-  <aside id="accountDrawer" class="drawer" aria-hidden="true" role="dialog" aria-label="계정 패널">
-    <div class="drawer__panel" role="document">
-      <div class="drawer__head">
-        <div class="drawer__title">계정</div>
-        <div style="flex:1"></div>
-        <button id="drawerCloseBtn" class="icon-btn" aria-label="닫기">✕</button>
-      </div>
-      <div class="drawer__body">
-        <!-- 로그인 전 -->
-        <div id="drawerLoggedOut" style="display:none">
-          <div class="muted">이메일/비밀번호 로그인</div>
-          <div class="mt8 grid2">
-            <input id="emailInput" class="field" placeholder="you@example.com" inputmode="email" />
-            <input id="passwordInput" class="field" placeholder="8자리 이상" type="password" />
-          </div>
-          <div class="mt12 grid2">
-            <button id="loginBtn" class="sq-btn sq-btn--green">로그인</button>
-            <button id="signupOpenBtn" class="sq-btn">회원가입</button>
-          </div>
-          <div class="mt12">
-            <button id="googleLoginBtn" class="sq-btn" style="width:100%">Google로 로그인</button>
-          </div>
-          <div class="mt12 muted">로그인하지 않음</div>
+<!-- Drawer -->
+<aside id="drawer" class="drawer" aria-hidden="true">
+  <div class="panel" role="dialog" aria-label="계정">
+    <div class="p-head">
+      <div class="p-title">계정</div><div style="flex:1"></div>
+      <button id="closeDrawer" class="icon-btn" aria-label="닫기">✕</button>
+    </div>
+    <div class="p-body">
+      <div id="loggedOut" style="display:none">
+        <div class="muted">이메일/비밀번호 로그인</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" class="mt8">
+          <input id="email" class="field" placeholder="you@example.com" inputmode="email">
+          <input id="pw" class="field" placeholder="8자리 이상" type="password">
         </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" class="mt12">
+          <button id="login" class="btn btn--green">로그인</button>
+          <button id="signup" class="btn">회원가입</button>
+        </div>
+        <button id="google" class="btn mt12" style="width:100%">Google로 로그인</button>
+      </div>
 
-        <!-- 로그인 후 -->
-        <div id="drawerLoggedIn" style="display:none">
-          <div class="muted">로그인됨</div>
-          <div class="card mt8" style="padding:12px">
-            <div><strong>이메일</strong> <span id="profileEmail"></span></div>
-            <div class="mt8"><strong>닉네임</strong> <span id="profileNickname"></span></div>
-          </div>
-          <div class="mt12 grid2">
-            <button id="openProfileEditBtn" class="sq-btn">정보 수정</button>
-            <button id="logoutBtn" class="sq-btn sq-btn--red">로그아웃</button>
-          </div>
+      <div id="loggedIn" style="display:none">
+        <div class="muted">로그인됨</div>
+        <div class="card mt8" style="padding:12px">
+          <div><b>이메일</b> <span id="pEmail"></span></div>
+          <div class="mt8"><b>닉네임</b> <span id="pNick"></span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" class="mt12">
+          <button id="editProfile" class="btn">정보 수정</button>
+          <button id="logout" class="btn btn--red">로그아웃</button>
         </div>
       </div>
     </div>
-  </aside>
+  </div>
+</aside>
 
-  <!-- (선택) 회원가입/프로필 수정 모달은 기존 페이지에 있던 것을 그대로 사용하세요 -->
+<script>
+/* ===== Firebase ===== */
+const firebaseConfig={apiKey:"AIzaSyBtN9HptAjl3wzemzKIr8nHvRHyOsvjsNI",authDomain:"voca-khw.firebaseapp.com",projectId:"voca-khw",storageBucket:"voca-khw.firebasestorage.app",messagingSenderId:"697341566223",appId:"1:697341566223:web:2a40f413b1edeb543c727a",measurementId:"G-Y5XZEX3W9X"};
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth(); const db=firebase.firestore();
 
-  <script>
-    // ===== Firebase 초기화 =====
-    const firebaseConfig = {
-      apiKey: "AIzaSyBtN9HptAjl3wzemzKIr8nHvRHyOsvjsNI",
-      authDomain: "voca-khw.firebaseapp.com",
-      projectId: "voca-khw",
-      storageBucket: "voca-khw.firebasestorage.app",
-      messagingSenderId: "697341566223",
-      appId: "1:697341566223:web:2a40f413b1edeb543c727a",
-      measurementId: "G-Y5XZEX3W9X"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+/* ===== 공통 UI ===== */
+const $=s=>document.querySelector(s);
+const drawer=$("#drawer");
+$("#openAccount").onclick=()=>drawer.setAttribute("aria-hidden","false");
+$("#closeDrawer").onclick=()=>drawer.setAttribute("aria-hidden","true");
+drawer.addEventListener("click",e=>{if(e.target===drawer)drawer.setAttribute("aria-hidden","true")});
+window.addEventListener("keydown",e=>{if(e.key==="Escape")drawer.setAttribute("aria-hidden","true")});
 
-    // ===== 헤더 버튼 =====
-    const accountBtn = document.getElementById('accountBtn');
-    const goStudyBtn = document.getElementById('goStudyBtn');
-    goStudyBtn.addEventListener('click', ()=> location.href='study.html');
+/* Auth 상태 */
+const uiOut=$("#loggedOut"), uiIn=$("#loggedIn"), pEmail=$("#pEmail"), pNick=$("#pNick");
+auth.onAuthStateChanged(async user=>{
+  if(user){
+    uiOut.style.display="none"; uiIn.style.display="block";
+    pEmail.textContent=user.email||"";
+    try{
+      const doc=await db.collection("users").doc(user.uid).get();
+      pNick.textContent=doc.exists&&doc.data().nickname?doc.data().nickname:"(닉네임 설정 전)";
+    }catch{pNick.textContent="(닉네임 로드 실패)";}
+  }else{
+    uiIn.style.display="none"; uiOut.style.display="block";
+  }
+});
+$("#login").onclick=async()=>{
+  try{await auth.signInWithEmailAndPassword($("#email").value,$("#pw").value); drawer.setAttribute("aria-hidden","true");}
+  catch(e){alert("로그인 실패: "+e.message);}
+};
+$("#google").onclick=async()=>{
+  try{await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); drawer.setAttribute("aria-hidden","true");}
+  catch(e){alert("Google 로그인 실패: "+e.message);}
+};
+$("#logout").onclick=()=>auth.signOut();
+$("#signup").onclick=()=>alert("회원가입 화면 연결 위치");
+$("#editProfile").onclick=()=>alert("프로필 수정 화면 연결 위치");
 
-    // ===== Drawer 제어 =====
-    const drawer = document.getElementById('accountDrawer');
-    const drawerCloseBtn = document.getElementById('drawerCloseBtn');
-    const showDrawer = () => drawer.setAttribute('aria-hidden','false');
-    const hideDrawer = () => drawer.setAttribute('aria-hidden','true');
-    accountBtn.addEventListener('click', showDrawer);
-    drawerCloseBtn.addEventListener('click', hideDrawer);
-    drawer.addEventListener('click', e=>{
-      if(e.target === drawer) hideDrawer(); // 배경 클릭 닫기
-    });
-    window.addEventListener('keydown', e=>{
-      if(e.key === 'Escape') hideDrawer();
-    });
+/* ===== 날짜 / 리스트 ===== */
+let cur=new Date();
+const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const setDate=()=>{$("#dateText").textContent=fmt(cur);};
+$("#prev").onclick=()=>{cur.setDate(cur.getDate()-1); setDate(); renderWords();}
+$("#next").onclick=()=>{cur.setDate(cur.getDate()+1); setDate(); renderWords();}
+$("#goToday").onclick=()=>{cur=new Date(); setDate(); renderWords();}
+setDate();
 
-    // ===== Drawer 내부 요소 =====
-    const uiOut = document.getElementById('drawerLoggedOut');
-    const uiIn  = document.getElementById('drawerLoggedIn');
-    const emailInput = document.getElementById('emailInput');
-    const passwordInput = document.getElementById('passwordInput');
-    const loginBtn = document.getElementById('loginBtn');
-    const signupOpenBtn = document.getElementById('signupOpenBtn');
-    const googleLoginBtn = document.getElementById('googleLoginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const profileEmail = document.getElementById('profileEmail');
-    const profileNickname = document.getElementById('profileNickname');
-    const openProfileEditBtn = document.getElementById('openProfileEditBtn');
+/* 샘플 데이터(없을 때만) */
+function sampleWords(){
+  return [
+    {i:1,en:"make do with",ko:"임시방편으로 사용하다",ex:"We had to make do with what we had."},
+    {i:2,en:"depend on",ko:"의지하다",ex:"You can depend on me."},
+    {i:3,en:"get along with",ko:"잘 지내다",ex:"Do you get along with your neighbors?"},
+    {i:4,en:"stick to",ko:"고수하다",ex:"Stick to the plan."},
+    {i:5,en:"pick out",ko:"고르다",ex:"She picked out a dress."},
+    {i:6,en:"call off",ko:"취소하다",ex:"They called off the meeting."},
+    {i:7,en:"nod off",ko:"꾸벅꾸벅 졸다",ex:"He nodded off during the lecture."},
+    {i:8,en:"show off",ko:"뽐내다",ex:"He likes to show off."},
+    {i:9,en:"put away",ko:"치우다",ex:"Please put away your toys."},
+    {i:10,en:"run into",ko:"우연히 만나다",ex:"I ran into an old friend."}
+  ];
+}
 
-    // ===== Auth 상태 반영 =====
-    auth.onAuthStateChanged(async (user)=>{
-      if(user){
-        uiOut.style.display = 'none';
-        uiIn.style.display  = 'block';
-        profileEmail.textContent = user.email || '';
-        // 닉네임 가져오기
-        try{
-          const doc = await db.collection('users').doc(user.uid).get();
-          profileNickname.textContent = doc.exists && doc.data().nickname ? doc.data().nickname : '(닉네임 설정 전)';
-        }catch(err){
-          profileNickname.textContent = '(닉네임 로드 실패)';
-        }
-      }else{
-        uiIn.style.display  = 'none';
-        uiOut.style.display = 'block';
-      }
-    });
+/* 렌더 */
+function renderWords(){
+  const key=`words_${fmt(cur)}`;
+  const cached=localStorage.getItem(key);
+  const arr=cached?JSON.parse(cached):sampleWords();
+  // 필요하면 여기서 서버/Firestore에서 가져와 localStorage에 저장하세요.
+  localStorage.setItem(key,JSON.stringify(arr));
+  $("#list").innerHTML=arr.map(v=>`
+    <div class="card item">
+      <h3>${v.i}. ${v.en}</h3>
+      <div class="muted mt8">${v.ko}</div>
+      <div class="mt8">예문: ${v.ex}</div>
+    </div>
+  `).join("");
+}
+renderWords();
 
-    // ===== 로그인/로그아웃/구글 =====
-    loginBtn.addEventListener('click', async ()=>{
-      const email = (emailInput.value||'').trim();
-      const pw = passwordInput.value;
-      if(!email || !pw){ alert('이메일/비밀번호를 입력하세요.'); return; }
-      try{
-        await auth.signInWithEmailAndPassword(email,pw);
-        hideDrawer();
-      }catch(e){
-        alert('로그인 실패: '+e.message);
-      }
-    });
-    googleLoginBtn.addEventListener('click', async ()=>{
-      try{
-        const provider = new firebase.auth.GoogleAuthProvider();
-        await auth.signInWithPopup(provider);
-        hideDrawer();
-      }catch(e){
-        alert('Google 로그인 실패: '+e.message);
-      }
-    });
-    logoutBtn.addEventListener('click', async ()=>{
-      await auth.signOut();
-      alert('로그아웃 되었습니다.');
-    });
+/* 학습 페이지 이동 */
+const goStudy=()=>{location.href=`study.html?date=${encodeURIComponent(fmt(cur))}`;}
+$("#goStudy").onclick=goStudy;
+$("#goStudy2").onclick=goStudy;
 
-    // (선택) 회원가입 버튼: 별도 모달/페이지 연결
-    signupOpenBtn.addEventListener('click', ()=> {
-      alert('회원가입 화면을 열어 연결하세요. (현 파일에서는 링크만 연결)');
-      // location.href = 'signup.html';
-    });
-    openProfileEditBtn.addEventListener('click', ()=>{
-      alert('프로필 수정 화면을 열어 연결하세요. (현 파일에서는 링크만 연결)');
-      // location.href = 'profile.html';
-    });
-
-    // ===== 날짜 / 단어 리스트 렌더링(훅만 제공) =====
-    const dateText = document.getElementById('dateText');
-    let currentDate = new Date();
-
-    function fmt(d){
-      const y=d.getFullYear();
-      const m=String(d.getMonth()+1).padStart(2,'0');
-      const dd=String(d.getDate()).padStart(2,'0');
-      return `${y}-${m}-${dd}`;
-    }
-    function setDateLabel(){
-      dateText.textContent = fmt(currentDate);
-    }
-    setDateLabel();
-
-    document.getElementById('prevDayBtn').addEventListener('click', ()=>{
-      currentDate.setDate(currentDate.getDate()-1);
-      setDateLabel(); renderWords();
-    });
-    document.getElementById('nextDayBtn').addEventListener('click', ()=>{
-      currentDate.setDate(currentDate.getDate()+1);
-      setDateLabel(); renderWords();
-    });
-    document.getElementById('btnToday').addEventListener('click', ()=>{
-      currentDate = new Date(); setDateLabel(); renderWords();
-    });
-
-    // ✅ 프로젝트의 기존 단어 렌더링 로직을 여기에서 호출하세요.
-    async function renderWords(){
-      const mount = document.getElementById('wordList');
-      mount.innerHTML = '<div class="muted">단어를 불러오는 중…</div>';
-      try{
-        // 여기서 여러분의 words.json / Firestore 등에서 데이터를 읽어 렌더링하세요.
-        // 아래는 데모(빈 화면 방지)용 목업입니다.
-        const sample = [
-          {i:1, en:'make do with', ko:'임시방편으로 사용하다', ex:'We had to make do with what we had.'},
-          {i:2, en:'depend on', ko:'의지하다', ex:'You can depend on me.'},
-          {i:3, en:'get along with', ko:'잘 지내다', ex:'Do you get along with your neighbors?'}
-        ];
-        mount.innerHTML = sample.map(v=>`
-          <div class="card" style="padding:14px;margin:10px 0">
-            <div style="font-weight:800;font-size:18px">${v.i}. ${v.en}</div>
-            <div class="muted mt8">${v.ko}</div>
-            <div class="mt8">예문: ${v.ex}</div>
-          </div>
-        `).join('');
-      }catch(e){
-        mount.innerHTML = `<div class="muted">단어 로드 실패: ${e.message}</div>`;
-      }
-    }
-    renderWords();
-
-    // 재생/정지 버튼 이벤트 훅 (여러분 프로젝트의 기존 함수를 연결)
-    document.getElementById('btnPlayAll').addEventListener('click', ()=> {
-      // playAll();
-      alert('전체 재생 훅 호출');
-    });
-    document.getElementById('btnStop').addEventListener('click', ()=> {
-      // stopAll();
-      alert('정지 훅 호출');
-    });
-    document.getElementById('btnDone').addEventListener('click', ()=> {
-      // markDoneForDate(fmt(currentDate));
-      alert('오늘분 완료 처리 훅 호출');
-    });
-    document.getElementById('btnFav').addEventListener('click', ()=> {
-      // openFavorites();
-      alert('어려운 단어 보기 훅 호출');
-    });
-    document.getElementById('btnHistory').addEventListener('click', ()=> {
-      // openHistory();
-      alert('기록 보기 훅 호출');
-    });
-    document.getElementById('btnHistoryDel').addEventListener('click', ()=> {
-      // openHistoryDelete();
-      alert('기록 삭제 모드 훅 호출');
-    });
-
-    // 음성 목록(선택): 실제 프로젝트의 음성 채우기 로직을 연결
-    const voiceEnSel = document.getElementById('voiceEn');
-    const voiceKoSel = document.getElementById('voiceKo');
-    (function fillVoices(){
-      // 필요 시 Web Speech API / custom voice 목록 등으로 대체
-      ['영어(미국)','영어(영국)'].forEach((v,i)=>{
-        const o=document.createElement('option');o.value=`en${i}`;o.textContent=v;voiceEnSel.appendChild(o);
-      });
-      ['한국어(여성)','한국어(남성)'].forEach((v,i)=>{
-        const o=document.createElement('option');o.value=`ko${i}`;o.textContent=v;voiceKoSel.appendChild(o);
-      });
-    })();
-  </script>
+/* 기타 버튼 훅 */
+$("#playAll").onclick=()=>alert("전체 재생 훅");
+$("#stopAll").onclick=()=>alert("정지 훅");
+$("#markDone").onclick=()=>alert("완료 훅");
+$("#showFav").onclick=()=>alert("어려운 단어 훅");
+$("#showHistory").onclick=()=>alert("기록 보기 훅");
+$("#delHistory").onclick=()=>alert("기록 삭제 훅");
+</script>
 </body>
-</html>
+  </html>
