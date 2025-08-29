@@ -1,250 +1,218 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>오늘의 회화 영단어</title>
-  <style>
-    :root{
-      --blue:#1f6ff0;
-      --blue2:#0e5de5;
-      --green:#15a36e;
-      --red:#e64545;
-      --card:#ffffff;
-      --bg:#f6f7fb;
-      --text:#0b1220;
-      --muted:#7b8194;
-      --radius:18px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Apple SD Gothic Neo,Malgun Gothic,Segoe UI Emoji,Arial,sans-serif;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>오늘의 회화 영단어</title>
+<style>
+  :root{
+    --blue:#1f6ff0; --blue2:#0e5de5; --green:#15a36e; --red:#e64545;
+    --card:#ffffff; --bg:#f6f7fb; --text:#0b1220; --muted:#7b8194; --radius:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,
+       Apple SD Gothic Neo,Malgun Gothic,Segoe UI Emoji,Arial,sans-serif}
+  /* 헤더 */
+  .appbar{position:sticky;top:0;z-index:20;padding:14px 16px 18px;
+          background:linear-gradient(90deg,var(--blue),var(--blue2));color:#fff}
+  .appbar .row{display:flex;align-items:center;justify-content:space-between}
+  .brand .sub{font-weight:800;letter-spacing:-.2px;opacity:.95}
+  .icon-btn{display:inline-flex;align-items:center;justify-content:center;
+            width:44px;height:44px;border-radius:14px;border:0;cursor:pointer;
+            color:#fff;background:rgba(255,255,255,.16);backdrop-filter:blur(6px)}
+  /* 본문 */
+  .container{padding:14px 16px 28px;max-width:860px;margin:0 auto}
+  .panel{background:var(--card);border-radius:var(--radius);padding:16px;
+         box-shadow:0 6px 24px rgba(20,32,80,.08)}
+  .datebar{display:grid;grid-template-columns:56px 1fr 56px;gap:10px;align-items:center;margin-bottom:12px}
+  .round{height:44px;border-radius:14px;border:1px solid #e7eaf3;background:#fff;cursor:pointer;font-weight:700}
+  .date-chip{width:100%;text-align:center;padding:10px 12px;border-radius:24px;background:#fff;border:1px solid #e9ecf2;
+             font-weight:800;letter-spacing:.5px;font-size:clamp(18px,3.5vw,22px);line-height:1.1;color:#1b1f2a}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .btn{padding:14px 10px;border-radius:14px;border:1px solid #e7eaf3;background:#fff;font-weight:800;cursor:pointer}
+  .btn.green{background:var(--green);border-color:var(--green);color:#fff}
+  .btn.red{background:var(--red);border-color:var(--red);color:#fff}
+  .row2{display:flex;gap:12px;margin-top:12px;align-items:center}
+  .tiny-icon{width:44px;height:44px;border-radius:12px;border:1px solid #e7eaf3;background:#fff;
+             display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;font-weight:900}
+  .section{margin-top:14px}
+  .list-area{margin-top:16px;background:#fff;border:1px solid #e7eaf3;border-radius:16px;padding:14px;color:#5c6275}
 
-    /* 헤더 */
-    .appbar{
-      position:sticky;top:0;z-index:10;
-      padding:14px 16px 18px;
-      background:linear-gradient(90deg,var(--blue),var(--blue2));
-      color:#fff; box-shadow:0 1px 0 rgba(0,0,0,.04);
-    }
-    .appbar .row{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .brand{font-weight:800;letter-spacing:-.2px}
-    .brand .sub{opacity:.85;font-weight:700}
-    .icon-btn{
-      display:inline-flex;align-items:center;justify-content:center;
-      width:44px;height:44px;border-radius:14px;border:0;background:rgba(255,255,255,.16);
-      color:#fff;cursor:pointer;backdrop-filter:blur(6px)
-    }
+  @media (min-width:760px){ .grid{grid-template-columns:repeat(4,1fr)} }
 
-    /* 상단 카드(날짜/컨트롤) */
-    .container{padding:14px 16px 28px;max-width:860px;margin:0 auto}
-    .panel{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:0 6px 24px rgba(20,32,80,.08)}
-    .datebar{display:grid;grid-template-columns:56px 1fr 56px;gap:10px;align-items:center;margin-bottom:12px}
-    .date-chip{
-      width:100%;text-align:center;padding:10px 12px;border-radius:24px;background:#fff;border:1px solid #e9ecf2;
-      font-weight:800;letter-spacing:.5px;
-      font-size:clamp(18px, 3.5vw, 22px); /* << 줄어든 날짜 크기 */
-      line-height:1.1;color:#1b1f2a
-    }
-    .round{
-      height:44px;border-radius:14px;border:1px solid #e7eaf3;background:#fff;cursor:pointer;font-weight:700
-    }
-
-    /* 버튼들 */
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .btn{padding:14px 10px;border-radius:14px;border:1px solid #e7eaf3;background:#fff;font-weight:800;cursor:pointer}
-    .btn.ghost{background:#fff}
-    .btn.green{background:var(--green);border-color:var(--green);color:#fff}
-    .btn.red{background:var(--red);border-color:var(--red);color:#fff}
-    .btn:active{transform:translateY(1px)}
-    .row2{display:flex;gap:12px;margin-top:12px}
-    .row2>.btn{flex:1}
-
-    /* ☆ 어려운 단어 : 아이콘 버튼(작게) */
-    .tiny-icon{
-      width:44px;height:44px;border-radius:12px;border:1px solid #e7eaf3;background:#fff;
-      display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;font-weight:900;
-    }
-
-    /* 속도/보이스 박스는 기존 스타일 유지 가정 */
-    .section{margin-top:14px}
-
-    /* 리스트 영역 */
-    .list-area{
-      margin-top:16px;background:#fff;border:1px solid #e7eaf3;border-radius:16px;padding:14px;
-      color:#5c6275
-    }
-
-    @media (min-width:760px){
-      .grid{grid-template-columns:repeat(4,1fr)}
-    }
-  </style>
+  /* 로그인 슬라이더(전면 고정) */
+  .sheet{position:fixed;inset:0;z-index:50;display:none}
+  .sheet.open{display:block}
+  .sheet .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.32)}
+  .sheet .panel{
+    position:absolute;top:0;right:0;height:100vh;max-width:520px;width:min(92vw,520px);
+    background:#fff;border-radius:16px 0 0 16px;padding:20px 16px 28px;
+    box-shadow:-10px 0 28px rgba(0,0,0,.18);overflow:auto}
+  .sheet .close{position:sticky;top:0;margin-left:auto;border:0;background:#f0f2f7;border-radius:12px;width:40px;height:40px;cursor:pointer}
+  .field{display:flex;flex-direction:column;gap:6px;margin:12px 0}
+  .input{height:48px;border:1px solid #e7eaf3;border-radius:12px;padding:0 12px;font-size:16px}
+  .primary{display:block;width:100%;height:48px;border-radius:12px;border:0;background:var(--blue2);color:#fff;font-weight:800;cursor:pointer}
+  .muted-link{color:var(--muted);text-decoration:none}
+</style>
 </head>
 <body>
   <!-- 헤더 -->
   <header class="appbar">
     <div class="row">
-      <div class="brand">
-        <div class="sub" style="font-size:14px;opacity:.9">오늘의 회화 영단어</div>
-      </div>
-      <div style="display:flex;gap:10px;">
-        <button class="icon-btn" id="playAllBtn" title="전체 재생" aria-label="전체 재생">▶</button>
-        <button class="icon-btn" id="moreBtn" title="메뉴" aria-label="메뉴">⋯</button>
+      <div class="brand"><div class="sub">오늘의 회화 영단어</div></div>
+      <div style="display:flex;gap:10px">
+        <button id="playAllBtn" class="icon-btn" title="전체 재생">▶</button>
+        <button id="moreBtn" class="icon-btn" title="계정">⋯</button>
       </div>
     </div>
   </header>
 
   <main class="container">
     <section class="panel">
-
-      <!-- 날짜 바 (작게) -->
+      <!-- 날짜 바 -->
       <div class="datebar">
-        <button class="round" id="prevDayBtn" aria-label="이전 날짜">◀</button>
-        <div class="date-chip" id="dateChip">YYYY-MM-DD</div>
-        <button class="round" id="nextDayBtn" aria-label="다음 날짜">▶</button>
+        <button id="prevDayBtn" class="round" aria-label="이전 날짜">◀</button>
+        <div id="dateChip" class="date-chip">YYYY-MM-DD</div>
+        <button id="nextDayBtn" class="round" aria-label="다음 날짜">▶</button>
       </div>
 
-      <!-- 컨트롤 버튼들 -->
+      <!-- 컨트롤 -->
       <div class="grid">
-        <button class="btn ghost" id="btnAllPlay">전체 재생</button>
-        <button class="btn ghost" id="btnStop">정지</button>
-
-        <!-- 오늘분 완료 → 다음 날짜로 이동 -->
-        <button class="btn green" id="btnDone">오늘분 완료</button>
-
-        <!-- 오늘의 단어 → 오늘 날짜로 이동 -->
-        <button class="btn ghost" id="btnToday">오늘의 단어</button>
+        <button id="btnAllPlay" class="btn">전체 재생</button>
+        <button id="btnStop" class="btn">정지</button>
+        <button id="btnDone" class="btn green">오늘분 완료</button>
+        <button id="btnToday" class="btn">오늘의 단어</button>
       </div>
 
-      <div class="row2" style="align-items:center">
-        <!-- ☆ 작은 버튼 -->
-        <button class="tiny-icon" id="btnHardTiny" title="어려운 단어" aria-label="어려운 단어">☆</button>
-
-        <button class="btn ghost" id="btnLog">기록</button>
-        <button class="btn red" id="btnDeleteLog">기록 삭제</button>
+      <div class="row2">
+        <button id="btnHardTiny" class="tiny-icon" title="어려운 단어">☆</button>
+        <button id="btnLog" class="btn" style="flex:1">기록</button>
+        <button id="btnDeleteLog" class="btn red" style="flex:1">기록 삭제</button>
       </div>
 
-      <!-- (예: 속도/보이스 영역 – 기존 로직 연결) -->
       <div class="section">
         <div style="font-weight:800;margin-bottom:6px">속도</div>
-        <input type="range" id="speedRange" min="0.6" max="1.4" value="1.0" step="0.1" style="width:100%">
+        <input id="speedRange" type="range" min="0.6" max="1.4" step="0.1" value="1.0" style="width:100%">
       </div>
 
       <!-- 단어 리스트 -->
-      <div class="list-area" id="listArea">여기에 단어 리스트가 렌더링됩니다…</div>
+      <div id="listArea" class="list-area">여기에 단어 리스트가 렌더링됩니다…</div>
     </section>
   </main>
 
-  <script>
-    /******** 날짜/네비게이션 유틸 ********/
-    const dateChip = document.getElementById('dateChip');
-    const btnPrev = document.getElementById('prevDayBtn');
-    const btnNext = document.getElementById('nextDayBtn');
-    const btnDone = document.getElementById('btnDone');
-    const btnToday = document.getElementById('btnToday');
+  <!-- 로그인 슬라이더 -->
+  <aside id="accountSheet" class="sheet" aria-hidden="true">
+    <div class="backdrop" id="sheetBackdrop"></div>
+    <div class="panel" role="dialog" aria-label="계정">
+      <button class="close" id="sheetClose" aria-label="닫기">✕</button>
+      <h2 style="margin:6px 4px 10px;font-size:28px">계정</h2>
 
-    // 앱 상태 날짜
-    let currentDate = new Date();
+      <!-- 간단 로그인 폼(시각용) -->
+      <div class="field">
+        <label>이메일</label>
+        <input id="email" class="input" type="email" placeholder="you@example.com"/>
+      </div>
+      <div class="field">
+        <label>비밀번호</label>
+        <input id="password" class="input" type="password" placeholder="8자리 이상"/>
+      </div>
+      <button class="primary" id="loginBtn">로그인</button>
+      <div style="margin-top:12px">
+        <a href="#" class="muted-link" id="noLogin">로그인하지 않음</a>
+      </div>
+    </div>
+  </aside>
 
-    const fmt = (d) => {
-      const y = d.getFullYear();
-      const m = String(d.getMonth()+1).padStart(2,'0');
-      const day = String(d.getDate()).padStart(2,'0');
-      return `${y}-${m}-${day}`;
-    };
+<script>
+/* ===== 날짜/포맷 ===== */
+const dateChip = document.getElementById('dateChip');
+let currentDate = new Date();
 
-    function renderDateChip(){
-      dateChip.textContent = fmt(currentDate);
-    }
+const fmt = (d) => {
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+};
+function renderDateChip(){ dateChip.textContent = fmt(currentDate); }
+function setDate(d){ currentDate = new Date(d.getFullYear(), d.getMonth(), d.getDate()); renderDateChip(); onDateChanged(fmt(currentDate)); }
+function shiftDate(days){ const d=new Date(currentDate); d.setDate(d.getDate()+days); setDate(d); }
+function goToday(){ setDate(new Date()); }
+function markDoneAndNext(){ // 완료 훅 → 다음 날
+  try{ if (typeof window.onMarkDone==='function') window.onMarkDone(fmt(currentDate)); }catch(e){}
+  shiftDate(1);
+}
 
-    // 외부(기존) 코드에서 사용하던 훅을 살려둠
-    function onDateChanged(iso){
-      // 여기서 words.json 로드/렌더 등 기존 로직을 호출
-      // 예시:
-      // loadWordsFor(iso).then(renderWords);
-      if (typeof window.loadWordsFor === 'function'){
-        window.loadWordsFor(iso).then(list=>{
-          if (typeof window.renderWords === 'function') window.renderWords(list);
-        }).catch(()=>{
-          const box = document.getElementById('listArea');
-          box.textContent = '단어를 불러오지 못했습니다.';
-        });
-      } else {
-        // 최소 표시
-        const box = document.getElementById('listArea');
-        box.innerHTML = `<div style="color:#1b1f2a;font-weight:800">예시</div>
-          <div style="margin-top:6px;color:#6b7280">(${iso}) 단어 목록 로딩 훅을 연결하세요.</div>`;
-      }
-    }
+/* ===== 단어 로딩 ===== */
+async function loadWordsFor(iso){
+  // 1) /words/YYYY-MM-DD.json
+  const byDate = `/words/${iso}.json`;
+  try{
+    const r1 = await fetch(byDate, {cache:'no-store'});
+    if (r1.ok){ return await r1.json(); }
+  }catch(e){}
+  // 2) /words.json
+  try{
+    const r2 = await fetch('/words.json', {cache:'no-store'});
+    if (r2.ok){ return await r2.json(); }
+  }catch(e){}
+  // 3) fallback demo
+  return [
+    {en:'make do with', ko:'임시방편으로 사용하다', ex:'We had to make do with what we had.'},
+    {en:'stick to', ko:'고수하다', ex:'Please stick to the plan.'},
+    {en:'get along with', ko:'잘 지내다', ex:'Do you get along with your neighbors?'}
+  ];
+}
+function renderWords(list){
+  const box = document.getElementById('listArea');
+  if (!list || !list.length){
+    box.textContent = '단어가 없습니다.';
+    return;
+  }
+  box.innerHTML = list.map((w,i)=>`
+    <div style="padding:12px 8px;border-bottom:1px solid #eef1f6">
+      <div style="font-weight:800;font-size:18px">${i+1}. ${w.en ?? w.word ?? ''}</div>
+      <div style="color:#6b7280;margin-top:4px">${w.ko ?? w.mean ?? ''}</div>
+      ${w.ex ? `<div style="margin-top:6px;color:#8891a6">예문: ${w.ex}</div>`:''}
+    </div>
+  `).join('');
+}
+async function onDateChanged(iso){
+  const box = document.getElementById('listArea');
+  box.textContent = '불러오는 중…';
+  try{
+    const words = await loadWordsFor(iso);
+    renderWords(words);
+  }catch(e){
+    box.innerHTML = `<b>예시</b><div style="margin-top:6px">(${iso}) 단어 목록 로딩 훅을 연결하세요.</div>`;
+  }
+}
 
-    function setDate(d){
-      currentDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-      renderDateChip();
-      onDateChanged(fmt(currentDate));
-    }
+/* ===== 로그인 슬라이더 ===== */
+const sheet = document.getElementById('accountSheet');
+const openSheet = ()=>{ sheet.classList.add('open'); sheet.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; };
+const closeSheet = ()=>{ sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true'); document.body.style.overflow=''; };
+document.getElementById('moreBtn').addEventListener('click', openSheet);
+document.getElementById('sheetClose').addEventListener('click', closeSheet);
+document.getElementById('sheetBackdrop').addEventListener('click', closeSheet);
 
-    function shiftDate(days){
-      const d = new Date(currentDate);
-      d.setDate(d.getDate()+days);
-      setDate(d);
-    }
+/* ===== 버튼 동작 ===== */
+document.getElementById('prevDayBtn').addEventListener('click', ()=>shiftDate(-1));
+document.getElementById('nextDayBtn').addEventListener('click', ()=>shiftDate(1));
+document.getElementById('btnDone').addEventListener('click', markDoneAndNext);
+document.getElementById('btnToday').addEventListener('click', goToday);
 
-    // 오늘 날짜로 이동
-    function goToday(){
-      setDate(new Date());
-    }
+document.getElementById('btnAllPlay').addEventListener('click', ()=>alert('전체 재생 훅에 연결하세요'));
+document.getElementById('btnStop').addEventListener('click', ()=>alert('정지 훅에 연결하세요'));
+document.getElementById('btnHardTiny').addEventListener('click', ()=>alert('어려운 단어 기능을 연결하세요'));
+document.getElementById('btnLog').addEventListener('click', ()=>alert('기록 보기 기능을 연결하세요'));
+document.getElementById('btnDeleteLog').addEventListener('click', ()=>alert('기록 삭제 기능을 연결하세요'));
 
-    // 오늘분 완료 → 다음 날로 이동
-    function markDoneAndNext(){
-      // 기존 완료 처리 훅 (예: 기록 저장)
-      if (typeof window.onMarkDone === 'function'){
-        try { window.onMarkDone(fmt(currentDate)); } catch(e){}
-      }
-      shiftDate(1);
-    }
+/* 데모 로그인 */
+document.getElementById('loginBtn').addEventListener('click', ()=>{ alert('로그인 예시 — 실제 Firebase Auth에 연결하세요.'); closeSheet(); });
+document.getElementById('noLogin').addEventListener('click', (e)=>{ e.preventDefault(); closeSheet(); });
 
-    /******** 이벤트 바인딩 ********/
-    btnPrev.addEventListener('click', ()=>shiftDate(-1));
-    btnNext.addEventListener('click', ()=>shiftDate(1));
-    btnDone.addEventListener('click', markDoneAndNext);
-    btnToday.addEventListener('click', goToday);
-
-    // 작아진 ☆ 버튼은 기존 어려운 단어 토글/페이지로 연결
-    document.getElementById('btnHardTiny').addEventListener('click', ()=>{
-      if (typeof window.openHardList === 'function') return window.openHardList();
-      alert('어려운 단어 목록 기능을 연결하세요.');
-    });
-
-    // 초기 렌더
-    goToday();
-
-    /******** 아래는 기존 함수가 없을 때 최소 동작(삭제 가능) ********/
-    // 데모용 renderWords
-    if (typeof window.renderWords !== 'function'){
-      window.renderWords = (list)=>{
-        const box = document.getElementById('listArea');
-        if (!list || !list.length){
-          box.textContent = '단어가 없습니다.';
-          return;
-        }
-        box.innerHTML = list.map((w,i)=>`
-          <div style="padding:10px 8px;border-bottom:1px solid #eef1f6">
-            <div style="font-weight:800">${i+1}. ${w.en ?? w.word ?? 'word'}</div>
-            <div style="color:#6b7280;margin-top:4px">${w.ko ?? w.mean ?? ''}</div>
-          </div>
-        `).join('');
-      };
-      // 데모용 loadWordsFor
-      window.loadWordsFor = async (iso)=>{
-        // 실제 환경에선 날짜별 words.json/Firestore에서 로딩
-        return [
-          {en:'make do with', ko:'임시방편으로 사용하다'},
-          {en:'stick to', ko:'고수하다'},
-          {en:'get along with', ko:'잘 지내다'},
-        ];
-      };
-    }
-  </script>
+/* 초기 */
+goToday();
+</script>
 </body>
 </html>
