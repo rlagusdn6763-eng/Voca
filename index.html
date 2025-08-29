@@ -45,7 +45,7 @@
   .muted{color:#6b7280}
   .play-mini{border:1px solid #e7eaf3;background:#fff;border-radius:10px;height:36px;padding:0 10px;cursor:pointer}
   .flex{display:flex;gap:10px;align-items:center;justify-content:space-between}
-  /* 로그인 슬라이더(전면 고정) */
+  /* 로그인 슬라이더 */
   .sheet{position:fixed;inset:0;z-index:50;display:none}
   .sheet.open{display:block}
   .sheet .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.32)}
@@ -174,18 +174,54 @@ let POOL_CACHE = null;
 async function loadPool(){
   if (POOL_CACHE) return POOL_CACHE;
   const pool = await tryFetchJSON([`./pool.json`,`pool.json`,`/pool.json`,`./data/pool.json`,`data/pool.json`,`/data/pool.json`]);
-  // 허용 포맷: [{en,ko,ex}] 또는 {words:[...]}
   POOL_CACHE = Array.isArray(pool) ? pool : (Array.isArray(pool.words)? pool.words : []);
   return POOL_CACHE;
 }
+
+/* 다양한 키 자동 매핑 */
+function pickVal(obj, keys){
+  for (const k of keys){
+    const v = obj?.[k];
+    if (v==null) continue;
+    if (typeof v === 'string' && v.trim()) return v.trim();
+    if (typeof v === 'number') return String(v);
+    if (typeof v === 'object'){
+      // 예: example: { en: "...", ko: "..." }
+      if (v.en && String(v.en).trim()) return String(v.en).trim();
+      if (v.english && String(v.english).trim()) return String(v.english).trim();
+    }
+  }
+  return '';
+}
+function normalizeItem(w){
+  const enKeys = ['en','word','term','phrase','phrasal','expression','eng','english','title','head','q','answer','ans','target','key','text_en','front','prompt','item','v'];
+  const koKeys = ['ko','mean','meaning','kr','kor','korean','translation','trans','gloss','def','definition','explain','desc','back','text_ko','mean_ko','kr_meaning'];
+  const exKeys = ['ex','example','sentence','sample','eg','usage','ex_en','enExample','example_en','usage_en','s','exSentence'];
+
+  let en = pickVal(w, enKeys);
+  let ko = pickVal(w, koKeys);
+
+  // 예문은 문자열/객체 모두 허용
+  let ex = '';
+  for (const k of exKeys){
+    const v = w[k];
+    if (!v) continue;
+    if (typeof v === 'string' && v.trim()){ ex = v.trim(); break; }
+    if (typeof v === 'object'){
+      if (v.en && String(v.en).trim()){ ex = String(v.en).trim(); break; }
+      if (v.english && String(v.english).trim()){ ex = String(v.english).trim(); break; }
+    }
+  }
+  // 예문 ko가 따로 있을 수도 있음 (사용은 안하지만 보존)
+  const exKo = pickVal(w, ['ex_ko','example_ko','sentence_ko','sample_ko','usage_ko','koExample','exampleKr']);
+
+  return { en, ko, ex, exKo };
+}
+
 async function loadWordsForDate(iso){
   const pool = await loadPool();
   const picked = pickNDeterministic(pool,10,hashString(iso));
-  return picked.map(w=>({
-    en: w.en ?? w.word ?? w.term ?? '',
-    ko: w.ko ?? w.mean ?? w.kr ?? w.korean ?? '',
-    ex: w.ex ?? w.example ?? w.enExample ?? w.eg ?? ''
-  }));
+  return picked.map(normalizeItem);
 }
 
 /* ========== Web Speech ========== */
@@ -236,7 +272,6 @@ function renderWords(list){
     btn.addEventListener('click', ()=>{
       const idx = Number(btn.dataset.index);
       const item = list[idx];
-      // 영어 → 한국어 → 예문(영)
       speechSynthesis.cancel();
       if (item.en) speak(item.en, selEn.value);
       if (item.ko) speak(item.ko, selKo.value);
@@ -277,7 +312,6 @@ document.getElementById('btnAllPlay').addEventListener('click', ()=>{
   const playNext=()=>{
     if(i>=cards.length) return;
     cards[i++].click();
-    // 대충 길이 감안해서 다음 예약
     setTimeout(playNext, 2200);
   };
   playNext();
@@ -286,7 +320,7 @@ document.getElementById('btnStop').addEventListener('click', ()=>speechSynthesis
 
 const mainPanel = document.getElementById('mainPanel');
 document.getElementById('btnLog').addEventListener('click', ()=>{
-  mainPanel.classList.toggle('logs-open');
+  mainPanel.classList.toggle('logs-open'); // 기록 탭일 때만 삭제 버튼 노출
 });
 document.getElementById('btnDeleteLog').addEventListener('click', ()=>alert('선택 기록 삭제 기능 연결'));
 
@@ -296,7 +330,6 @@ document.getElementById('btnStudy').addEventListener('click', ()=>{
 });
 
 /* ========== 초기화 ========== */
-function renderDateChip(){ dateChip.textContent = fmt(currentDate); }
 function init(){ goToday(); }
 init();
 </script>
