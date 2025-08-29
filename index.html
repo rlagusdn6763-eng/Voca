@@ -33,7 +33,7 @@
   .btn{padding:14px 10px;border-radius:14px;border:1px solid #e7eaf3;background:#fff;font-weight:800;cursor:pointer}
   .btn.green{background:var(--green);border-color:var(--green);color:#fff}
   .btn.red{background:var(--red);border-color:var(--red);color:#fff}
-  .row2{display:flex;gap:12px;margin-top:12px;align-items:center}
+  .row2{display:flex;gap:12px;margin-top:12px;align-items:center;flex-wrap:wrap}
   .tiny-icon{width:44px;height:44px;border-radius:12px;border:1px solid #e7eaf3;background:#fff;
              display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;font-weight:900}
   .section{margin-top:14px}
@@ -54,6 +54,10 @@
   .input{height:48px;border:1px solid #e7eaf3;border-radius:12px;padding:0 12px;font-size:16px}
   .primary{display:block;width:100%;height:48px;border-radius:12px;border:0;background:var(--blue2);color:#fff;font-weight:800;cursor:pointer}
   .muted-link{color:var(--muted);text-decoration:none}
+
+  /* 기록 삭제는 기록 탭일 때만 보임 */
+  #btnDeleteLog{display:none}
+  .logs-open #btnDeleteLog{display:inline-block}
 </style>
 </head>
 <body>
@@ -69,7 +73,7 @@
   </header>
 
   <main class="container">
-    <section class="panel">
+    <section class="panel" id="mainPanel">
       <!-- 날짜 바 -->
       <div class="datebar">
         <button id="prevDayBtn" class="round" aria-label="이전 날짜">◀</button>
@@ -89,6 +93,7 @@
         <button id="btnHardTiny" class="tiny-icon" title="어려운 단어">☆</button>
         <button id="btnLog" class="btn" style="flex:1">기록</button>
         <button id="btnDeleteLog" class="btn red" style="flex:1">기록 삭제</button>
+        <button id="btnStudy" class="btn" style="flex:1">학습하기</button>
       </div>
 
       <div class="section">
@@ -137,25 +142,33 @@ function renderDateChip(){ dateChip.textContent = fmt(currentDate); }
 function setDate(d){ currentDate = new Date(d.getFullYear(), d.getMonth(), d.getDate()); renderDateChip(); onDateChanged(fmt(currentDate)); }
 function shiftDate(days){ const d=new Date(currentDate); d.setDate(d.getDate()+days); setDate(d); }
 function goToday(){ setDate(new Date()); }
-function markDoneAndNext(){ // 완료 훅 → 다음 날
+function markDoneAndNext(){
   try{ if (typeof window.onMarkDone==='function') window.onMarkDone(fmt(currentDate)); }catch(e){}
   shiftDate(1);
 }
 
-/* ===== 단어 로딩 ===== */
+/* ===== JSON 로딩(여러 경로 시도) ===== */
+async function tryFetchJSON(paths){
+  for (const p of paths){
+    try{
+      const res = await fetch(p, {cache:'no-store'});
+      if (res.ok){
+        return await res.json();
+      }
+    }catch(e){ /* 계속 시도 */ }
+  }
+  throw new Error('모든 경로에서 로딩 실패');
+}
 async function loadWordsFor(iso){
-  // 1) /words/YYYY-MM-DD.json
-  const byDate = `/words/${iso}.json`;
-  try{
-    const r1 = await fetch(byDate, {cache:'no-store'});
-    if (r1.ok){ return await r1.json(); }
-  }catch(e){}
-  // 2) /words.json
-  try{
-    const r2 = await fetch('/words.json', {cache:'no-store'});
-    if (r2.ok){ return await r2.json(); }
-  }catch(e){}
-  // 3) fallback demo
+  const datePaths = [
+    `./words/${iso}.json`, `words/${iso}.json`, `/words/${iso}.json`
+  ];
+  for (const p of datePaths){
+    try{ return await tryFetchJSON([p]); }catch(e){}
+  }
+  const listPaths = [`./words.json`,`words.json`,`/words.json`];
+  try{ return await tryFetchJSON(listPaths); }catch(e){}
+  // fallback demo
   return [
     {en:'make do with', ko:'임시방편으로 사용하다', ex:'We had to make do with what we had.'},
     {en:'stick to', ko:'고수하다', ex:'Please stick to the plan.'},
@@ -203,16 +216,26 @@ document.getElementById('btnToday').addEventListener('click', goToday);
 
 document.getElementById('btnAllPlay').addEventListener('click', ()=>alert('전체 재생 훅에 연결하세요'));
 document.getElementById('btnStop').addEventListener('click', ()=>alert('정지 훅에 연결하세요'));
-document.getElementById('btnHardTiny').addEventListener('click', ()=>alert('어려운 단어 기능을 연결하세요'));
-document.getElementById('btnLog').addEventListener('click', ()=>alert('기록 보기 기능을 연결하세요'));
-document.getElementById('btnDeleteLog').addEventListener('click', ()=>alert('기록 삭제 기능을 연결하세요'));
 
-/* 데모 로그인 */
-document.getElementById('loginBtn').addEventListener('click', ()=>{ alert('로그인 예시 — 실제 Firebase Auth에 연결하세요.'); closeSheet(); });
-document.getElementById('noLogin').addEventListener('click', (e)=>{ e.preventDefault(); closeSheet(); });
+const mainPanel = document.getElementById('mainPanel');
+document.getElementById('btnLog').addEventListener('click', ()=>{
+  // 기록 탭 토글 (연결만)
+  mainPanel.classList.toggle('logs-open');
+  if (mainPanel.classList.contains('logs-open')){
+    alert('기록 탭 열림 (여기에 기록 리스트를 렌더링하세요)');
+  }
+});
+document.getElementById('btnDeleteLog').addEventListener('click', ()=>alert('선택 기록 삭제 기능을 연결하세요'));
+
+/* 학습하기: study.html로 이동 */
+document.getElementById('btnStudy').addEventListener('click', ()=>{
+  const iso = fmt(currentDate);
+  location.href = `study.html?date=${encodeURIComponent(iso)}`;
+});
 
 /* 초기 */
-goToday();
+function init(){ goToday(); }
+init();
 </script>
 </body>
 </html>
