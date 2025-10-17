@@ -5,6 +5,11 @@
     "example": "They set up the equipment."
   },
   {
+    "phrase": "look after",
+    "meaning": "돌보다",
+    "example": "She looks after her brother."
+  },
+  {
     "phrase": "hang out",
     "meaning": "어울리다, 놀다",
     "example": "We hung out at the mall."
@@ -15,9 +20,9 @@
     "example": "I work out three times a week."
   },
   {
-    "phrase": "turn out",
-    "meaning": "…로 드러나다, 끝나다",
-    "example": "It turned out to be true."
+    "phrase": "run into",
+    "meaning": "우연히 만나다",
+    "example": "I ran into an old friend."
   },
   {
     "phrase": "pass away",
@@ -30,19 +35,14 @@
     "example": "I can’t figure out this problem."
   },
   {
-    "phrase": "look after",
-    "meaning": "돌보다",
-    "example": "She looks after her brother."
-  },
-  {
-    "phrase": "run into",
-    "meaning": "우연히 만나다",
-    "example": "I ran into an old friend."
-  },
-  {
     "phrase": "show up",
     "meaning": "나타나다",
     "example": "He didn’t show up on time."
+  },
+  {
+    "phrase": "turn out",
+    "meaning": "…로 드러나다, 끝나다",
+    "example": "It turned out to be true."
   },
   {
     "phrase": "put off",
