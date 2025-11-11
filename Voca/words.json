@@ -1,13 +1,8 @@
 [
   {
-    "phrase": "put off",
-    "meaning": "미루다",
-    "example": "Let’s put off the meeting."
-  },
-  {
-    "phrase": "pass away",
-    "meaning": "돌아가시다",
-    "example": "Her grandfather passed away last year."
+    "phrase": "figure out",
+    "meaning": "이해하다, 알아내다",
+    "example": "I can’t figure out this problem."
   },
   {
     "phrase": "show up",
@@ -25,14 +20,19 @@
     "example": "I ran into an old friend."
   },
   {
-    "phrase": "work out",
-    "meaning": "운동하다; 해결하다",
-    "example": "I work out three times a week."
+    "phrase": "put off",
+    "meaning": "미루다",
+    "example": "Let’s put off the meeting."
   },
   {
     "phrase": "look after",
     "meaning": "돌보다",
     "example": "She looks after her brother."
+  },
+  {
+    "phrase": "work out",
+    "meaning": "운동하다; 해결하다",
+    "example": "I work out three times a week."
   },
   {
     "phrase": "hang out",
@@ -45,8 +45,8 @@
     "example": "They set up the equipment."
   },
   {
-    "phrase": "figure out",
-    "meaning": "이해하다, 알아내다",
-    "example": "I can’t figure out this problem."
+    "phrase": "pass away",
+    "meaning": "돌아가시다",
+    "example": "Her grandfather passed away last year."
   }
 ]
