@@ -5,19 +5,14 @@
     "example": "I work out three times a week."
   },
   {
-    "phrase": "hang out",
-    "meaning": "어울리다, 놀다",
-    "example": "We hung out at the mall."
+    "phrase": "pass away",
+    "meaning": "돌아가시다",
+    "example": "Her grandfather passed away last year."
   },
   {
-    "phrase": "figure out",
-    "meaning": "이해하다, 알아내다",
-    "example": "I can’t figure out this problem."
-  },
-  {
-    "phrase": "look after",
-    "meaning": "돌보다",
-    "example": "She looks after her brother."
+    "phrase": "set up",
+    "meaning": "설정하다, 준비하다",
+    "example": "They set up the equipment."
   },
   {
     "phrase": "turn out",
@@ -25,9 +20,19 @@
     "example": "It turned out to be true."
   },
   {
-    "phrase": "pass away",
-    "meaning": "돌아가시다",
-    "example": "Her grandfather passed away last year."
+    "phrase": "run into",
+    "meaning": "우연히 만나다",
+    "example": "I ran into an old friend."
+  },
+  {
+    "phrase": "hang out",
+    "meaning": "어울리다, 놀다",
+    "example": "We hung out at the mall."
+  },
+  {
+    "phrase": "look after",
+    "meaning": "돌보다",
+    "example": "She looks after her brother."
   },
   {
     "phrase": "put off",
@@ -35,14 +40,9 @@
     "example": "Let’s put off the meeting."
   },
   {
-    "phrase": "run into",
-    "meaning": "우연히 만나다",
-    "example": "I ran into an old friend."
-  },
-  {
-    "phrase": "set up",
-    "meaning": "설정하다, 준비하다",
-    "example": "They set up the equipment."
+    "phrase": "figure out",
+    "meaning": "이해하다, 알아내다",
+    "example": "I can’t figure out this problem."
   },
   {
     "phrase": "show up",
