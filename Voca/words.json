@@ -1,13 +1,8 @@
 [
   {
-    "phrase": "put off",
-    "meaning": "미루다",
-    "example": "Let’s put off the meeting."
-  },
-  {
-    "phrase": "work out",
-    "meaning": "운동하다; 해결하다",
-    "example": "I work out three times a week."
+    "phrase": "pass away",
+    "meaning": "돌아가시다",
+    "example": "Her grandfather passed away last year."
   },
   {
     "phrase": "set up",
@@ -15,9 +10,9 @@
     "example": "They set up the equipment."
   },
   {
-    "phrase": "figure out",
-    "meaning": "이해하다, 알아내다",
-    "example": "I can’t figure out this problem."
+    "phrase": "turn out",
+    "meaning": "…로 드러나다, 끝나다",
+    "example": "It turned out to be true."
   },
   {
     "phrase": "look after",
@@ -25,28 +20,33 @@
     "example": "She looks after her brother."
   },
   {
+    "phrase": "put off",
+    "meaning": "미루다",
+    "example": "Let’s put off the meeting."
+  },
+  {
     "phrase": "hang out",
     "meaning": "어울리다, 놀다",
     "example": "We hung out at the mall."
   },
   {
-    "phrase": "pass away",
-    "meaning": "돌아가시다",
-    "example": "Her grandfather passed away last year."
+    "phrase": "work out",
+    "meaning": "운동하다; 해결하다",
+    "example": "I work out three times a week."
   },
   {
-    "phrase": "turn out",
-    "meaning": "…로 드러나다, 끝나다",
-    "example": "It turned out to be true."
-  },
-  {
-    "phrase": "run into",
-    "meaning": "우연히 만나다",
-    "example": "I ran into an old friend."
+    "phrase": "figure out",
+    "meaning": "이해하다, 알아내다",
+    "example": "I can’t figure out this problem."
   },
   {
     "phrase": "show up",
     "meaning": "나타나다",
     "example": "He didn’t show up on time."
+  },
+  {
+    "phrase": "run into",
+    "meaning": "우연히 만나다",
+    "example": "I ran into an old friend."
   }
 ]
