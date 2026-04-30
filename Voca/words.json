@@ -1,8 +1,18 @@
 [
   {
+    "phrase": "put off",
+    "meaning": "미루다",
+    "example": "Let’s put off the meeting."
+  },
+  {
     "phrase": "turn out",
     "meaning": "…로 드러나다, 끝나다",
     "example": "It turned out to be true."
+  },
+  {
+    "phrase": "show up",
+    "meaning": "나타나다",
+    "example": "He didn’t show up on time."
   },
   {
     "phrase": "set up",
@@ -10,14 +20,9 @@
     "example": "They set up the equipment."
   },
   {
-    "phrase": "look after",
-    "meaning": "돌보다",
-    "example": "She looks after her brother."
-  },
-  {
-    "phrase": "hang out",
-    "meaning": "어울리다, 놀다",
-    "example": "We hung out at the mall."
+    "phrase": "work out",
+    "meaning": "운동하다; 해결하다",
+    "example": "I work out three times a week."
   },
   {
     "phrase": "run into",
@@ -30,9 +35,9 @@
     "example": "I can’t figure out this problem."
   },
   {
-    "phrase": "show up",
-    "meaning": "나타나다",
-    "example": "He didn’t show up on time."
+    "phrase": "hang out",
+    "meaning": "어울리다, 놀다",
+    "example": "We hung out at the mall."
   },
   {
     "phrase": "pass away",
@@ -40,13 +45,8 @@
     "example": "Her grandfather passed away last year."
   },
   {
-    "phrase": "work out",
-    "meaning": "운동하다; 해결하다",
-    "example": "I work out three times a week."
-  },
-  {
-    "phrase": "put off",
-    "meaning": "미루다",
-    "example": "Let’s put off the meeting."
+    "phrase": "look after",
+    "meaning": "돌보다",
+    "example": "She looks after her brother."
   }
 ]
