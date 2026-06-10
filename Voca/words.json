@@ -1,13 +1,23 @@
 [
   {
-    "phrase": "figure out",
-    "meaning": "이해하다, 알아내다",
-    "example": "I can’t figure out this problem."
+    "phrase": "show up",
+    "meaning": "나타나다",
+    "example": "He didn’t show up on time."
+  },
+  {
+    "phrase": "turn out",
+    "meaning": "…로 드러나다, 끝나다",
+    "example": "It turned out to be true."
   },
   {
     "phrase": "work out",
     "meaning": "운동하다; 해결하다",
     "example": "I work out three times a week."
+  },
+  {
+    "phrase": "pass away",
+    "meaning": "돌아가시다",
+    "example": "Her grandfather passed away last year."
   },
   {
     "phrase": "look after",
@@ -25,16 +35,6 @@
     "example": "I ran into an old friend."
   },
   {
-    "phrase": "pass away",
-    "meaning": "돌아가시다",
-    "example": "Her grandfather passed away last year."
-  },
-  {
-    "phrase": "show up",
-    "meaning": "나타나다",
-    "example": "He didn’t show up on time."
-  },
-  {
     "phrase": "hang out",
     "meaning": "어울리다, 놀다",
     "example": "We hung out at the mall."
@@ -45,8 +45,8 @@
     "example": "They set up the equipment."
   },
   {
-    "phrase": "turn out",
-    "meaning": "…로 드러나다, 끝나다",
-    "example": "It turned out to be true."
+    "phrase": "figure out",
+    "meaning": "이해하다, 알아내다",
+    "example": "I can’t figure out this problem."
   }
 ]
